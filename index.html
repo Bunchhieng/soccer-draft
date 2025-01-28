@@ -2424,7 +2424,7 @@
             position: fixed;
             bottom: 20px;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translateX(-50%); /* Center horizontally */
             background: rgba(0, 0, 0, 0.9);
             color: white;
             padding: 12px 24px;
@@ -2436,8 +2436,8 @@
             box-shadow: 0 4px 25px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
-            gap: 8px;
-            opacity: 0;
+            justify-content: center; /* Center text horizontally */
+            opacity: 0; /* Start hidden for animation */
             animation: slideInOut 2.5s ease-in-out forwards;
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
