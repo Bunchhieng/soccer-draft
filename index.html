@@ -319,6 +319,10 @@
             align-items: center;
             gap: 8px;
             margin: 10px 0;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #eee;
         }
 
         .checkbox-wrapper input[type="checkbox"] {
@@ -737,6 +741,17 @@
             font-size: 0.9rem;
         }
 
+        .footer .heart {
+            color: #e53e3e;
+            display: inline-block;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
         .footer span {
             display: inline-flex;
             align-items: center;
@@ -780,11 +795,203 @@
         .team-player-item span {
             flex: 1;
         }
+
+        .quick-start {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin: 0 auto 20px;
+            max-width: 600px;
+        }
+
+        .instruction-step {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .step-number {
+            background: #4CAF50;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .step-content {
+            font-size: 0.95rem;
+            color: #444;
+        }
+
+        .draft-types {
+            margin: 0 0 10px 0;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            padding: 0 36px;
+        }
+
+        .draft-type {
+            font-size: 0.85rem;
+            color: #666;
+            background: #f5f5f5;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        .team-setup h3 {
+            text-align: center;
+            margin-bottom: 16px;
+            color: #333;
+            font-size: 1.2rem;
+        }
+
+        .team-setup h3::after {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 2px;
+            background: #4CAF50;
+            margin: 8px auto 0;
+            border-radius: 2px;
+        }
+
+        .current-pick {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            max-width: 600px;
+            margin: 20px auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .current-pick::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, #4CAF50, #45a049);
+        }
+
+        .pick-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .pick-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: #f8f9fa;
+            padding: 12px 24px;
+            border-radius: 100px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .turn-number {
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 8px 16px;
+            border-radius: 100px;
+            color: white;
+            min-width: 100px;
+            text-align: center;
+            background: #4CAF50;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+        }
+
+        .team-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .turn-team-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .app-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .app-title .icon {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .app-title .text {
+            background: linear-gradient(135deg, #2d3748, #1a202c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+        }
+
+        .app-title .text::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, #4CAF50, transparent);
+        }
     </style>
 </head>
 <body>
     <div class="controls">
-        <h2>⚽ Soccer Draft Manager</h2>
+        <div class="app-header">
+            <h2 class="app-title">
+                <span class="icon">⚽</span>
+                <span class="text">Soccer Draft Manager</span>
+            </h2>
+        </div>
         
         <div id="currentTurn" class="current-turn-display"></div>
         
@@ -823,6 +1030,7 @@
                     <div class="button-group">
                         <button class="primary-button" onclick="DraftManager.startDraft()">Start Draft</button>
                         <button class="danger-button" onclick="DraftManager.reset()">Reset All</button>
+                        <button class="secondary-button" onclick="DraftManager.loadTestData()">Load Test Data</button>
                     </div>
                 </div>
             </div>
@@ -904,9 +1112,9 @@
         </div>
     </div>
 
-    <div class="footer">
-        <span>Built with ❤️ by Lowell Warriors FC</span>
-    </div>
+    <footer class="footer">
+        Built with <span class="heart">❤️</span> by Lowell Warriors FC © <span id="currentYear"></span>
+    </footer>
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script>
@@ -986,6 +1194,14 @@ const DraftManager = (() => {
         return luminance > 0.7 ? '#000000' : '#ffffff';
     }
 
+    function getContrastTextColor(hexcolor) {
+        // If it's white or very light, return a dark color
+        if (hexcolor === '#ffffff' || getContrastColor(hexcolor) === '#000000') {
+            return '#333333';
+        }
+        return '#ffffff';  // Otherwise return white
+    }
+
     function render() {
         const draftInterface = document.getElementById('draftInterface');
         const available = state.players.filter(p => !p.teamId);
@@ -1025,28 +1241,54 @@ const DraftManager = (() => {
             document.getElementById('teamsList').style.display = 'none';
         }
 
-        // Update turn display
-        const currentTeam = state.draftOrder[state.currentTurn % state.draftOrder.length];
-        let turnDisplay;
-        
-        if (!state.players.length) {
-            turnDisplay = `
-                <div style="color: #666;">
-                    <p>👋 Welcome! Let's get started:</p>
-                    <p style="font-size: 0.9rem;">1. Add teams with their colors and captains</p>
-                    <p style="font-size: 0.9rem;">2. Enter player names in the list</p>
-                    <p style="font-size: 0.9rem;">3. Click "Start Draft" to begin</p>
+        // Create base content with instructions
+        let displayContent = `
+            <div class="quick-start">
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">Add teams with captains</div>
                 </div>
-            `;
-        } else if (isDraftComplete) {
-            turnDisplay = '<span>🎉 Draft Complete! 🎉</span>';
-        } else {
-            turnDisplay = `<div>
-                ${currentTeam ? `<span class="turn-team-color" style="background: ${currentTeam.color}"></span>` : ''}
-                <span>Current Pick: ${state.currentTurn + 1} ${currentTeam ? `- ${currentTeam.name}` : ''}</span>
-            </div>`;
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">Add players (comma separated)</div>
+                </div>
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">Pick draft type</div>
+                </div>
+                <div class="draft-types">
+                    <div class="draft-type">Normal: A→B→C, A→B→C</div>
+                    <div class="draft-type">Snake: A→B→C, C→B→A</div>
+                </div>
+                <div class="instruction-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">Start Draft and choose order</div>
+                </div>
+            </div>
+        `;
+
+        // Add current pick display if applicable
+        if (state.teams.length > 0 && state.players.length > 0) {
+            if (isDraftComplete) {
+                displayContent += `<div class="current-pick">🎉 Draft Complete! 🎉</div>`;
+            } else if (state.draftOrder.length > 0) {
+                const currentTeam = state.draftOrder[state.currentTurn % state.draftOrder.length];
+                displayContent += `
+                    <div class="current-pick">
+                        <div class="pick-title">Current Pick</div>
+                        <div class="pick-info">
+                            <span class="turn-number">Pick #${state.currentTurn + 1}</span>
+                            <div class="team-indicator">
+                                <span class="turn-team-color" style="background: ${currentTeam.color}"></span>
+                                ${currentTeam.name}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
         }
-        document.getElementById('currentTurn').innerHTML = turnDisplay;
+
+        document.getElementById('currentTurn').innerHTML = displayContent;
 
         // Hide draft interface until order is confirmed
         if (state.isSettingOrder) {
@@ -1232,6 +1474,7 @@ const DraftManager = (() => {
                 document.getElementById('snakeDraft').checked = false;
                 document.getElementById('draftOrderSection').style.display = 'none';
                 document.querySelector('.draft-controls').style.display = 'block';
+                document.getElementById('currentTurn').style.display = 'block'; // Make sure this is visible
                 render();
             }
         },
@@ -1414,6 +1657,69 @@ const DraftManager = (() => {
                 opt.classList.remove('selected');
             });
             document.getElementById(targetId).value = value;
+        },
+
+        loadTestData() {
+            // Reset current state
+            this.reset();
+
+            // Sample names for random selection
+            const names = [
+                "James", "John", "Robert", "Michael", "William", "David", "Richard", "Joseph",
+                "Thomas", "Charles", "Daniel", "Matthew", "Anthony", "Donald", "Mark", "Paul",
+                "Steven", "Andrew", "Kenneth", "George", "Joshua", "Kevin", "Brian", "Edward",
+                "Ronald", "Timothy", "Jason", "Jeffrey", "Ryan", "Jacob", "Gary", "Nicholas",
+                "Eric", "Stephen", "Jonathan", "Larry", "Justin", "Scott", "Brandon", "Frank"
+            ];
+
+            // Shuffle array for random selection
+            const shuffleArray = arr => {
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+                return arr;
+            };
+
+            // Create 4 teams with predefined colors
+            const teamConfigs = [
+                { name: "Blue Team", color: "#3182ce" },
+                { name: "Red Team", color: "#e53e3e" },
+                { name: "Green Team", color: "#38a169" },
+                { name: "White Team", color: "#ffffff" }
+            ];
+
+            // Shuffle names for random assignment
+            const shuffledNames = shuffleArray([...names]);
+            let nameIndex = 0;
+
+            // Create teams
+            teamConfigs.forEach(config => {
+                state.teams.push({
+                    id: crypto.randomUUID(),
+                    name: config.name,
+                    color: config.color,
+                    captain: shuffledNames[nameIndex++],
+                    players: []
+                });
+            });
+
+            // Create 28 more players (7 per team)
+            const playerNames = shuffledNames.slice(4, 32); // Skip first 4 names (used for captains)
+            state.players = playerNames.map(name => ({
+                id: crypto.randomUUID(),
+                name: name,
+                teamId: null
+            }));
+
+            // Update the players textarea
+            document.getElementById('players').value = playerNames.join(', ');
+            
+            save();
+            render();
+            
+            // Alert user that test data is loaded
+            alert('Test data loaded! Click Start Draft to begin.');
         }
     };
 })();
@@ -1427,6 +1733,8 @@ if ('serviceWorker' in navigator) {
             .catch(err => console.log('ServiceWorker registration failed:', err));
     });
 }
+
+document.getElementById('currentYear').textContent = new Date().getFullYear();
     </script>
 </body>
 </html>
