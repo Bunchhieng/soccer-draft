@@ -1,4 +1,4 @@
-const CACHE_NAME = 'soccer-draft-manager-v1';
+const CACHE_NAME = 'soccer-pickup-draft-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

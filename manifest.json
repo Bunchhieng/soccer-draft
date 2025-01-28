@@ -1,8 +1,8 @@
 {
-  "name": "Soccer Draft Manager",
-  "short_name": "Draft Manager",
+  "name": "Soccer Pickup Draft",
+  "short_name": "Pickup Draft",
   "description": "A simple tool for managing soccer team drafts",
-  "start_url": ".",
+  "start_url": "https://bunchhieng.github.io/soccer-draft/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4CAF50",
@@ -55,6 +55,21 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-192x192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-512x512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
-  ]
-} 
+  ],
+  "id": "https://bunchhieng.github.io/soccer-draft/",
+  "dir": "auto",
+  "lang": "en"
+}

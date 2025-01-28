@@ -1,4 +1,4 @@
-# Soccer Draft Manager
+# Soccer Pickup Draft
 
 A simple web-based tool for managing soccer team drafts. Built with vanilla JavaScript and modern CSS.
 
