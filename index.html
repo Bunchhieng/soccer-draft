@@ -758,7 +758,7 @@
                 margin-bottom: 12px;
                 padding-bottom: 10px;
             }
-            }
+        }
 
         /* Add smooth scrolling for mobile */
         @media (hover: none) and (pointer: coarse) {
@@ -1668,7 +1668,7 @@
         }
 
         .team-col {
-                min-width: unset;
+                min-width: 290px;
                 width: 100%;
                 margin: 0;
         }
@@ -1832,13 +1832,24 @@
         }
 
         /* Update current pick indicator styling */
+        @keyframes pulse {
+            0% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.02); }
+            100% { transform: translateX(-50%) scale(1); }
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+            50% { box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+            100% { box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        }
+
         .current-pick-indicator {
             position: fixed;
             top: 0;
             left: 50%;
             transform: translateX(-50%);
             background: var(--team-color, #4CAF50);
-            color: white;
             padding: 12px 24px;
             border-radius: 0 0 12px 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
@@ -1848,11 +1859,70 @@
             justify-content: center;
             gap: 12px;
             font-size: 1rem;
-            animation: slideDown 0.3s ease, pulse 2s ease-in-out infinite;
             min-width: 300px;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(0,0,0,0.1);
             border-top: none;
             text-align: center;
+            padding-right: 40px; /* Make room for the close button */
+            animation: pulse 2s infinite ease-in-out, glow 2s infinite ease-in-out;
+        }
+
+        .pick-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(0,0,0,0.15);
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+            backdrop-filter: blur(4px);
+        }
+
+        .pick-number {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .pick-team {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .team-details .team-name {
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .stop-draft-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.15);
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0;
+            line-height: 1;
+            backdrop-filter: blur(4px);
+            color: inherit;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .stop-draft-btn:hover {
+            background: rgba(0,0,0,0.25);
+            transform: translateY(-50%) scale(1.1);
         }
 
         .team-color {
@@ -2399,18 +2469,23 @@
                 const availableDiv = document.getElementById('availablePlayers');
                 if (available.length > 0) {
                     const currentTeam = state.draftOrder[state.currentTurn % state.draftOrder.length];
+                    const textColor = getContrastColor(currentTeam.color);
                     availableDiv.innerHTML = `
                         <div class="available-players-section">
-                            <div class="current-pick-indicator" style="--team-color: ${currentTeam.color};">
+                            <div class="current-pick-indicator" style="--team-color: ${currentTeam.color}; color: ${textColor}">
                                 <div class="pick-info">
-                                    <div class="pick-number" style="color: #333333;">⚽ Pick #${state.currentTurn + 1} -</div>
+                                    <div class="pick-number">
+                                        <span>🎯</span>
+                                        <span>Pick #${state.currentTurn + 1}</span>
+                                    </div>
                                     <div class="pick-team">
                                         <div class="team-color" style="background-color: ${currentTeam.color}"></div>
                                         <div class="team-details">
-                                            <div class="team-name" style="color: #333333;">${currentTeam.name}</div>
+                                            <div class="team-name">${currentTeam.name}'s Turn</div>
                                         </div>
                                     </div>
                                 </div>
+                                <button class="stop-draft-btn" onclick="DraftManager.stopDraft()" title="Stop Draft">×</button>
                             </div>
                             <div class="available-players-header">
                                 <div class="header-left">
@@ -2550,8 +2625,8 @@
                     draftOrder: savedState.draftOrder || [],
                     editingTeam: null,
                     isSettingOrder: savedState.isSettingOrder || false
-            };
-            
+                };
+
                 // Restore UI state
                 if (state.players.length > 0) {
                     document.getElementById('players').value = state.players
@@ -2559,7 +2634,7 @@
                         .map(p => p.name)
                         .join(', ');
             }
-
+            
             // Restore snake draft checkbox
             document.getElementById('snakeDraft').checked = state.snakeDraft;
 
@@ -2583,7 +2658,7 @@
                         </div>
                     </div>
                 `).join('');
-
+            
                 // Add drag and drop functionality
                 const items = draftOrderList.querySelectorAll('.draft-order-item');
                 items.forEach(item => {
@@ -2591,12 +2666,57 @@
                     item.addEventListener('dragover', handleDragOver);
                     item.addEventListener('drop', handleDrop);
                     item.addEventListener('dragend', handleDragEnd);
-                });
+            });
             }
         }
-        render();
-    },
-        
+            render();
+        },
+
+        stopDraft() {
+            // Reset state completely
+            state = { 
+                teams: [], 
+                players: [], 
+                snakeDraft: false, 
+                currentTurn: 0,
+                draftOrder: [],
+                editingTeam: null,
+                isSettingOrder: false
+            };
+
+            // Reset all form inputs
+            document.getElementById('players').value = '';
+            document.getElementById('teamName').value = '';
+            document.getElementById('captain').value = '';
+            document.getElementById('snakeDraft').checked = false;
+            document.getElementById('teamColor').value = '#ffffff';
+            
+            // Clear color selections
+            document.querySelectorAll('.color-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+
+            // Reset UI sections
+            document.getElementById('draftOrderSection').style.display = 'none';
+            document.getElementById('draftInterface').style.display = 'none';
+            document.getElementById('teamsList').style.display = 'none';
+            document.getElementById('availablePlayers').innerHTML = '';
+            document.getElementById('draftOrderList').innerHTML = '';
+            
+            // Show setup sections again
+            document.querySelectorAll('.team-setup > div').forEach(div => {
+                div.style.display = 'block';
+            });
+            
+            document.querySelector('.draft-controls').style.display = 'block';
+            document.getElementById('currentTurn').style.display = 'block';
+            
+            // Clear localStorage
+            localStorage.removeItem(KEY);
+            
+            render();
+        },
+
         addTeam() {
             const team = {
                 id: crypto.randomUUID(),
@@ -2846,22 +2966,67 @@
         const teamsList = document.getElementById('teamsList');
         const teamsGrid = teamsList.querySelector('.teams-grid');
         
+        // First ensure the element is fully visible
+        teamsGrid.style.maxWidth = 'none';
+        teamsGrid.style.width = 'auto';
+        
+        // Configure html2canvas for better mobile support
         html2canvas(teamsGrid, {
             backgroundColor: '#ffffff',
-            scale: 2, // Higher quality
+            scale: window.devicePixelRatio || 2, // Use device pixel ratio for better quality
+            useCORS: true, // Enable CORS for images
+            allowTaint: true,
+            scrollX: 0,
+            scrollY: 0,
             windowWidth: document.documentElement.offsetWidth,
             windowHeight: document.documentElement.offsetHeight,
-            logging: false,
             onclone: (clonedDoc) => {
                 const clonedElement = clonedDoc.querySelector('.teams-grid');
                 clonedElement.style.padding = '20px';
                 clonedElement.style.background = '#ffffff';
+                clonedElement.style.maxWidth = 'none';
+                clonedElement.style.width = 'auto';
+                
+                // Ensure all team columns are visible
+                const teamCols = clonedElement.querySelectorAll('.team-col');
+                teamCols.forEach(col => {
+                    col.style.minWidth = 'unset';
+                    col.style.width = '100%';
+                    col.style.maxWidth = 'none';
+                });
             }
         }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'soccer-draft-teams.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+            // For mobile devices, try to use the share API if available
+            if (navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], 'soccer-draft-teams.png', { type: 'image/png' });
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: 'Soccer Draft Teams',
+                        });
+                    } catch (err) {
+                        // Fallback to direct download if share fails
+                        const link = document.createElement('a');
+                        link.download = 'soccer-draft-teams.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    }
+                });
+            } else {
+                // Desktop behavior
+                const link = document.createElement('a');
+                link.download = 'soccer-draft-teams.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }
+        }).catch(err => {
+            console.error('Screenshot failed:', err);
+            alert('Failed to save image. Please try again.');
+        }).finally(() => {
+            // Reset the styles
+            teamsGrid.style.maxWidth = '';
+            teamsGrid.style.width = '';
         });
         },
 
