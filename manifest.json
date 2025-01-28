@@ -118,7 +118,10 @@
       "type": "image/png"
     }
   ],
-  "categories": ["sports", "utilities"],
+  "categories": [
+    "sports",
+    "utilities"
+  ],
   "iarc_rating_id": "e10+",
   "prefer_related_applications": false,
   "related_applications": [],

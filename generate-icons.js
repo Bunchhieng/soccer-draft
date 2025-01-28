@@ -7,7 +7,7 @@ const iconDirectory = path.join(__dirname, 'icons');
 
 // Create icons directory if it doesn't exist
 if (!fs.existsSync(iconDirectory)) {
-    fs.mkdirSync(iconDirectory);
+  fs.mkdirSync(iconDirectory);
 }
 
 // Base SVG icon - a simple soccer ball design
@@ -26,25 +26,25 @@ fs.writeFileSync(path.join(iconDirectory, 'icon.svg'), svgIcon);
 
 // Generate PNG icons for all sizes
 Promise.all(
-    sizes.map(size => {
-        // Generate 'any' icons
-        const anyPromise = sharp(path.join(iconDirectory, 'icon.svg'))
-            .resize(size, size)
-            .png()
-            .toFile(path.join(iconDirectory, `icon-${size}x${size}.png`));
+  sizes.map(size => {
+    // Generate 'any' icons
+    const anyPromise = sharp(path.join(iconDirectory, 'icon.svg'))
+      .resize(size, size)
+      .png()
+      .toFile(path.join(iconDirectory, `icon-${size}x${size}.png`));
 
-        // Generate 'maskable' icons
-        const maskablePromise = sharp(path.join(iconDirectory, 'icon.svg'))
-            .resize(size, size)
-            .png()
-            .toFile(path.join(iconDirectory, `icon-${size}x${size}-maskable.png`));
+    // Generate 'maskable' icons
+    const maskablePromise = sharp(path.join(iconDirectory, 'icon.svg'))
+      .resize(size, size)
+      .png()
+      .toFile(path.join(iconDirectory, `icon-${size}x${size}-maskable.png`));
 
-        return Promise.all([anyPromise, maskablePromise]);
-    })
+    return Promise.all([anyPromise, maskablePromise]);
+  })
 )
-.then(() => {
+  .then(() => {
     console.log('Icons generated successfully!');
-})
-.catch(err => {
+  })
+  .catch(err => {
     console.error('Error generating icons:', err);
-}); 
+  });
