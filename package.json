@@ -1,0 +1,19 @@
+{
+  "name": "soccer-draft-manager",
+  "version": "1.0.0",
+  "description": "A simple tool for managing soccer team drafts",
+  "main": "index.html",
+  "scripts": {
+    "generate-icons": "node generate-icons.js",
+    "start": "serve .",
+    "build": "npm run generate-icons"
+  },
+  "dependencies": {
+    "serve": "^14.2.1"
+  },
+  "devDependencies": {
+    "sharp": "^0.33.2"
+  },
+  "author": "Lowell Warriors FC",
+  "license": "MIT"
+} 
