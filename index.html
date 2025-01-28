@@ -271,6 +271,17 @@
             position: relative;
         }
 
+        .color-option[data-color="#ffffff"] {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            background-image: linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+                linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+                linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+            background-size: 10px 10px;
+            background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+        }
+
         .color-option:hover {
             transform: scale(1.1);
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
@@ -802,13 +813,13 @@
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin: 0 auto 20px;
-            max-width: 600px;
+            max-width: 400px;
         }
 
         .instruction-step {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             gap: 12px;
             padding: 10px 0;
             border-bottom: 1px solid #eee;
@@ -835,9 +846,10 @@
         .draft-types {
             margin: 0 0 10px 0;
             display: flex;
-            justify-content: center;
+            justify-content: flex-start;
             gap: 12px;
             padding: 0 36px;
+            margin-top: 20px;
         }
 
         .draft-type {
@@ -982,6 +994,66 @@
             height: 2px;
             background: linear-gradient(to right, #4CAF50, transparent);
         }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1050;
+        }
+
+        .custom-alert {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 1100;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .custom-alert-content {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .custom-alert-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .custom-alert-buttons button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            min-width: 100px;
+            font-weight: 500;
+        }
+
+        .custom-alert-confirm {
+            background: #f44336;
+            color: white;
+        }
+
+        .custom-alert-cancel {
+            background: #666;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -1001,14 +1073,10 @@
                 <input type="text" id="teamName" placeholder="Team name">
                 <div class="color-input-group">
                     <div class="color-options">
-                        <div class="color-option" style="background: #e53e3e" data-color="#e53e3e" onclick="DraftManager.selectColor(this, 'teamColor')" title="Red"></div>
+                        <div class="color-option" style="background: #ffffff" data-color="#ffffff" onclick="DraftManager.selectColor(this, 'teamColor')" title="White"></div>
                         <div class="color-option" style="background: #3182ce" data-color="#3182ce" onclick="DraftManager.selectColor(this, 'teamColor')" title="Blue"></div>
+                        <div class="color-option" style="background: #e53e3e" data-color="#e53e3e" onclick="DraftManager.selectColor(this, 'teamColor')" title="Red"></div>
                         <div class="color-option" style="background: #38a169" data-color="#38a169" onclick="DraftManager.selectColor(this, 'teamColor')" title="Green"></div>
-                        <div class="color-option" style="background: #805ad5" data-color="#805ad5" onclick="DraftManager.selectColor(this, 'teamColor')" title="Purple"></div>
-                        <div class="color-option" style="background: #d69e2e" data-color="#d69e2e" onclick="DraftManager.selectColor(this, 'teamColor')" title="Yellow"></div>
-                        <div class="color-option" style="background: #dd6b20" data-color="#dd6b20" onclick="DraftManager.selectColor(this, 'teamColor')" title="Orange"></div>
-                        <div class="color-option" style="background: #319795" data-color="#319795" onclick="DraftManager.selectColor(this, 'teamColor')" title="Teal"></div>
-                        <div class="color-option" style="background: #2c5282" data-color="#2c5282" onclick="DraftManager.selectColor(this, 'teamColor')" title="Navy"></div>
                         <div class="custom-color">
                             <span>🎨 More Colors</span>
                             <input type="color" id="teamColor" class="color-picker" onchange="DraftManager.updateCustomColor(this.value, 'teamColor')">
@@ -1029,7 +1097,7 @@
                     </div>
                     <div class="button-group">
                         <button class="primary-button" onclick="DraftManager.startDraft()">Start Draft</button>
-                        <button class="danger-button" onclick="DraftManager.reset()">Reset All</button>
+                        <button class="danger-button" onclick="DraftManager.reset()">New Draft</button>
                         <button class="secondary-button" onclick="DraftManager.loadTestData()">Load Test Data</button>
                     </div>
                 </div>
@@ -1084,14 +1152,10 @@
             </div>
             <div class="color-input-group">
                 <div class="color-options">
-                    <div class="color-option" style="background: #e53e3e" data-color="#e53e3e" onclick="DraftManager.selectColor(this, 'editTeamColor')" title="Red"></div>
+                    <div class="color-option" style="background: #ffffff" data-color="#ffffff" onclick="DraftManager.selectColor(this, 'editTeamColor')" title="White"></div>
                     <div class="color-option" style="background: #3182ce" data-color="#3182ce" onclick="DraftManager.selectColor(this, 'editTeamColor')" title="Blue"></div>
+                    <div class="color-option" style="background: #e53e3e" data-color="#e53e3e" onclick="DraftManager.selectColor(this, 'editTeamColor')" title="Red"></div>
                     <div class="color-option" style="background: #38a169" data-color="#38a169" onclick="DraftManager.selectColor(this, 'editTeamColor')" title="Green"></div>
-                    <div class="color-option" style="background: #805ad5" data-color="#805ad5" onclick="DraftManager.selectColor(this, 'editTeamColor')" title="Purple"></div>
-                    <div class="color-option" style="background: #d69e2e" data-color="#d69e2e" onclick="DraftManager.selectColor(this, 'editTeamColor')" title="Yellow"></div>
-                    <div class="color-option" style="background: #dd6b20" data-color="#dd6b20" onclick="DraftManager.selectColor(this, 'editTeamColor')" title="Orange"></div>
-                    <div class="color-option" style="background: #319795" data-color="#319795" onclick="DraftManager.selectColor(this, 'editTeamColor')" title="Teal"></div>
-                    <div class="color-option" style="background: #2c5282" data-color="#2c5282" onclick="DraftManager.selectColor(this, 'editTeamColor')" title="Navy"></div>
                 </div>
                 <div class="custom-color">
                     <span>🎨 Pick Color</span>
@@ -1109,6 +1173,17 @@
                 <button class="primary-button" onclick="DraftManager.saveTeamEdit()">Save Changes</button>
                 <button class="secondary-button" onclick="DraftManager.closeEditModal()">Cancel</button>
             </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="alertOverlay"></div>
+    <div class="custom-alert" id="customAlert">
+        <div class="custom-alert-content">
+            Are you sure you want to start a new draft?
+        </div>
+        <div class="custom-alert-buttons">
+            <button class="custom-alert-confirm" onclick="DraftManager.confirmReset()">Yes, Start New</button>
+            <button class="custom-alert-cancel" onclick="DraftManager.closeAlert()">Cancel</button>
         </div>
     </div>
 
@@ -1459,24 +1534,35 @@ const DraftManager = (() => {
         },
 
         reset() {
-            if (confirm('Are you sure you want to reset everything?')) {
-                localStorage.removeItem(KEY);
-                state = { 
-                    teams: [], 
-                    players: [], 
-                    snakeDraft: false, 
-                    currentTurn: 0,
-                    draftOrder: [],
-                    editingTeam: null,
-                    isSettingOrder: false
-                };
-                document.getElementById('players').value = '';
-                document.getElementById('snakeDraft').checked = false;
-                document.getElementById('draftOrderSection').style.display = 'none';
-                document.querySelector('.draft-controls').style.display = 'block';
-                document.getElementById('currentTurn').style.display = 'block'; // Make sure this is visible
-                render();
-            }
+            document.getElementById('alertOverlay').style.display = 'block';
+            document.getElementById('customAlert').style.display = 'block';
+        },
+
+        confirmReset() {
+            document.getElementById('alertOverlay').style.display = 'none';
+            document.getElementById('customAlert').style.display = 'none';
+            
+            localStorage.removeItem(KEY);
+            state = { 
+                teams: [], 
+                players: [], 
+                snakeDraft: false, 
+                currentTurn: 0,
+                draftOrder: [],
+                editingTeam: null,
+                isSettingOrder: false
+            };
+            document.getElementById('players').value = '';
+            document.getElementById('snakeDraft').checked = false;
+            document.getElementById('draftOrderSection').style.display = 'none';
+            document.querySelector('.draft-controls').style.display = 'block';
+            document.getElementById('currentTurn').style.display = 'block';
+            render();
+        },
+
+        closeAlert() {
+            document.getElementById('alertOverlay').style.display = 'none';
+            document.getElementById('customAlert').style.display = 'none';
         },
 
         editTeam(teamName) {
@@ -1660,8 +1746,17 @@ const DraftManager = (() => {
         },
 
         loadTestData() {
-            // Reset current state
-            this.reset();
+            // Clear storage and state without confirmation
+            localStorage.removeItem(KEY);
+            state = { 
+                teams: [], 
+                players: [], 
+                snakeDraft: false, 
+                currentTurn: 0,
+                draftOrder: [],
+                editingTeam: null,
+                isSettingOrder: false
+            };
 
             // Sample names for random selection
             const names = [
@@ -1683,10 +1778,10 @@ const DraftManager = (() => {
 
             // Create 4 teams with predefined colors
             const teamConfigs = [
+                { name: "White Team", color: "#ffffff" },
                 { name: "Blue Team", color: "#3182ce" },
                 { name: "Red Team", color: "#e53e3e" },
-                { name: "Green Team", color: "#38a169" },
-                { name: "White Team", color: "#ffffff" }
+                { name: "Green Team", color: "#38a169" }
             ];
 
             // Shuffle names for random assignment
@@ -1717,9 +1812,6 @@ const DraftManager = (() => {
             
             save();
             render();
-            
-            // Alert user that test data is loaded
-            alert('Test data loaded! Click Start Draft to begin.');
         }
     };
 })();
