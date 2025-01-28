@@ -7,6 +7,30 @@
     <meta name="keywords" content="soccer, draft, team manager, sports">
     <meta name="author" content="Lowell Warriors FC">
     
+    <!-- SEO Meta Tags -->
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+    <meta name="rating" content="General">
+    <meta name="copyright" content="Lowell Warriors FC">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Soccer Draft Manager | Lowell Warriors FC">
+    <meta property="og:description" content="A simple and intuitive tool for managing soccer team drafts. Create teams, assign captains, and manage your draft with ease.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lowellwarriorsfc.com">
+    <meta property="og:image" content="icons/icon-512x512.png">
+    <meta property="og:site_name" content="Soccer Draft Manager">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Soccer Draft Manager | Lowell Warriors FC">
+    <meta name="twitter:description" content="A simple and intuitive tool for managing soccer team drafts. Create teams, assign captains, and manage your draft with ease.">
+    <meta name="twitter:image" content="icons/icon-512x512.png">
+    <meta name="twitter:creator" content="@lowellwarriorsfc">
+    
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#4CAF50">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,21 +38,26 @@
     <meta name="apple-mobile-web-app-title" content="Draft Manager">
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-72x72.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-72x72.png">
+    <link rel="shortcut icon" href="icons/icon-72x72.png">
+    <link rel="icon" href="icons/icon-72x72.png">
     
     <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" sizes="72x72" href="/icons/icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="96x96" href="/icons/icon-96x96.png">
-    <link rel="apple-touch-icon" sizes="128x128" href="/icons/icon-128x128.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="384x384" href="/icons/icon-384x384.png">
-    <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="icons/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="96x96" href="icons/icon-96x96.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="icons/icon-128x128.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144x144.png">
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-72x72.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png">
+    <!-- Safari Pinned Tab Icon -->
+    <link rel="mask-icon" href="icons/safari-pinned-tab.svg" color="#4CAF50">
+    
+    <!-- Windows Tile Icons -->
+    <meta name="msapplication-TileImage" content="icons/icon-144x144.png">
+    <meta name="msapplication-TileColor" content="#4CAF50">
     
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-41HBSL6CFC"></script>
@@ -2137,7 +2166,61 @@
                 padding: 20px;
             }
         }
+
+        /* Add these new styles */
+        .celebration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            pointer-events: none;
+        }
+
+        .celebration-message {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px 50px;
+            border-radius: 20px;
+            text-align: center;
+            animation: celebrateScale 0.5s ease forwards;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .celebration-message h2 {
+            font-size: 2rem;
+            color: #2d3748;
+            margin: 0 0 10px;
+        }
+
+        .celebration-message p {
+            font-size: 1.2rem;
+            color: #4a5568;
+            margin: 0;
+        }
+
+        @keyframes celebrateScale {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* Remove these style blocks */
+        .position-tag,
+        .position-tag.forward,
+        .position-tag.midfielder,
+        .position-tag.defender,
+        .position-tag.goalkeeper,
+        .position-selector,
+        .position-selector select,
+        .position-selector select:focus {
+            display: none;
+        }
     </style>
+    <!-- Add this in the head section -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </head>
 <body>
     <div class="controls">
@@ -2289,7 +2372,7 @@
                 <input type="text" id="editCaptain">
             </div>
             <div class="team-player-list" id="editTeamPlayers">
-                <!-- Players will be rendered here -->
+                <!-- Players will be rendered here with position selectors -->
             </div>
             <div class="button-group">
                 <button class="primary-button" onclick="DraftManager.saveTeamEdit()">⚽ Save Changes</button>
@@ -2346,6 +2429,15 @@
         const DraftManager = (() => {
     const KEY = 'draftData';
     let draggedItem = null;
+    let state = {
+        teams: [],
+        players: [],
+        snakeDraft: false,
+        currentTurn: 0,
+        draftOrder: [],
+        editingTeam: null,
+        isSettingOrder: false
+    };
 
     function handleDragStart(e) {
             draggedItem = e.target;
@@ -2376,16 +2468,6 @@
         e.target.style.opacity = '';
         draggedItem = null;
     }
-        
-    let state = {
-        teams: [],
-        players: [],
-        snakeDraft: false,
-        currentTurn: 0,
-        draftOrder: [],
-        editingTeam: null,
-        isSettingOrder: false
-    };
         
     function save() {
         localStorage.setItem(KEY, JSON.stringify(state));
@@ -2514,9 +2596,11 @@
 
     function renderTeam(team) {
         const contrastColor = getContrastColor(team.color);
+        
         const div = document.createElement('div');
         div.className = 'team-col';
         div.style.setProperty('--team-color', team.color);
+
         div.innerHTML = `
             <div class="team-header" style="background: ${team.color}">
                 <div class="team-info">
@@ -2550,7 +2634,7 @@
             </div>
         `;
         return div.outerHTML;
-        }
+    }
         
     function moveTeam(index, direction) {
         const draftOrderList = document.getElementById('draftOrderList');
@@ -2609,6 +2693,112 @@
             item.addEventListener('drop', handleDrop);
             item.addEventListener('dragend', handleDragEnd);
         });
+    }
+
+    // Move updatePlayerPosition inside the module
+    function updatePlayerPosition(playerId, newPosition) {
+        if (playerId.startsWith('captain_')) {
+            // Handle captain position update
+            const teamId = playerId.replace('captain_', '');
+            const team = state.teams.find(t => t.id === teamId);
+            if (team) {
+                team.captainPosition = newPosition;
+                save();
+                render();
+            }
+        } else {
+            // Handle regular player position update
+            const team = state.teams.find(t => t.players.some(p => p.id === playerId));
+            if (!team) return;
+            
+            // Update in team's players array
+            const player = team.players.find(p => p.id === playerId);
+            if (player) {
+                player.position = newPosition;
+            }
+            
+            // Update in main players array
+            const mainPlayer = state.players.find(p => p.id === playerId);
+            if (mainPlayer) {
+                mainPlayer.position = newPosition;
+            }
+
+            save();
+            render();
+        }
+    }
+
+    function celebrateDraftCompletion() {
+        // Create celebration overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'celebration-overlay';
+        overlay.innerHTML = `
+            <div class="celebration-message">
+                <h2>🎉 Draft Complete!</h2>
+                <p>All players have been drafted successfully!</p>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        // Trigger confetti
+        const duration = 3000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(function() {
+            const timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    overlay.remove();
+                }, 2000);
+                return;
+            }
+
+            const particleCount = 50 * (timeLeft / duration);
+            confetti({
+                ...defaults,
+                particleCount,
+                origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+            });
+            confetti({
+                ...defaults,
+                particleCount,
+                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+            });
+        }, 250);
+    }
+
+    function pickPlayer(playerId) {
+        const player = state.players.find(p => p.id === playerId);
+        if (!player || player.teamId) return;
+
+        const currentTeam = state.draftOrder[state.currentTurn % state.draftOrder.length];
+        const teamToUpdate = state.teams.find(team => team.id === currentTeam.id);
+        if (!teamToUpdate) return;
+
+        player.teamId = teamToUpdate.id;
+        teamToUpdate.players.push(player);
+
+        const draftOrderTeamIndex = state.draftOrder.findIndex(team => team.id === teamToUpdate.id);
+        if (draftOrderTeamIndex !== -1) {
+            state.draftOrder[draftOrderTeamIndex] = teamToUpdate;
+        }
+
+        state.currentTurn++;
+        
+        const availablePlayers = state.players.filter(p => !p.teamId);
+        if (availablePlayers.length === 0) {
+            celebrateDraftCompletion();
+        }
+        
+        save();
+        render();
     }
 
     return {
@@ -2800,30 +2990,7 @@
         return order;
         },
 
-        pickPlayer(playerId) {
-        const player = state.players.find(p => p.id === playerId);
-        if (!player || player.teamId) return;
-
-        const currentTeam = state.draftOrder[state.currentTurn % state.draftOrder.length];
-        
-        // Find the actual team object in state.teams
-        const teamToUpdate = state.teams.find(team => team.id === currentTeam.id);
-        if (!teamToUpdate) return;
-
-        // Update both the player and the team
-        player.teamId = teamToUpdate.id;
-        teamToUpdate.players.push(player);
-
-        // Update the draftOrder array to reflect the changes
-        const draftOrderTeamIndex = state.draftOrder.findIndex(team => team.id === teamToUpdate.id);
-        if (draftOrderTeamIndex !== -1) {
-            state.draftOrder[draftOrderTeamIndex] = teamToUpdate;
-        }
-
-        state.currentTurn++;
-        save();
-        render();
-        },
+        pickPlayer,
 
         reset() {
         document.getElementById('alertOverlay').style.display = 'block';
@@ -2895,7 +3062,7 @@
         // Find matching color option if it exists
         const colorOption = document.querySelector(`#editModal .color-option[data-color="${team.color}"]`);
         if (colorOption) {
-            this.selectColor(colorOption, 'editTeamColor');
+            DraftManager.selectColor(colorOption, 'editTeamColor');
         } else {
             // If no matching preset color, clear all selections
             document.querySelectorAll('#editModal .color-option').forEach(opt => {
@@ -2906,15 +3073,26 @@
         document.getElementById('editCaptain').value = team.captain;
         
         const playersDiv = document.getElementById('editTeamPlayers');
-        playersDiv.innerHTML = team.players.map(player => `
-            <div class="team-player-item">
-                <span>${player.name}</span>
-                <button onclick="DraftManager.removePlayer('${player.id}', '${team.id}')" 
-                        class="remove-player-button">
-                    ✕
-                </button>
+        playersDiv.innerHTML = `
+            <div class="team-player-item captain-item">
+                <div class="player-info">
+                    <span>${team.captain} (C)</span>
+                </div>
             </div>
-        `).join('');
+            ${team.players.map(player => `
+                <div class="team-player-item" data-player-id="${player.id}">
+                    <div class="player-info">
+                        <span>${player.name}</span>
+                    </div>
+                    <div class="player-actions">
+                        <button onclick="DraftManager.removePlayer('${player.id}', '${team.id}')" 
+                                class="remove-player-button">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+            `).join('')}
+        `;
 
         document.getElementById('editModal').style.display = 'flex';
         },
@@ -2956,9 +3134,10 @@
         state.editingTeam.name = newName;
         state.editingTeam.color = newColor;
         state.editingTeam.captain = newCaptain;
+        // Captain position is already updated through updatePlayerPosition
 
         save();
-        this.closeEditModal();
+        DraftManager.closeEditModal();
         render();
         },
 
