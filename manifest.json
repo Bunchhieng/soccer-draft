@@ -3,6 +3,7 @@
   "short_name": "Pickup Draft",
   "description": "A simple tool for managing soccer team drafts",
   "start_url": "https://bunchhieng.github.io/soccer-draft/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4CAF50",
@@ -105,6 +106,25 @@
       "purpose": "maskable"
     }
   ],
+  "screenshots": [
+    {
+      "src": "screenshots/screenshot1.png",
+      "sizes": "640x480",
+      "type": "image/png"
+    },
+    {
+      "src": "screenshots/screenshot2.png",
+      "sizes": "640x480",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["sports", "utilities"],
+  "iarc_rating_id": "e10+",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "launch_handler": {
+    "client_mode": "navigate-new"
+  },
   "id": "https://bunchhieng.github.io/soccer-draft/",
   "dir": "auto",
   "lang": "en"
