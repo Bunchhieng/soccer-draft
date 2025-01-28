@@ -8,7 +8,6 @@ yarn.lock
 
 # Generated PWA assets
 # Keep the icons directory but ignore generated files
-icons/*
 !icons/.gitkeep
 
 # Environment variables
