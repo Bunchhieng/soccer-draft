@@ -939,16 +939,10 @@
 
         .current-turn-display {
             text-align: center;
-            padding: 16px;
             margin: 16px 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            font-size: 1.2rem;
-            font-weight: 500;
+            border-width: px;
+            background-color: #1a202c;
             display: flex;
-            align-items: center;
-            justify-content: center;
             gap: 12px;
         }
 
@@ -980,6 +974,17 @@
             color: #e53e3e;
             display: inline-block;
             animation: heartbeat 1.5s infinite;
+        }
+
+        .footer a {
+            color: #4CAF50;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer a:hover {
+            color: #388e3c;
+            text-decoration: underline;
         }
 
         @keyframes heartbeat {
@@ -1330,20 +1335,18 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding-bottom: 12px;
             border-bottom: 1px solid #eee;
         }
 
         .instructions-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            line-height: 1.4;
         }
 
         .instruction-step {
             display: flex;
             align-items: flex-start;
-            gap: 12px;
             padding: 8px 0;
         }
 
@@ -1737,25 +1740,25 @@
             <div class="instructions-list">
                 <div class="instruction-step">
                     <div class="step-number">1</div>
-                    <div class="step-content">Add teams with captains</div>
+                    <div class="step-content">🏃‍♂️ Add teams, color with captains 👨‍✈️</div>
                 </div>
                 <div class="instruction-step">
                     <div class="step-number">2</div>
-                    <div class="step-content">Add players (comma separated)</div>
+                    <div class="step-content">📋 Add players (separated by comma, spaces, or new lines) ✨</div>
                 </div>
                 <div class="instruction-step">
                     <div class="step-number">3</div>
                     <div class="step-content">
-                        Pick draft type
+                        🎯 Pick draft type
                         <div class="draft-types">
-                            <div class="draft-type">Normal: A→B→C, A→B→C</div>
-                            <div class="draft-type">Snake: A→B→C, C→B→A</div>
+                            <div class="draft-type">🔄 Classic: A→B→C, A→B→C</div>
+                            <div class="draft-type">⚡ Snake: A→B→C, C→B→A</div>
                         </div>
                     </div>
                 </div>
                 <div class="instruction-step">
                     <div class="step-number">4</div>
-                    <div class="step-content">Start Draft and choose order</div>
+                    <div class="step-content">🎮 Set Order & Start the Draft 🚀</div>
                 </div>
             </div>
         </div>
@@ -1888,7 +1891,7 @@
     </div>
 
     <footer class="footer">
-        Built with <span class="heart">❤️</span> by Lowell Warriors FC © <span id="currentYear"></span>
+        Built with <span class="heart">❤️</span> by <a href="https://www.facebook.com/profile.php?id=61555674030331" target="_blank" rel="noopener noreferrer">Lowell Warriors FC</a> © <span id="currentYear"></span>
     </footer>
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -2472,13 +2475,13 @@ const DraftManager = (() => {
             });
 
             const testPlayers = [
-                "Alex", "Jordan", "Taylor", "Morgan", 
-                "Casey", "Riley", "Sam", "Drew",
-                "Jamie", "Quinn", "Avery", "Parker", 
-                "Blake", "Charlie", "Skylar", "Sage",
-                "Frankie", "Kendall", "Winter", "River", 
-                "Storm", "Rain", "Phoenix", "Bay",
-                "Remy", "Arden", "Blair", "Robin"
+                "Lionel Messi", "Cristiano Ronaldo", "Pelé", "Diego Maradona",
+                "Johan Cruyff", "Zinedine Zidane", "Ronaldinho", "Thierry Henry",
+                "Roberto Carlos", "Paolo Maldini", "Franz Beckenbauer", "Eusébio",
+                "Kylian Mbappé", "Erling Haaland", "Robert Lewandowski", "Neymar",
+                "Kevin De Bruyne", "Virgil van Dijk", "Mohamed Salah", "Luka Modrić",
+                "Karim Benzema", "Gianluigi Buffon", "Andrea Pirlo", "Marco van Basten",
+                "Xavi", "Andrés Iniesta", "Ronaldo Nazário", "David Beckham"
             ];
 
             document.getElementById('players').value = testPlayers.join(', ');
