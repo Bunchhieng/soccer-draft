@@ -1330,19 +1330,38 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
+            cursor: pointer;
         }
 
         .app-title .icon {
             font-size: 1.8rem;
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: bounce 2s infinite;
+            animation: titleBounce 2s infinite;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
+        .app-title .icon:hover {
+            animation: titleFloat 2s infinite;
+            transform: scale(1.1);
+        }
+
+        /* Remove the old soccer ball styles */
+        .soccer-ball {
+            display: none;
+        }
+
+        .app-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
         }
 
         .app-title .text {
@@ -1360,6 +1379,15 @@
             width: 100%;
             height: 2px;
             background: linear-gradient(to right, #4CAF50, transparent);
+        }
+
+        @media (max-width: 768px) {
+            .app-title {
+                font-size: 1.6rem;
+            }
+            .app-title .icon {
+                font-size: 1.4rem;
+            }
         }
 
         .overlay {
@@ -1616,7 +1644,7 @@
             display: flex;
             align-items: flex-start;
             padding: 8px 0;
-            }
+        }
 
         .step-number {
             background: #4CAF50;
@@ -2218,15 +2246,247 @@
         .position-selector select:focus {
             display: none;
         }
+
+        /* Soccer Ball Animation */
+        @keyframes titleBounce {
+            0%, 100% { 
+                transform: translateY(0) rotate(0deg); 
+                animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+            }
+            50% { 
+                transform: translateY(-8px) rotate(180deg); 
+                animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+            }
+        }
+
+        @keyframes titleFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-6px) rotate(5deg); }
+            50% { transform: translateY(0) rotate(0deg); }
+            75% { transform: translateY(-4px) rotate(-5deg); }
+        }
+
+        /* Goal Animation */
+        @keyframes goal {
+            0% { 
+                transform: scale(0) rotate(-180deg); 
+                opacity: 0;
+            }
+            50% { 
+                transform: scale(1.2) rotate(10deg); 
+                opacity: 1;
+            }
+            100% { 
+                transform: scale(1) rotate(0deg); 
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+
+        .goal-animation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2000;
+            display: none;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .goal-text {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #4CAF50;
+            text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+            animation: goal 1s ease-out forwards;
+            display: inline-block;
+        }
+
+        .goal-subtext {
+            font-size: 1.5rem;
+            color: #666;
+            margin-top: 20px;
+            animation: fadeInOut 3s ease-out forwards;
+        }
+
+        /* Field Lines Animation */
+        @keyframes fieldLines {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+
+        .field-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.05;
+            background-image: 
+                linear-gradient(0deg, transparent 24%, 
+                    rgba(76, 175, 80, 0.2) 25%, 
+                    rgba(76, 175, 80, 0.2) 26%, 
+                    transparent 27%, transparent 74%, 
+                    rgba(76, 175, 80, 0.2) 75%, 
+                    rgba(76, 175, 80, 0.2) 76%, 
+                    transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, 
+                    rgba(76, 175, 80, 0.2) 25%, 
+                    rgba(76, 175, 80, 0.2) 26%, 
+                    transparent 27%, transparent 74%, 
+                    rgba(76, 175, 80, 0.2) 75%, 
+                    rgba(76, 175, 80, 0.2) 76%, 
+                    transparent 77%, transparent);
+            background-size: 50px 50px;
+            animation: fieldLines 2s linear infinite;
+        }
+
+        /* Add this to your existing celebration-overlay class */
+        .celebration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            pointer-events: none;
+            background: radial-gradient(circle at center, 
+                rgba(76, 175, 80, 0.1) 0%, 
+                rgba(76, 175, 80, 0.05) 50%, 
+                transparent 70%);
+        }
+
+        /* Update your existing celebration-message class */
+        .celebration-message {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px 50px;
+            border-radius: 20px;
+            text-align: center;
+            animation: celebrateScale 0.5s ease forwards;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .celebration-message::before {
+            content: '⚽';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            font-size: 3rem;
+            opacity: 0.1;
+            transform: rotate(-45deg);
+        }
+
+        .celebration-message::after {
+            content: '⚽';
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            font-size: 3rem;
+            opacity: 0.1;
+            transform: rotate(45deg);
+        }
+
+        /* Update the running text animation styles */
+        @keyframes slideInOut {
+            0% { 
+                transform: translateX(-50%) translateY(100%);
+                opacity: 0;
+            }
+            15% { 
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+            85% { 
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+            100% { 
+                transform: translateX(-50%) translateY(100%);
+                opacity: 0;
+            }
+        }
+
+        .pick-announcement {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            z-index: 1000;
+            white-space: nowrap;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            animation: slideInOut 2.5s ease-in-out forwards;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            max-width: 280px;
+            width: 90%;
+        }
+
+        .pick-announcement .team-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+            flex-shrink: 0;
+        }
+
+        .pick-announcement .highlight {
+            color: #4CAF50;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .pick-announcement {
+                bottom: 15px;
+                font-size: 0.85rem;
+                padding: 10px 20px;
+                max-width: 250px;
+                text-align: center;
+            }
+        }
     </style>
     <!-- Add this in the head section -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </head>
 <body>
+    <!-- Add these elements right after the body tag -->
+    <div class="field-background"></div>
+    <div class="soccer-ball" onclick="triggerGoalAnimation()">⚽</div>
+    <div class="goal-animation">
+        <div class="goal-text">GOAL!</div>
+        <div class="goal-subtext">What a fantastic shot! 🎯</div>
+    </div>
+
     <div class="controls">
         <div class="app-header">
             <h2 class="app-title">
-                <span class="icon">⚽</span>
+                <span class="icon" onclick="triggerGoalAnimation()">⚽</span>
                 <span class="text">Soccer Draft Manager</span>
             </h2>
         </div>
@@ -2235,7 +2495,7 @@
             <div class="instructions-title">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span>📋</span>
-                    <span>Quick Guide</span>
+                    <span>How to use</span>
                 </div>
                 <span class="toggle-icon">▼</span>
             </div>
@@ -2252,7 +2512,7 @@
                     <div class="step-number">3</div>
                     <div class="step-content">
                         🎯 Pick draft type
-                        <div class="draft-types">
+                            <div class="draft-types">
                             <div class="draft-type">🔄 Classic: A→B→C, A→B→C</div>
                             <div class="draft-type">⚡ Snake: A→B→C, C→B→A</div>
                         </div>
@@ -2729,18 +2989,19 @@
     }
 
     function celebrateDraftCompletion() {
-        // Create celebration overlay
+        // Create celebration overlay with enhanced animation
         const overlay = document.createElement('div');
         overlay.className = 'celebration-overlay';
         overlay.innerHTML = `
             <div class="celebration-message">
-                <h2>🎉 Draft Complete!</h2>
+                <h2>🏆 Draft Complete!</h2>
                 <p>All players have been drafted successfully!</p>
+                <div style="font-size: 2rem; margin-top: 15px;">⚽</div>
             </div>
         `;
         document.body.appendChild(overlay);
 
-        // Trigger confetti
+        // Enhanced confetti effect
         const duration = 3000;
         const animationEnd = Date.now() + duration;
         const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
@@ -2761,6 +3022,8 @@
             }
 
             const particleCount = 50 * (timeLeft / duration);
+            
+            // Confetti from multiple angles
             confetti({
                 ...defaults,
                 particleCount,
@@ -2772,6 +3035,9 @@
                 origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
             });
         }, 250);
+
+        // Trigger goal animation
+        setTimeout(triggerGoalAnimation, 500);
     }
 
     function pickPlayer(playerId) {
@@ -2784,6 +3050,24 @@
 
         player.teamId = teamToUpdate.id;
         teamToUpdate.players.push(player);
+
+        // Show pick announcement
+        const announcement = document.createElement('div');
+        announcement.className = 'pick-announcement';
+        announcement.innerHTML = `
+            <span class="team-dot" style="background-color: ${teamToUpdate.color}"></span>
+            <span>
+                <span class="highlight">${teamToUpdate.name}</span> picks 
+                <span class="highlight">${player.name}</span>
+            </span>
+            <span>${['🏃‍♂️', '🏃‍♀️', '🤸‍♂️', '🤾', '🏊‍♂️', '🕺', '💃', '🤹‍♂️', '🦸‍♂️', '🦹‍♀️'][Math.floor(Math.random() * 10)]}</span>
+        `;
+        document.body.appendChild(announcement);
+
+        // Remove the announcement after animation completes
+        announcement.addEventListener('animationend', () => {
+            announcement.remove();
+        });
 
         const draftOrderTeamIndex = state.draftOrder.findIndex(team => team.id === teamToUpdate.id);
         if (draftOrderTeamIndex !== -1) {
@@ -3258,88 +3542,87 @@
         },
 
         loadTestData() {
-        localStorage.removeItem(KEY);
-        state = { 
-            teams: [], 
-            players: [], 
-            snakeDraft: true, // Set default to true for test data
-            currentTurn: 0,
-            draftOrder: [],
-            editingTeam: null,
-            isSettingOrder: false
-        };
+            localStorage.removeItem(KEY);
+            state = { 
+                teams: [], 
+                players: [], 
+                snakeDraft: true, // Set default to true for test data
+                currentTurn: 0,
+                draftOrder: [],
+                editingTeam: null,
+                isSettingOrder: false
+            };
 
-        const teamConfigs = [
-            { name: "White Team", color: "#ffffff" },
-            { name: "Blue Team", color: "#3182ce" },
-            { name: "Red Team", color: "#e53e3e" },
-            { name: "Green Team", color: "#38a169" }
-        ];
+            const teamConfigs = [
+                { name: "White Team", color: "#ffffff", captain: "RaDa" },
+                { name: "Blue Team", color: "#3182ce", captain: "Saoling" },
+                { name: "Red Team", color: "#e53e3e", captain: "Bun" },
+                { name: "Green Team", color: "#38a169", captain: "Dara" }
+            ];
 
-        const captains = ["RaDa", "Parker", "Ken En", "Saoling                                                                              "];
-
-        teamConfigs.forEach((config, index) => {
-            state.teams.push({
-                id: crypto.randomUUID(),
-                name: config.name,
-                color: config.color,
-                captain: captains[index],
-                players: []
+            teamConfigs.forEach((config) => {
+                state.teams.push({
+                    id: crypto.randomUUID(),
+                    name: config.name,
+                    color: config.color,
+                    captain: config.captain,
+                    players: []
+                });
             });
-        });
 
-        const testPlayers = [
-            "Lionel Messi", "Cristiano Ronaldo", "Pelé", "Diego Maradona",
-            "Johan Cruyff", "Zinedine Zidane", "Ronaldinho", "Thierry Henry",
-            "Roberto Carlos", "Paolo Maldini", "Franz Beckenbauer", "Eusébio",
-            "Kylian Mbappé", "Erling Haaland", "Robert Lewandowski", "Neymar",
-            "Kevin De Bruyne", "Virgil van Dijk", "Mohamed Salah", "Luka Modrić",
-            "Karim Benzema", "Gianluigi Buffon", "Andrea Pirlo", "Marco van Basten",
-            "Xavi", "Andrés Iniesta", "Ronaldo Nazário", "David Beckham"
-        ];
+            const testPlayers = [
+                "Jimmy", "Tour", "Sovannrith",
+                "Borey", "Luiz", "Rotana",
+                "Yaw", "Pich", "Khemrath",
+                "Can", "Danny", "Sopha",
+                "Duy", "Thong", "Davit",
+                "Angkea", "Maan", "Michael",
+                "Narath", "Montero", "Panha",
+                "Ean", "Kino", "Sokha", "Ken", "Ajino", "Michael", "Son"
+            ];
 
-        document.getElementById('players').value = testPlayers.join(', ');
-        document.getElementById('snakeDraft').checked = true; // Check the snake draft checkbox
-        
-        // Update draft order list
-        const draftOrderList = document.getElementById('draftOrderList');
-        draftOrderList.innerHTML = state.teams.map((team, index) => `
-            <div class="draft-order-item" draggable="true" data-team-index="${index}">
-                <span class="draft-order-handle">⋮⋮</span>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <div style="width: 12px; height: 12px; border-radius: 50%; background: ${team.color}"></div>
-                    <span>${team.name}</span>
-                    <small style="color: #666;">(${team.captain})</small>
-                </div>
-                <div style="display: flex; align-items: center; gap: 4px;">
-                    <div class="draft-order-buttons">
-                        <button class="order-button" onclick="DraftManager.moveTeam(${index}, 'up')" ${index === 0 ? 'disabled' : ''}>↑</button>
-                        <button class="order-button" onclick="DraftManager.moveTeam(${index}, 'down')" ${index === state.teams.length - 1 ? 'disabled' : ''}>↓</button>
+            document.getElementById('players').value = testPlayers.join(', ');
+            document.getElementById('snakeDraft').checked = true; // Check the snake draft checkbox
+            
+            // Update draft order list
+            const draftOrderList = document.getElementById('draftOrderList');
+            draftOrderList.innerHTML = state.teams.map((team, index) => `
+                <div class="draft-order-item" draggable="true" data-team-index="${index}">
+                    <span class="draft-order-handle">⋮⋮</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 12px; height: 12px; border-radius: 50%; background: ${team.color}"></div>
+                        <span>${team.name}</span>
+                        <small style="color: #666;">(${team.captain})</small>
                     </div>
-                    <button onclick="DraftManager.removeTeam('${team.id}')" class="remove-team-button">✕</button>
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <div class="draft-order-buttons">
+                            <button class="order-button" onclick="DraftManager.moveTeam(${index}, 'up')" ${index === 0 ? 'disabled' : ''}>↑</button>
+                            <button class="order-button" onclick="DraftManager.moveTeam(${index}, 'down')" ${index === state.teams.length - 1 ? 'disabled' : ''}>↓</button>
+                        </div>
+                        <button onclick="DraftManager.removeTeam('${team.id}')" class="remove-team-button">✕</button>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `).join('');
 
-        // Add drag and drop functionality
-        const items = draftOrderList.querySelectorAll('.draft-order-item');
-        items.forEach(item => {
-            item.addEventListener('dragstart', handleDragStart);
-            item.addEventListener('dragover', handleDragOver);
-            item.addEventListener('drop', handleDrop);
-            item.addEventListener('dragend', handleDragEnd);
-        });
+            // Add drag and drop functionality
+            const items = draftOrderList.querySelectorAll('.draft-order-item');
+            items.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('drop', handleDrop);
+                item.addEventListener('dragend', handleDragEnd);
+            });
 
-        document.getElementById('draftOrderSection').style.display = 'block';
-        
-        // Show teams grid
-        const draftInterface = document.getElementById('draftInterface');
-        draftInterface.style.display = 'block';
-        const teamsGrid = draftInterface.querySelector('.teams-grid');
-        teamsGrid.innerHTML = state.teams.map(team => renderTeam(team)).join('');
-        
-        save();
-        render();
+            document.getElementById('draftOrderSection').style.display = 'block';
+            
+            // Show teams grid
+            const draftInterface = document.getElementById('draftInterface');
+            draftInterface.style.display = 'block';
+            const teamsGrid = draftInterface.querySelector('.teams-grid');
+            teamsGrid.innerHTML = state.teams.map(team => renderTeam(team)).join('');
+            
+            save();
+            render();
         },
 
         removeTeam(teamId) {
@@ -3394,6 +3677,89 @@ if ('serviceWorker' in navigator) {
 }
 
 document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Add this to your existing JavaScript
+        function triggerGoalAnimation() {
+            const goalAnimation = document.querySelector('.goal-animation');
+            goalAnimation.style.display = 'block';
+            
+            // Play a random celebration message
+            const celebrations = [
+                { text: "GOAL!", subtext: "What a fantastic shot! 🎯" },
+                { text: "GOLAZO!", subtext: "Simply magnificent! ⭐" },
+                { text: "GOAL!", subtext: "Top bins! 🎯" },
+                { text: "SCORED!", subtext: "Clinical finish! ⚡" }
+            ];
+            
+            const celebration = celebrations[Math.floor(Math.random() * celebrations.length)];
+            goalAnimation.querySelector('.goal-text').textContent = celebration.text;
+            goalAnimation.querySelector('.goal-subtext').textContent = celebration.subtext;
+            
+            // Add some confetti
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+            
+            // Hide the animation after 2 seconds
+            setTimeout(() => {
+                goalAnimation.style.display = 'none';
+            }, 2000);
+        }
+
+        // Update your existing celebrateDraftCompletion function
+        function celebrateDraftCompletion() {
+            // Create celebration overlay with enhanced animation
+            const overlay = document.createElement('div');
+            overlay.className = 'celebration-overlay';
+            overlay.innerHTML = `
+                <div class="celebration-message">
+                    <h2>🏆 Draft Complete!</h2>
+                    <p>All players have been drafted successfully!</p>
+                    <div style="font-size: 2rem; margin-top: 15px;">⚽</div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            // Enhanced confetti effect
+            const duration = 3000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        overlay.remove();
+                    }, 2000);
+                    return;
+                }
+
+                const particleCount = 50 * (timeLeft / duration);
+                
+                // Confetti from multiple angles
+                confetti({
+                    ...defaults,
+                    particleCount,
+                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+                });
+                confetti({
+                    ...defaults,
+                    particleCount,
+                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+                });
+            }, 250);
+
+            // Trigger goal animation
+            setTimeout(triggerGoalAnimation, 500);
+        }
     </script>
 </body>
 </html>
