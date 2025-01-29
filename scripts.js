@@ -175,10 +175,6 @@ const DraftManager = (() => {
                     <div class="team-color" style="background-color: ${currentTeam.color}"></div>
                     <div class="team-details">
                       <div class="team-name">${currentTeam.name}'s Turn</div>
-                      <div class="team-stats">
-                        ${currentTeam.players.length}/${maxPlayersPerTeam} players
-                        ${currentTeam.players.length >= maxPlayersPerTeam ? ' (Full)' : ''}
-                      </div>
                     </div>
                   </div>
                 </div>
