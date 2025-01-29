@@ -839,12 +839,12 @@ button {
 }
 
 .available-players-count {
-    background: #e9ecef;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     color: #666;
-    font-size: 10px;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 8px;
 }
 
 .player-list::-webkit-scrollbar {
@@ -1130,6 +1130,14 @@ h2 {
     padding: 8px 0;
 }
 
+.step-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
 .step-number {
     background: #4CAF50;
     color: white;
@@ -1142,6 +1150,22 @@ h2 {
     font-weight: 600;
     font-size: 0.9rem;
     flex-shrink: 0;
+    margin-bottom: 10px;
+}
+
+.step-container h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #333;
+    font-weight: 600;
+    line-height: 24px;
+}
+
+.draft-instruction {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #333;
+    font-weight: 600;
 }
 
 .step-content {
@@ -1289,6 +1313,35 @@ h2 {
 /* Remove the old soccer ball styles */
 .soccer-ball {
     display: none;
+}
+
+.app-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.app-title .text {
+    background: linear-gradient(135deg, #2d3748, #1a202c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+}
+
+.app-title .text::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, #4CAF50, transparent);
 }
 
 .app-title {
@@ -1592,20 +1645,6 @@ h2 {
     padding: 8px 0;
 }
 
-.step-number {
-    background: #4CAF50;
-    color: white;
-    width: 24px;
-    height: 24px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 0.9rem;
-    flex-shrink: 0;
-}
-
 .step-content {
     font-size: 0.95rem;
     color: #444;
@@ -1756,6 +1795,7 @@ h2 {
 
     .action-buttons button {
         width: 100%;
+        min-width: unset;
     }
 
     .download-button,
@@ -2487,4 +2527,147 @@ h2 {
         max-width: 250px;
         text-align: center;
     }
+}
+
+.available-players-count {
+    font-size: 0.8rem;
+    color: #666;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 8px;
+}
+
+.available-players-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.available-players-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.draft-order-instruction {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 15px 0 10px;
+}
+
+@media (max-width: 768px) {
+    .draft-order-instruction {
+        font-size: 1.1rem;
+    }
+
+    .draft-order-instruction::before {
+        content: 'Use arrow up or down to order the draft';
+    }
+
+    .draft-order-instruction:not(::before) {
+        display: none;
+    }
+}
+
+.draft-order-heading {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #333;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .draft-order-heading {
+        font-size: 1.1rem;
+    }
+    
+    .draft-order-heading::before {
+        content: 'Use arrow up or down to rearrange the order';
+    }
+
+    .draft-order-heading:not(::before) {
+        display: none;
+    }
+}
+
+/* Modern Switch Styling */
+.switch-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    margin: 8px 0;
+    justify-content: center;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e2e8f0;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #4CAF50;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.draft-type-label {
+    font-size: 0.95rem;
+    color: #444;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.draft-type-label .current-type {
+    font-weight: 600;
+    color: #333;
+}
+
+.draft-type-label .description {
+    font-size: 0.8rem;
+    color: #666;
 }

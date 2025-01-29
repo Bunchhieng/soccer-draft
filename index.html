@@ -135,7 +135,10 @@
 
     <div class="team-setup">
         <div>
-            <h3>Add New Team</h3>
+            <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; justify-content: center;">
+                <div class="step-number">1</div>
+                <h3>Add New Team</h3>
+            </div>
             <input type="text" id="teamName" placeholder="Team name">
             <div class="color-input-group">
                 <div class="color-options">
@@ -167,26 +170,37 @@
         </div>
 
         <div>
-            <h3>Players List & Draft Order</h3>
+            <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; justify-content: center;">
+                <div class="step-number">2</div>
+                <h3>Players List & Draft Order</h3>
+            </div>
             <textarea id="players" rows="6"
                       placeholder="Enter players (separated by commas, spaces, or new lines)"></textarea>
-
+            <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; justify-content: center;">
+                <div class="step-number">3</div>
+                <h3 class="draft-order-text">Drag teams to set draft order</h3>
+            </div>
             <div id="draftOrderSection">
-                <p style="font-size: 0.9rem; color: #666; margin: 15px 0 10px;">Drag teams to set draft order</p>
                 <div id="draftOrderList" class="draft-order-list">
                     <!-- Teams will be rendered here -->
                 </div>
             </div>
 
             <div class="draft-controls">
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" id="snakeDraft">
-                    <label for="snakeDraft">Use Snake Draft</label>
+                <div class="switch-wrapper">
+                    <label class="switch">
+                        <input type="checkbox" id="snakeDraft">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="draft-type-label">
+                        <span class="current-type" id="draftTypeText">Classic Draft</span>
+                        <span class="description" id="draftDescription">A→B→C, A→B→C</span>
+                    </div>
                 </div>
 
                 <div class="button-group">
-                    <button class="primary-button" onclick="DraftManager.startDraft()">⚽ Start Draft</button>
-                    <button class="danger-button" onclick="DraftManager.reset()">🔄 New Draft</button>
+                    <button class="primary-button" onclick="DraftManager.startDraft(true)">⚽ Start Draft</button>
+                    <button class="danger-button" onclick="DraftManager.reset(true)">🔄 New Draft</button>
                     <button class="secondary-button" onclick="DraftManager.loadTestData()">🎯 Load Test Data</button>
                 </div>
             </div>

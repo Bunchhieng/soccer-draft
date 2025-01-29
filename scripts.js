@@ -114,6 +114,9 @@ const DraftManager = (() => {
     const isDraftComplete = available.length === 0;
     const isDraftStarted = state.draftOrder.length > 0;
 
+    // Sort available players alphabetically
+    available.sort((a, b) => a.name.localeCompare(b.name));
+
     // Hide setup sections if draft has started
     teamSetup.forEach(div => {
       div.style.display = isDraftStarted ? 'none' : 'block';
@@ -169,8 +172,7 @@ const DraftManager = (() => {
                             </div>
                             <div class="available-players-header">
                                 <div class="header-left">
-                                    <span class="available-players-title">Available Players</span>
-                                    <span class="available-players-count">${available.length} remaining</span>
+                                    <span class="available-players-title">Available Players (${available.length})</span>
                                 </div>
                                 <div class="header-right">
                                     <button class="danger-button" onclick="DraftManager.reset()">🔄 New Draft</button>
@@ -335,7 +337,7 @@ const DraftManager = (() => {
                 <h2>🏆 Draft Complete!</h2>
                 <p>All players have been drafted successfully!</p>
                 <div style="font-size: 2rem; margin-top: 15px;">⚽</div>
-</div>
+            </div>
         `;
     document.body.appendChild(overlay);
 
@@ -423,6 +425,41 @@ const DraftManager = (() => {
     render();
   }
 
+  // Add this function to handle responsive text changes
+  function updateDraftOrderText() {
+    const heading = document.querySelector('.draft-order-text');
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    
+    if (heading) {
+        if (isMobile) {
+            heading.textContent = 'Use arrow up or down to set draft order';
+            heading.style.fontSize = '1rem'; // Smaller font size for mobile
+        } else {
+            heading.textContent = 'Drag teams to set draft order';
+            heading.style.fontSize = '1.2rem'; // Original size for desktop
+        }
+    }
+  }
+
+  function showAlert(message) {
+    const customAlert = document.getElementById('customAlert');
+    const overlay = document.getElementById('alertOverlay');
+    
+    // Update alert content
+    customAlert.querySelector('.custom-alert-title').textContent = 'Notice';
+    customAlert.querySelector('.custom-alert-content').textContent = message;
+    
+    // Update buttons
+    const buttonsContainer = customAlert.querySelector('.custom-alert-buttons');
+    buttonsContainer.innerHTML = `
+        <button class="custom-alert-confirm" onclick="DraftManager.closeAlert()">Got it</button>
+    `;
+    
+    // Show alert
+    overlay.style.display = 'block';
+    customAlert.style.display = 'block';
+  }
+
   return {
     init() {
       const saved = localStorage.getItem(KEY);
@@ -460,12 +497,12 @@ const DraftManager = (() => {
                         <div style="width: 12px; height: 12px; border-radius: 50%; background: ${team.color}"></div>
                         <span>${team.name}</span>
                         <small style="color: #666;">(${team.captain})</small>
-</div>
+                    </div>
                     <div style="display: flex; align-items: center; gap: 4px;">
                         <div class="draft-order-buttons">
                             <button class="order-button" onclick="DraftManager.moveTeam(${index}, 'up')" ${index === 0 ? 'disabled' : ''}>↑</button>
                             <button class="order-button" onclick="DraftManager.moveTeam(${index}, 'down')" ${index === state.teams.length - 1 ? 'disabled' : ''}>↓</button>
-</div>
+                        </div>
                         <button onclick="DraftManager.removeTeam('${team.id}')" class="remove-team-button">✕</button>
                     </div>
                 </div>
@@ -481,6 +518,49 @@ const DraftManager = (() => {
           });
         }
       }
+      
+      // Add snake draft switch listener
+      const snakeDraftSwitch = document.getElementById('snakeDraft');
+      const typeText = document.getElementById('draftTypeText');
+      const description = document.getElementById('draftDescription');
+
+      // Set initial text based on saved state
+      if (state.snakeDraft) {
+          typeText.textContent = 'Snake Draft';
+          description.textContent = 'A→B→C, C→B→A';
+      } else {
+          typeText.textContent = 'Classic Draft';
+          description.textContent = 'A→B→C, A→B→C';
+      }
+
+      // Update the snake draft switch listener
+      snakeDraftSwitch.addEventListener('change', function(e) {
+          if (e.target.checked) {
+              typeText.textContent = 'Snake Draft';
+              description.textContent = 'A→B→C, C→B→A';
+          } else {
+              typeText.textContent = 'Classic Draft';
+              description.textContent = 'A→B→C, A→B→C';
+          }
+          
+          // Update state and draft order
+          state.snakeDraft = e.target.checked;
+          
+          // Update draft order if draft has started
+          if (state.draftOrder.length > 0) {
+              state.draftOrder = DraftManager.generateDraftOrder();
+          }
+          
+          save();
+          render();
+      });
+      
+      // Call updateDraftOrderText after a short delay to ensure DOM is ready
+      setTimeout(updateDraftOrderText, 100);
+      
+      // Add resize listener for responsive text
+      window.addEventListener('resize', updateDraftOrderText);
+      
       render();
     },
 
@@ -539,7 +619,7 @@ const DraftManager = (() => {
       };
 
       if (!team.name || !team.captain) {
-        alert('Please fill in team name and captain!');
+        showAlert('Please fill in team name and captain!');
         return;
       }
 
@@ -558,17 +638,18 @@ const DraftManager = (() => {
 
       save();
       render();
+      updateDraftOrderText();
     },
 
     startDraft() {
       if (state.teams.length < 2) {
-        alert('Please add at least 2 teams!');
+        showAlert('Please add at least 2 teams!');
         return;
       }
 
       const playerInput = document.getElementById('players').value;
       if (!playerInput.trim()) {
-        alert('Please enter some players!');
+        showAlert('Please enter some players!');
         return;
       }
 
@@ -582,9 +663,11 @@ const DraftManager = (() => {
       // Update the teams array to match the new order
       state.teams = [...orderedTeams];
       state.players = parsePlayers(playerInput);
+      
+      // Make sure snake draft state is properly set
       state.snakeDraft = document.getElementById('snakeDraft').checked;
       state.currentTurn = 0;
-      state.draftOrder = [...orderedTeams];
+      state.draftOrder = this.generateDraftOrder();
       state.isSettingOrder = false;
 
       // Hide setup sections
@@ -606,7 +689,9 @@ const DraftManager = (() => {
 
       for (let i = 0; i < rounds; i++) {
         const round = [...state.teams];
-        if (state.snakeDraft && i % 2 === 1) round.reverse();
+        if (state.snakeDraft && i % 2 === 1) {
+          round.reverse();
+        }
         order = order.concat(round);
       }
       return order;
@@ -614,62 +699,83 @@ const DraftManager = (() => {
 
     pickPlayer,
 
-    reset() {
-      document.getElementById('alertOverlay').style.display = 'block';
-      document.getElementById('customAlert').style.display = 'block';
+    reset(showWarning = true) {
+        // Always show confirmation dialog for New Draft
+        const customAlert = document.getElementById('customAlert');
+        const overlay = document.getElementById('alertOverlay');
+        
+        // Update alert content for confirmation
+        customAlert.querySelector('.custom-alert-title').textContent = 'Start New Draft?';
+        customAlert.querySelector('.custom-alert-content').textContent = 'This will reset all teams and players. This action cannot be undone.';
+        
+        // Update buttons for confirmation
+        const buttonsContainer = customAlert.querySelector('.custom-alert-buttons');
+        buttonsContainer.innerHTML = `
+            <button class="custom-alert-cancel" onclick="DraftManager.closeAlert()">❌ Cancel</button>
+            <button class="custom-alert-confirm" onclick="DraftManager.confirmReset()">⚽ Start New Draft</button>
+        `;
+        
+        overlay.style.display = 'block';
+        customAlert.style.display = 'block';
     },
 
     confirmReset() {
-      document.getElementById('alertOverlay').style.display = 'none';
-      document.getElementById('customAlert').style.display = 'none';
+        document.getElementById('alertOverlay').style.display = 'none';
+        document.getElementById('customAlert').style.display = 'none';
 
-// Clear localStorage
-      localStorage.removeItem(KEY);
+        // Clear localStorage first
+        localStorage.removeItem(KEY);
 
-// Reset state completely
-      state = {
-        teams: [],
-        players: [],
-        snakeDraft: false,
-        currentTurn: 0,
-        draftOrder: [],
-        editingTeam: null,
-        isSettingOrder: false
-      };
+        // Reset state completely
+        state = {
+            teams: [],
+            players: [],
+            snakeDraft: false,
+            currentTurn: 0,
+            draftOrder: [],
+            editingTeam: null,
+            isSettingOrder: false
+        };
 
-// Reset all form inputs
-      document.getElementById('players').value = '';
-      document.getElementById('teamName').value = '';
-      document.getElementById('captain').value = '';
-      document.getElementById('snakeDraft').checked = false;
-      document.getElementById('teamColor').value = '#ffffff';
+        // Reset all form inputs
+        document.getElementById('players').value = '';
+        document.getElementById('teamName').value = '';
+        document.getElementById('captain').value = '';
+        document.getElementById('snakeDraft').checked = false;
+        document.getElementById('teamColor').value = '#ffffff';
 
-// Clear color selections
-      document.querySelectorAll('.color-option').forEach(opt => {
-        opt.classList.remove('selected');
-      });
+        // Clear color selections
+        document.querySelectorAll('.color-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
 
-// Reset UI sections
-      document.getElementById('draftOrderSection').style.display = 'none';
-      document.getElementById('draftInterface').style.display = 'none';
-      document.getElementById('teamsList').style.display = 'none';
-      document.getElementById('availablePlayers').innerHTML = '';
-      document.getElementById('draftOrderList').innerHTML = '';
+        // Reset UI sections
+        document.getElementById('draftOrderSection').style.display = 'none';
+        document.getElementById('draftInterface').style.display = 'none';
+        document.getElementById('teamsList').style.display = 'none';
+        document.getElementById('availablePlayers').innerHTML = '';
+        document.getElementById('draftOrderList').innerHTML = '';
 
-// Show setup sections again
-      document.querySelectorAll('.team-setup > div').forEach(div => {
-        div.style.display = 'block';
-      });
+        // Show setup sections again
+        document.querySelectorAll('.team-setup > div').forEach(div => {
+            div.style.display = 'block';
+        });
 
-      document.querySelector('.draft-controls').style.display = 'block';
-      document.getElementById('currentTurn').style.display = 'block';
+        document.querySelector('.draft-controls').style.display = 'block';
+        document.getElementById('currentTurn').style.display = 'block';
 
-      render();
+        // Reset snake draft text
+        const typeText = document.getElementById('draftTypeText');
+        const description = document.getElementById('draftDescription');
+        typeText.textContent = 'Classic Draft';
+        description.textContent = 'A→B→C, A→B→C';
+
+        render();
     },
 
     closeAlert() {
-      document.getElementById('alertOverlay').style.display = 'none';
       document.getElementById('customAlert').style.display = 'none';
+      document.getElementById('alertOverlay').style.display = 'none';
     },
 
     editTeam(teamName) {
