@@ -151,42 +151,56 @@ const DraftManager = (() => {
 
         const availableDiv = document.getElementById('availablePlayers');
         if (available.length > 0) {
-          const currentTeam = state.draftOrder[state.currentTurn % state.draftOrder.length];
+          const maxPlayersPerTeam = calculateMaxPlayersPerTeam(state);
+          let currentTeamIndex = state.currentTurn % state.draftOrder.length;
+          let currentTeam = state.draftOrder[currentTeamIndex];
+
+          // Find the next team that hasn't reached the max players limit
+          while (currentTeam.players.length >= maxPlayersPerTeam) {
+            state.currentTurn++;
+            currentTeamIndex = state.currentTurn % state.draftOrder.length;
+            currentTeam = state.draftOrder[currentTeamIndex];
+          }
+
           const textColor = getContrastColor(currentTeam.color);
           availableDiv.innerHTML = `
-                        <div class="available-players-section">
-                            <div class="current-pick-indicator" style="--team-color: ${currentTeam.color}; color: ${textColor}">
-                                <div class="pick-info">
-                                    <div class="pick-number">
-                                        <span>🎯</span>
-                                        <span>Pick #${state.currentTurn + 1}</span>
-                                    </div>
-                                    <div class="pick-team">
-                                        <div class="team-color" style="background-color: ${currentTeam.color}"></div>
-                                        <div class="team-details">
-                                            <div class="team-name">${currentTeam.name}'s Turn</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button class="stop-draft-btn" onclick="DraftManager.stopDraft()" title="Stop Draft">×</button>
-                            </div>
-                            <div class="available-players-header">
-                                <div class="header-left">
-                                    <span class="available-players-title">Available Players (${available.length})</span>
-                                </div>
-                                <div class="header-right">
-                                    <button class="danger-button" onclick="DraftManager.reset()">🔄 New Draft</button>
-                                </div>
-                            </div>
-                            <div class="player-list">
-                                ${available.map(p => `
-                                    <div class="available-player" onclick="DraftManager.pickPlayer('${p.id}')">
-                                        ${['⚽', '🥅', '🏃‍♂️', '⛳', '🎯', '🦶', '🥾', '🏆'][Math.floor(Math.random() * 8)]} ${p.name}
-                                    </div>
-                                `).join('')}
-    </div>
-</div>
-                    `;
+            <div class="available-players-section">
+              <div class="current-pick-indicator" style="--team-color: ${currentTeam.color}; color: ${textColor}">
+                <div class="pick-info">
+                  <div class="pick-number">
+                    <span>🎯</span>
+                    <span>Pick #${state.currentTurn + 1}</span>
+                  </div>
+                  <div class="pick-team">
+                    <div class="team-color" style="background-color: ${currentTeam.color}"></div>
+                    <div class="team-details">
+                      <div class="team-name">${currentTeam.name}'s Turn</div>
+                      <div class="team-stats">
+                        ${currentTeam.players.length}/${maxPlayersPerTeam} players
+                        ${currentTeam.players.length >= maxPlayersPerTeam ? ' (Full)' : ''}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button class="stop-draft-btn" onclick="DraftManager.stopDraft()" title="Stop Draft">×</button>
+              </div>
+              <div class="available-players-header">
+                <div class="header-left">
+                  <span class="available-players-title">Available Players (${available.length})</span>
+                </div>
+                <div class="header-right">
+                  <button class="danger-button" onclick="DraftManager.reset()">🔄 New Draft</button>
+                </div>
+              </div>
+              <div class="player-list">
+                ${available.map(p => `
+                  <div class="available-player" onclick="DraftManager.pickPlayer('${p.id}')">
+                    ${['⚽', '🥅', '🏃‍♂️', '⛳', '🎯', '🦶', '🥾', '🏆'][Math.floor(Math.random() * 8)]} ${p.name}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
         } else {
           availableDiv.innerHTML = '';
         }
@@ -399,7 +413,17 @@ const DraftManager = (() => {
     const player = state.players.find(p => p.id === playerId);
     if (!player || player.teamId) return;
 
-    const currentTeam = state.draftOrder[state.currentTurn % state.draftOrder.length];
+    const maxPlayersPerTeam = calculateMaxPlayersPerTeam(state);
+    let currentTeamIndex = state.currentTurn % state.draftOrder.length;
+    let currentTeam = state.draftOrder[currentTeamIndex];
+
+    // Find the next team that hasn't reached the max players limit
+    while (currentTeam.players.length >= maxPlayersPerTeam) {
+      state.currentTurn++;
+      currentTeamIndex = state.currentTurn % state.draftOrder.length;
+      currentTeam = state.draftOrder[currentTeamIndex];
+    }
+
     const teamToUpdate = state.teams.find(team => team.id === currentTeam.id);
     if (!teamToUpdate) return;
 
@@ -419,7 +443,6 @@ const DraftManager = (() => {
         `;
     document.body.appendChild(announcement);
 
-    // Remove the announcement after animation completes
     announcement.addEventListener('animationend', () => {
       announcement.remove();
     });
@@ -473,6 +496,13 @@ const DraftManager = (() => {
     // Show alert
     overlay.style.display = 'block';
     customAlert.style.display = 'block';
+  }
+
+  // Add this helper function to calculate max players per team
+  function calculateMaxPlayersPerTeam(state) {
+    const totalPlayers = state.players.length;
+    const numTeams = state.teams.length;
+    return Math.floor(totalPlayers / numTeams);
   }
 
   return {
@@ -867,11 +897,26 @@ const DraftManager = (() => {
       const player = team.players.find(p => p.id === playerId);
       if (player) {
         team.players = team.players.filter(p => p.id !== playerId);
+        
         // Find and update the player in the main players array
         const mainPlayer = state.players.find(p => p.id === playerId);
         if (mainPlayer) {
           mainPlayer.teamId = null;
         }
+
+        // Adjust currentTurn if needed
+        const maxPlayersPerTeam = calculateMaxPlayersPerTeam(state);
+        const removedFromTeamIndex = state.draftOrder.findIndex(t => t.id === teamId);
+        
+        // If the team we removed from now has fewer players than others,
+        // and it's before the current turn, we need to adjust the turn
+        if (team.players.length < maxPlayersPerTeam) {
+          const currentTurnTeamIndex = state.currentTurn % state.draftOrder.length;
+          if (removedFromTeamIndex <= currentTurnTeamIndex) {
+            state.currentTurn = Math.max(0, state.currentTurn - 1);
+          }
+        }
+
         save();
         render();
       }

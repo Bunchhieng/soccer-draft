@@ -2587,7 +2587,7 @@ h2 {
     .draft-order-heading {
         font-size: 1.1rem;
     }
-    
+
     .draft-order-heading::before {
         content: 'Use arrow up or down to rearrange the order';
     }
