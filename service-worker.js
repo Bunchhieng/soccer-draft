@@ -1,4 +1,6 @@
-const CACHE_NAME = 'soccer-pickup-draft-v1';
+const CACHE_VERSION = new Date().getTime(); // Dynamic cache version
+const CACHE_NAME = `soccer-pickup-draft-v1-${CACHE_VERSION}`;
+
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -34,7 +36,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
+          if (cacheName.startsWith('soccer-pickup-draft-v1-') && cacheName !== CACHE_NAME) {
             return caches.delete(cacheName);
           }
         })
@@ -45,34 +47,46 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event with network-first strategy for HTML and network-first for other assets
 self.addEventListener('fetch', (event) => {
+  // Parse the URL
+  const requestURL = new URL(event.request.url);
+
+  // Network-first strategy for HTML files
+  if (requestURL.pathname.endsWith('.html') || requestURL.pathname === '/') {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          const clonedResponse = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, clonedResponse);
+          });
+          return response;
+        })
+        .catch(() => {
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
+  // Cache-first strategy for other assets
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Return cached version if available
         if (response) {
           return response;
         }
 
-        // Clone the request because it can only be used once
-        const fetchRequest = event.request.clone();
-
-        // Make network request and cache the response
-        return fetch(fetchRequest).then((response) => {
-          // Check if response is valid
+        return fetch(event.request).then((response) => {
           if (!response || response.status !== 200 || response.type !== 'basic') {
             return response;
           }
 
-          // Clone the response because it can only be used once
           const responseToCache = response.clone();
-
-          // Add response to cache
-          caches.open(CACHE_NAME)
-            .then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
 
           return response;
         });

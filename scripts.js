@@ -207,7 +207,15 @@ const DraftManager = (() => {
                     <div>
                         <h3 class="team-name" style="color: ${contrastColor}">${team.name}</h3>
                     </div>
-                    <button onclick="DraftManager.editTeam('${team.name}')" class="edit-button" style="color: ${contrastColor}; border-color: ${contrastColor}">
+                    <button onclick="DraftManager.editTeam('${team.name}')" 
+                            class="edit-button" 
+                            style="color: ${contrastColor}; border-color: ${contrastColor}; 
+                                   background: rgba(255,255,255,0.1); 
+                                   padding: 4px 12px;
+                                   border-radius: 4px;
+                                   cursor: pointer;
+                                   transition: all 0.2s ease;
+                                   box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
                         Edit Team
                     </button>
                 </div>
@@ -228,10 +236,17 @@ const DraftManager = (() => {
                         </div>
                         <button onclick="DraftManager.removePlayer('${p.id}', '${team.id}')" 
                                 class="remove-player-btn" 
+                                style="padding: 2px 8px;
+                                       border-radius: 4px;
+                                       cursor: pointer;
+                                       background: rgba(255,0,0,0.1);
+                                       border: 1px solid rgba(255,0,0,0.2);
+                                       color: #dc2626;
+                                       transition: all 0.2s ease;"
                                 title="Remove player">×</button>
-    </div>
+                    </div>
                 `).join('')}
-</div>
+            </div>
         `;
     return div.outerHTML;
   }
@@ -526,33 +541,35 @@ const DraftManager = (() => {
 
       // Set initial text based on saved state
       if (state.snakeDraft) {
-          typeText.textContent = 'Snake Draft';
-          description.textContent = 'A→B→C, C→B→A';
+        typeText.textContent = 'Snake Draft';
+        description.textContent = 'A→B→C, C→B→A';
+        snakeDraftSwitch.checked = true;  // Ensure switch is ON for snake draft
       } else {
-          typeText.textContent = 'Classic Draft';
-          description.textContent = 'A→B→C, A→B→C';
+        typeText.textContent = 'Classic Draft';
+        description.textContent = 'A→B→C, A→B→C';
+        snakeDraftSwitch.checked = false;  // Ensure switch is OFF for classic draft
       }
 
       // Update the snake draft switch listener
       snakeDraftSwitch.addEventListener('change', function(e) {
-          if (e.target.checked) {
-              typeText.textContent = 'Snake Draft';
-              description.textContent = 'A→B→C, C→B→A';
-          } else {
-              typeText.textContent = 'Classic Draft';
-              description.textContent = 'A→B→C, A→B→C';
-          }
-          
-          // Update state and draft order
-          state.snakeDraft = e.target.checked;
-          
-          // Update draft order if draft has started
-          if (state.draftOrder.length > 0) {
-              state.draftOrder = DraftManager.generateDraftOrder();
-          }
-          
-          save();
-          render();
+        if (e.target.checked) {
+          typeText.textContent = 'Snake Draft';
+          description.textContent = 'A→B→C, C→B→A';
+        } else {
+          typeText.textContent = 'Classic Draft';
+          description.textContent = 'A→B→C, A→B→C';
+        }
+        
+        // Update state and draft order
+        state.snakeDraft = e.target.checked;
+        
+        // Update draft order if draft has started
+        if (state.draftOrder.length > 0) {
+          state.draftOrder = DraftManager.generateDraftOrder();
+        }
+        
+        save();
+        render();
       });
       
       // Call updateDraftOrderText after a short delay to ensure DOM is ready
@@ -605,6 +622,7 @@ const DraftManager = (() => {
 
       // Clear localStorage
       localStorage.removeItem(KEY);
+      localStorage.removeItem('instructionsCollapsed');
 
       render();
     },
@@ -651,6 +669,16 @@ const DraftManager = (() => {
       if (!playerInput.trim()) {
         showAlert('Please enter some players!');
         return;
+      }
+
+      // Auto-collapse instructions when draft starts
+      const instructionsList = document.querySelector('.instructions-list');
+      const instructionsTitle = document.querySelector('.instructions-title');
+      if (instructionsList && instructionsTitle) {
+        instructionsList.classList.add('collapsed');
+        instructionsTitle.classList.add('collapsed');
+        // Save collapsed state to localStorage
+        localStorage.setItem('instructionsCollapsed', 'true');
       }
 
       // Get the draft order from the current order in the list
@@ -723,8 +751,10 @@ const DraftManager = (() => {
         document.getElementById('alertOverlay').style.display = 'none';
         document.getElementById('customAlert').style.display = 'none';
 
-        // Clear localStorage first
+        // Clear localStorage
         localStorage.removeItem(KEY);
+        localStorage.removeItem('draftData');
+        localStorage.removeItem('instructionsCollapsed');
 
         // Reset state completely
         state = {
@@ -1137,7 +1167,15 @@ const DraftManager = (() => {
       ];
 
       document.getElementById('players').value = testPlayers.join(', ');
-      document.getElementById('snakeDraft').checked = true; // Check the snake draft checkbox
+      
+      // Update snake draft switch and text
+      const snakeDraftSwitch = document.getElementById('snakeDraft');
+      const typeText = document.getElementById('draftTypeText');
+      const description = document.getElementById('draftDescription');
+      
+      snakeDraftSwitch.checked = true;
+      typeText.textContent = 'Snake Draft';
+      description.textContent = 'A→B→C, C→B→A';
 
       // Update draft order list
       const draftOrderList = document.getElementById('draftOrderList');
