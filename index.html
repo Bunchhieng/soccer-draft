@@ -303,5 +303,37 @@
 
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <script src="scripts.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      // Unregister old service workers first
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for(let registration of registrations) {
+        await registration.unregister();
+      }
+      
+      // Register new service worker
+      const registration = await navigator.serviceWorker.register('/service-worker.js', {
+        updateViaCache: 'none'
+      });
+      
+      // Check for updates immediately
+      registration.update();
+      
+      // Force reload when new service worker takes control
+      if (registration.waiting) {
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+      
+      registration.addEventListener('controllerchange', () => {
+        window.location.reload();
+      });
+    } catch (error) {
+      console.error('Service worker registration failed:', error);
+    }
+  });
+}
+</script>
 </body>
 </html>

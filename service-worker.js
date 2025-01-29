@@ -17,6 +17,13 @@ const ASSETS_TO_CACHE = [
   'https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap'
 ];
 
+// Add this at the top of your service-worker.js
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 // Install event - cache assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -49,23 +56,20 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event with network-first strategy for HTML and network-first for other assets
 self.addEventListener('fetch', (event) => {
-  // Parse the URL
   const requestURL = new URL(event.request.url);
-
-  // Network-first strategy for HTML files
-  if (requestURL.pathname.endsWith('.html') || requestURL.pathname === '/') {
+  
+  // Always fetch from network for HTML and JS files
+  if (requestURL.pathname.endsWith('.html') || 
+      requestURL.pathname.endsWith('.js') || 
+      requestURL.pathname === '/') {
     event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          const clonedResponse = response.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, clonedResponse);
-          });
-          return response;
-        })
-        .catch(() => {
-          return caches.match(event.request);
-        })
+      fetch(event.request, { 
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      })
+      .catch(() => caches.match(event.request))
     );
     return;
   }
