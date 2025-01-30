@@ -309,7 +309,7 @@
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <script src="scripts.js"></script>
 <script>
-  if ('serviceWorker' in navigator) {
+  if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
     window.addEventListener('load', async () => {
       try {
         // Unregister old service workers first
@@ -335,9 +335,11 @@
           window.location.reload();
         });
       } catch (error) {
-        console.error('Service worker registration failed:', error);
+        console.warn('Service worker registration skipped:', error.message);
       }
     });
+  } else {
+    console.info('Service Worker is not supported or requires HTTPS/localhost');
   }
 </script>
 </body>
