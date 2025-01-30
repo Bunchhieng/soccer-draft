@@ -1960,7 +1960,7 @@ h2 {
 .stop-draft-btn {
     position: absolute;
     right: 8px;
-    top: 50%;
+    top: 40%;
     transform: translateY(-50%);
     background: rgba(0, 0, 0, 0.15);
     border: none;
