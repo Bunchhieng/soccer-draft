@@ -2,7 +2,7 @@
   "name": "Soccer Pickup Draft",
   "short_name": "Pickup Draft",
   "description": "A simple tool for managing soccer team drafts",
-  "start_url": "https://bunchhieng.github.io/soccer-draft/",
+  "start_url": "/soccer-pickup-draft/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",

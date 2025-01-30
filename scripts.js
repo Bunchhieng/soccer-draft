@@ -1303,11 +1303,15 @@ const DraftManager = (() => {
 window.addEventListener('load', () => DraftManager.init());
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js')
-      .then(registration => console.log('ServiceWorker registered'))
-      .catch(err => console.log('ServiceWorker registration failed:', err));
-  });
+  const swPath = '/soccer-pickup-draft/service-worker.js'; // Update path for GitHub Pages
+  
+  navigator.serviceWorker.register(swPath)
+    .then((registration) => {
+      console.log('Service Worker registered with scope:', registration.scope);
+    })
+    .catch((error) => {
+      console.error('Service Worker registration failed:', error);
+    });
 }
 
 document.getElementById('currentYear').textContent = new Date().getFullYear();
