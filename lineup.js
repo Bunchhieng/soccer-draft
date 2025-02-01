@@ -265,7 +265,10 @@ class LineupBuilder {
     this.isDragging = true;
     const player = e.target;
     player.style.zIndex = 1000;
+    
+    // Remove transition during drag
     player.style.transition = 'none';
+    player.style.transform = 'translate(-50%, -50%)';
 
     // Store initial click position and player position
     this.startX = e.clientX;
@@ -278,13 +281,13 @@ class LineupBuilder {
         const fieldLines = document.querySelector('.field-lines');
         const fieldRect = fieldLines.getBoundingClientRect();
 
-        // Calculate movement delta
-        const deltaX = ((moveEvent.clientX - this.startX) / fieldRect.width) * 100;
-        const deltaY = ((moveEvent.clientY - this.startY) / fieldRect.height) * 100;
+        // Calculate movement delta with higher precision
+        const deltaX = ((moveEvent.clientX - this.startX) / fieldRect.width * 10000).toFixed(2) / 100;
+        const deltaY = ((moveEvent.clientY - this.startY) / fieldRect.height * 10000).toFixed(2) / 100;
 
-        // Calculate new position
-        const newX = this.initialLeft + deltaX;
-        const newY = this.initialTop + deltaY;
+        // Calculate new position with higher precision
+        const newX = (this.initialLeft + deltaX).toFixed(2);
+        const newY = (this.initialTop + deltaY).toFixed(2);
 
         // Constrain within field boundaries
         const constrainedX = Math.max(0, Math.min(100 - 8, newX));
@@ -298,7 +301,11 @@ class LineupBuilder {
     const upHandler = () => {
       this.isDragging = false;
       player.style.zIndex = '';
-      player.style.transition = 'all 0.2s ease';
+      
+      // Reset transition after drag
+      player.style.transition = 'z-index 0.2s ease';
+      player.style.transform = 'translate(-50%, -50%)';
+      
       document.removeEventListener('mousemove', moveHandler);
       document.removeEventListener('mouseup', upHandler);
     };
@@ -408,11 +415,18 @@ class LineupBuilder {
 
   saveAsImage() {
     const field = document.querySelector('.soccer-field');
-    html2canvas(field).then(canvas => {
+    html2canvas(field, {
+      useCORS: true,
+      logging: true,
+      scale: 2, // Increase scale for better quality
+      backgroundColor: null // Make background transparent
+    }).then(canvas => {
       const link = document.createElement('a');
       link.download = 'lineup.png';
-      link.href = canvas.toDataURL();
+      link.href = canvas.toDataURL('image/png', 1.0);
       link.click();
+    }).catch(err => {
+      console.error('Error generating image:', err);
     });
   }
 
