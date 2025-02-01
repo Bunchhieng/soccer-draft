@@ -420,29 +420,34 @@ class LineupBuilder {
   }
 
   handleEdit(element) {
-    element.addEventListener('mousedown', (e) => {
-      e.stopPropagation();
+    let isTouchDevice = 'ontouchstart' in window;
+
+    const handleFocus = (e) => {
+      e.preventDefault();
       element.contentEditable = true;
       if (element.textContent.trim() === 'Click to edit') {
         element.textContent = '';
       }
       element.focus();
-    });
+    };
 
-    element.addEventListener('touchstart', (e) => {
-      e.stopPropagation();
-      element.contentEditable = true;
-      if (element.textContent.trim() === 'Click to edit') {
-        element.textContent = '';
-      }
-      element.focus();
-    });
-
-    element.addEventListener('blur', () => {
+    const handleBlur = () => {
       if (element.textContent.trim() === '') {
         element.textContent = 'Click to edit';
       }
-    });
+    };
+
+    if (isTouchDevice) {
+      // For touch devices, only use touchstart
+      element.addEventListener('touchstart', handleFocus, { passive: false });
+      element.removeEventListener('mousedown', handleFocus);
+    } else {
+      // For non-touch devices, use mousedown
+      element.addEventListener('mousedown', handleFocus);
+      element.removeEventListener('touchstart', handleFocus);
+    }
+
+    element.addEventListener('blur', handleBlur);
   }
 }
 
