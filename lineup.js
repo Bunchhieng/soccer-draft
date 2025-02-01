@@ -192,7 +192,6 @@ class LineupBuilder {
       const numberElement = document.createElement('div');
       numberElement.className = 'player-number';
       numberElement.textContent = i + 1;
-      numberElement.contentEditable = true;
       numberElement.style.position = 'absolute';
       numberElement.style.zIndex = '2';
       numberElement.style.color = 'white';
@@ -248,12 +247,10 @@ class LineupBuilder {
         });
       };
       
-      handleEdit(numberElement);
       handleEdit(nameElement);
       
       // Add text selection listeners
       nameElement.addEventListener('touchstart', this.handleTextSelection.bind(this));
-      numberElement.addEventListener('touchstart', this.handleTextSelection.bind(this));
       
       container.appendChild(player);
       this.players.push(player);
