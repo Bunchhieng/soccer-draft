@@ -396,11 +396,21 @@ class LineupBuilder {
 
   saveAsImage() {
     const field = document.querySelector('.soccer-field');
+    
+    // Get the full dimensions of the field
+    const fieldRect = field.getBoundingClientRect();
+    
     html2canvas(field, {
       useCORS: true,
       logging: true,
-      scale: 2, // Increase scale for better quality
-      backgroundColor: null // Make background transparent
+      scale: 2,
+      backgroundColor: null,
+      width: fieldRect.width,
+      height: fieldRect.height,
+      scrollX: -window.scrollX,
+      scrollY: -window.scrollY,
+      windowWidth: document.documentElement.offsetWidth,
+      windowHeight: document.documentElement.offsetHeight
     }).then(canvas => {
       const link = document.createElement('a');
       link.download = 'lineup.png';
