@@ -951,135 +951,50 @@ const DraftManager = (() => {
       tempContainer.style.overflow = 'visible';
       document.body.appendChild(tempContainer);
 
-      // Clone the teams grid
+      // Create background container with soccer field pattern
+      const backgroundContainer = document.createElement('div');
+      backgroundContainer.style.position = 'relative';
+      backgroundContainer.style.background = `
+        rgba(255, 255, 255, 0.9),
+        linear-gradient(transparent 95%, rgba(76, 175, 80, 0.1) 100%),
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 49px,
+          rgba(76, 175, 80, 0.1) 50px,
+          rgba(76, 175, 80, 0.1) 100px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 49px,
+          rgba(76, 175, 80, 0.1) 50px,
+          rgba(76, 175, 80, 0.1) 100px
+        )
+      `;
+      backgroundContainer.style.backgroundSize = '100px 100px';
+      backgroundContainer.style.padding = '20px';
+      backgroundContainer.style.borderRadius = '16px';
+
+      // Clone the teams grid exactly as it appears
       const gridClone = teamsGrid.cloneNode(true);
-      tempContainer.appendChild(gridClone);
+      backgroundContainer.appendChild(gridClone);
+      tempContainer.appendChild(backgroundContainer);
 
       // Hide all edit buttons in the clone
       gridClone.querySelectorAll('.edit-button').forEach(button => {
         button.style.display = 'none';
       });
 
-      // Center team names and adjust header styling
-      gridClone.querySelectorAll('.team-header').forEach(header => {
-        header.style.textAlign = 'center';
-        header.style.padding = '8px 6px';
-
-        // Remove flex styling from team-info to allow center alignment
-        const teamInfo = header.querySelector('.team-info');
-        if (teamInfo) {
-          teamInfo.style.display = 'block';
-          teamInfo.style.textAlign = 'center';
-        }
-
-        // Adjust team name and captain styling
-        const teamName = header.querySelector('.team-name');
-        if (teamName) {
-          teamName.style.fontSize = '12px';
-          teamName.style.fontWeight = '600';
-          teamName.style.marginBottom = '2px';
-        }
-      });
-
-      // Calculate base width per team (smaller to ensure fit)
-      const teamsCount = state.teams.length;
-      const baseWidth = 140; // Even smaller width
-      const gap = 4; // Minimal gap
-      const padding = 10; // Smaller padding
-
-      // Calculate total width needed
-      const totalWidth = (teamsCount * baseWidth) + ((teamsCount - 1) * gap) + (padding * 2);
-
-      // Style the cloned grid
-      gridClone.style.display = 'grid';
-      gridClone.style.gridTemplateColumns = `repeat(${teamsCount}, ${baseWidth}px)`;
-      gridClone.style.gap = `${gap}px`;
-      gridClone.style.padding = `${padding}px`;
-      gridClone.style.background = '#ffffff';
-      gridClone.style.width = `${totalWidth}px`;
-      gridClone.style.boxSizing = 'border-box';
-
-      // Style each team column
-      const teamCols = gridClone.querySelectorAll('.team-col');
-      teamCols.forEach(col => {
-        col.style.width = `${baseWidth}px`;
-        col.style.minWidth = `${baseWidth}px`;
-        col.style.maxWidth = `${baseWidth}px`;
-        col.style.margin = '0';
-        col.style.fontSize = '9px';
-        col.style.boxSizing = 'border-box';
-
-        // Style team header
-        const header = col.querySelector('.team-header');
-        if (header) {
-          header.style.padding = '4px';
-          header.style.marginBottom = '4px';
-        }
-
-        // Style player count
-        const playerCount = col.querySelector('.player-count');
-        if (playerCount) {
-          playerCount.style.fontSize = '8px';
-          playerCount.style.margin = '1px 0';
-          playerCount.style.padding = '1px 0';
-          playerCount.style.borderBottom = '1px solid #eee';
-        }
-
-        // Style team players
-        const playersList = col.querySelector('.team-players');
-        if (playersList) {
-          playersList.style.gap = '0'; // Remove gap between players
-          playersList.style.padding = '0';
-          playersList.style.lineHeight = '1'; // Reduce line height
-
-          // Style individual players
-          const players = playersList.querySelectorAll('.team-player');
-          players.forEach(player => {
-            player.style.padding = '0px';
-            player.style.fontSize = '8px';
-            player.style.background = 'none';
-            player.style.border = 'none';
-            player.style.lineHeight = '1.1'; // Minimal line height
-            player.style.height = 'auto';
-            player.style.minHeight = '0';
-
-            // Remove any hover effects or transitions
-            player.style.transition = 'none';
-            player.style.borderRadius = '0';
-            player.style.margin = '0';
-
-            // Style the player name container
-            const playerName = player.querySelector('.team-player-name');
-            if (playerName) {
-              playerName.style.gap = '0';
-              playerName.style.lineHeight = '1.1';
-              playerName.style.padding = '0';
-              playerName.style.margin = '0';
-            }
-          });
-        }
-      });
-
-      // Let height be determined by content
-      const maxHeight = Math.max(...Array.from(teamCols).map(col => col.offsetHeight)) + (padding * 2);
-
-      // Configure html2canvas with higher scale for better quality
-      html2canvas(gridClone, {
+      // Configure html2canvas to capture the enhanced view
+      html2canvas(backgroundContainer, {
         backgroundColor: '#ffffff',
-        scale: 3, // Increased scale for higher quality
+        scale: 2,
         useCORS: true,
         allowTaint: true,
-        width: totalWidth,
-        height: maxHeight,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: totalWidth,
-        windowHeight: maxHeight,
         logging: false,
-        onclone: (clonedDoc) => {
-          const clonedElement = clonedDoc.querySelector('.teams-grid');
-          clonedElement.style.width = `${totalWidth}px`;
-          clonedElement.style.height = `${maxHeight}px`;
+        ignoreElements: (element) => {
+          return element.classList.contains('edit-button');
         }
       }).then(canvas => {
         // Clean up temporary container
@@ -1325,7 +1240,7 @@ function triggerGoalAnimation() {
   const celebrations = [
     {text: "GOAL!", subtext: "What a fantastic shot! 🎯"},
     {text: "GOLAZO!", subtext: "Simply magnificent! ⭐"},
-    {text: "GOAL!", subtext: "Top bins! 🎯"},
+    {text: "GOAL!", subtext: "Top bins! ��"},
     {text: "SCORED!", subtext: "Clinical finish! ⚡"}
   ];
 
