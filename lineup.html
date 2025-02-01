@@ -36,15 +36,14 @@
 </head>
 <body>
   <div class="app-container">
-    <!-- Settings Panel -->
-    <aside class="settings-panel">
-      <div class="settings-header">
+    <!-- Move settings panel to bottom -->
+    <div class="settings-container">
+      <button class="toggle-settings" aria-label="Toggle settings">
+        <i class="fas fa-cog"></i>
+        Customize
+      </button>
+      <div class="settings-panel">
         <h2>Lineup Settings</h2>
-        <button class="toggle-settings" aria-label="Toggle settings">
-          <i class="fas fa-cog"></i>
-        </button>
-      </div>
-      <div class="settings-content">
         <div class="form-group">
           <label for="lineup-name">Lineup Name</label>
           <input type="text" id="lineup-name" placeholder="Team Name">
@@ -80,18 +79,18 @@
           <label for="text-color">Jersey Text Color</label>
           <input type="color" id="text-color" value="#ffffff">
         </div>
+        <div class="form-group">
+          <button class="utility-button" id="save-image">
+            <i class="fas fa-camera"></i>
+            Save as Image
+          </button>
+        </div>
       </div>
-    </aside>
+    </div>
 
     <!-- Main Content -->
     <div class="main-content">
-      <div class="utility-container">
-        <button class="utility-button" id="save-image">
-          <i class="fas fa-camera"></i>
-          Save as Image
-        </button>
-      </div>
-      <main class="field-container">
+      <div class="field-container">
         <div class="soccer-field">
           <div class="field-title" id="field-title"></div>
           <div class="field-lines">
@@ -124,13 +123,37 @@
           </div>
           <div class="players-container"></div>
         </div>
-      </main>
+        <div class="save-image-container">
+          <button class="utility-button" id="save-image-mobile">
+            <i class="fas fa-camera"></i>
+            Save as Image
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- Update the header section -->
+  <header class="app-header">
+    <h1>Lineup Builder</h1>
+    <div class="header-links">
+      Built with <span class="heart">❤️</span> by 
+      <a href="https://www.facebook.com/profile.php?id=61555674030331" target="_blank" rel="noopener noreferrer">Lowell Warriors FC</a> ©
+      <span id="currentYear"></span>
+      <div class="footer-links">
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <span class="footer-divider">•</span>
+        <a href="terms-of-service.html">Terms of Service</a>
+        <span class="footer-divider">•</span>
+        <a href="index.html">Pickup Draft</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Keep the footer for desktop -->
   <footer class="footer">
-    Built with <span class="heart">❤️</span> by <a href="https://www.facebook.com/profile.php?id=61555674030331"
-                                                 target="_blank" rel="noopener noreferrer">Lowell Warriors FC</a> ©
+    Built with <span class="heart">❤️</span> by 
+    <a href="https://www.facebook.com/profile.php?id=61555674030331" target="_blank" rel="noopener noreferrer">Lowell Warriors FC</a> ©
     <span id="currentYear"></span>
     <div class="footer-links">
       <a href="privacy-policy.html">Privacy Policy</a>

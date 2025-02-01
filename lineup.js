@@ -6,9 +6,9 @@ const FORMATION_POSITIONS = {
       { x: 40.0, y: 70.0 },  // RCB
       { x: 60.0, y: 70.0 },  // LCB
       { x: 80.0, y: 70.0 },  // LB
-      { x: 30.0, y: 50.0 },  // RM
+      { x: 25.0, y: 50.0 },  // RM
       { x: 50.0, y: 50.0 },  // CM
-      { x: 70.0, y: 50.0 },  // CM
+      { x: 75.0, y: 50.0 },  // CM
       { x: 50.0, y: 30.0 },  // RF
       { x: 30.0, y: 30.0 },  // CF
       { x: 70.0, y: 30.0 }   // LF
@@ -22,12 +22,12 @@ const FORMATION_POSITIONS = {
       { x: 40, y: 70 },  // RCB
       { x: 60, y: 70 },  // LCB
       { x: 80, y: 70 },  // LB
-      { x: 30, y: 50 },  // RM
+      { x: 35, y: 50 },  // RM
       { x: 50, y: 50 },  // CM
-      { x: 70, y: 50 },  // LM
-      { x: 30, y: 30 },  // RW
+      { x: 65, y: 50 },  // CM
+      { x: 30, y: 30 },  // RF
       { x: 50, y: 30 },  // CF
-      { x: 70, y: 30 }   // LW
+      { x: 70, y: 30 }   // LF
     ],
     priority: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   },
@@ -37,13 +37,13 @@ const FORMATION_POSITIONS = {
       { x: 30, y: 70 },  // RCB
       { x: 50, y: 70 },  // CB
       { x: 70, y: 70 },  // LCB
-      { x: 20, y: 50 },  // RWB
-      { x: 80, y: 50 },  // LWB
-      { x: 40, y: 50 },  // RM
-      { x: 60, y: 50 },  // LM
-      { x: 50, y: 30 },  // CAM
-      { x: 30, y: 30 },  // CF
-      { x: 70, y: 30 }   // CF
+      { x: 20, y: 50 },  // RM
+      { x: 40, y: 50 },  // CM
+      { x: 60, y: 50 },  // CM
+      { x: 80, y: 50 },  // LM
+      { x: 50, y: 50 },  // CAM
+      { x: 40, y: 30 },  // CF
+      { x: 60, y: 30 }   // CF
     ],
     priority: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   },
@@ -54,12 +54,12 @@ const FORMATION_POSITIONS = {
       { x: 40, y: 70 },  // RCB
       { x: 60, y: 70 },  // LCB
       { x: 80, y: 70 },  // LB
-      { x: 35, y: 50 },  // RDM
-      { x: 65, y: 50 },  // LDM
-      { x: 30, y: 30 },  // RAM
-      { x: 50, y: 30 },  // CAM
-      { x: 70, y: 30 },  // LAM
-      { x: 50, y: 15 }   // ST
+      { x: 35, y: 55 },  // CDM
+      { x: 65, y: 55 },  // CDM
+      { x: 25, y: 40 },  // RM
+      { x: 50, y: 40 },  // CAM
+      { x: 75, y: 40 },  // LM
+      { x: 50, y: 25 }   // CF
     ],
     priority: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   },
@@ -82,16 +82,16 @@ const FORMATION_POSITIONS = {
   '5-3-2': {
     positions: [
       { x: 50, y: 85 },  // GK
-      { x: 20, y: 70 },  // RWB
-      { x: 35, y: 70 },  // RCB
+      { x: 15, y: 70 },  // RWB
+      { x: 30, y: 70 },  // RCB
       { x: 50, y: 70 },  // CB
-      { x: 65, y: 70 },  // LCB
-      { x: 80, y: 70 },  // LWB
-      { x: 35, y: 50 },  // RM
+      { x: 70, y: 70 },  // LCB
+      { x: 85, y: 70 },  // LWB
+      { x: 35, y: 50 },  // CM
       { x: 50, y: 50 },  // CM
-      { x: 65, y: 50 },  // LM
-      { x: 40, y: 30 },  // RF
-      { x: 60, y: 30 }   // LF
+      { x: 65, y: 50 },  // CM
+      { x: 40, y: 30 },  // CF
+      { x: 60, y: 30 }   // CF
     ],
     priority: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   }
@@ -117,8 +117,11 @@ class LineupBuilder {
       this.generatePlayers(parseInt(e.target.value));
     });
 
-    // Save image button
+    // Handle both save buttons
     document.getElementById('save-image').addEventListener('click', () => {
+      this.saveAsImage();
+    });
+    document.getElementById('save-image-mobile').addEventListener('click', () => {
       this.saveAsImage();
     });
 
@@ -152,13 +155,9 @@ class LineupBuilder {
       title.textContent = e.target.value;
     });
 
-    document.querySelector('.toggle-settings').addEventListener('click', function() {
+    document.querySelector('.toggle-settings').addEventListener('click', () => {
       const panel = document.querySelector('.settings-panel');
       panel.classList.toggle('expanded');
-      
-      // Toggle lineup name visibility
-      const lineupName = document.getElementById('lineup-name');
-      lineupName.style.display = panel.classList.contains('expanded') ? 'block' : 'none';
     });
   }
 
@@ -397,27 +396,47 @@ class LineupBuilder {
   saveAsImage() {
     const field = document.querySelector('.soccer-field');
     
-    // Get the full dimensions of the field
-    const fieldRect = field.getBoundingClientRect();
+    // Temporarily adjust styles for capture
+    const originalOverflow = field.style.overflow;
+    const originalWidth = field.style.width;
+    const originalHeight = field.style.height;
     
+    field.style.overflow = 'visible';
+    field.style.width = '100%';
+    field.style.height = 'auto';
+
     html2canvas(field, {
       useCORS: true,
       logging: true,
       scale: 2,
       backgroundColor: null,
-      width: fieldRect.width,
-      height: fieldRect.height,
-      scrollX: -window.scrollX,
-      scrollY: -window.scrollY,
-      windowWidth: document.documentElement.offsetWidth,
-      windowHeight: document.documentElement.offsetHeight
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: field.scrollWidth,
+      windowHeight: field.scrollHeight,
+      onclone: (clonedDoc) => {
+        const clonedField = clonedDoc.querySelector('.soccer-field');
+        clonedField.style.overflow = 'visible';
+        clonedField.style.width = '100%';
+        clonedField.style.height = 'auto';
+      }
     }).then(canvas => {
+      // Restore original styles
+      field.style.overflow = originalOverflow;
+      field.style.width = originalWidth;
+      field.style.height = originalHeight;
+
+      // Create and trigger download
       const link = document.createElement('a');
       link.download = 'lineup.png';
       link.href = canvas.toDataURL('image/png', 1.0);
       link.click();
     }).catch(err => {
       console.error('Error generating image:', err);
+      // Restore original styles in case of error
+      field.style.overflow = originalOverflow;
+      field.style.width = originalWidth;
+      field.style.height = originalHeight;
     });
   }
 
@@ -464,4 +483,8 @@ class LineupBuilder {
 // Initialize the lineup builder
 document.addEventListener('DOMContentLoaded', () => {
   const lineupBuilder = new LineupBuilder();
+
+  // Remove the save button from settings panel
+  const saveButton = document.querySelector('#save-image');
+  document.querySelector('.settings-panel').removeChild(saveButton.parentElement);
 }); 
