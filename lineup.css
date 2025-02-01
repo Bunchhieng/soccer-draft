@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
 :root {
   --field-green: #3d8b3d;
   --field-light-green: #4CAF50;
@@ -10,10 +12,22 @@
 
 body {
   margin: 0;
-  font-family: 'Arial', sans-serif;
-  display: flex;
+  font-family: 'JetBrains Mono', monospace;
   min-height: 100vh;
-  background: #f8f9fa;
+  background: 
+    linear-gradient(
+      45deg,
+      rgba(61, 139, 61, 0.1) 25%,  /* Field green with 10% opacity */
+      rgba(76, 175, 80, 0.1) 25%,
+      rgba(76, 175, 80, 0.1) 50%,
+      rgba(61, 139, 61, 0.1) 50%,
+      rgba(61, 139, 61, 0.1) 75%,
+      rgba(76, 175, 80, 0.1) 75%
+    ),
+    #f8f9fa;  /* Original background color */
+  background-size: 40px 40px;
+  background-attachment: fixed;
+  display: flex;
   justify-content: center;
   align-items: center;
 }
@@ -29,6 +43,9 @@ body {
   align-items: flex-start;
   overflow: hidden;
   flex: 1;
+  background: rgba(255, 255, 255, 0.9);  /* Semi-transparent white background */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .settings-panel {
@@ -484,6 +501,7 @@ body {
   font-weight: bold;
   margin-top: 0.2rem;
   pointer-events: auto;
+  font-family: 'Arial', sans-serif;
 }
 
 /* Add neckline */
@@ -642,6 +660,25 @@ body {
 
   .form-group select option {
     font-size: 0.9rem !important;
+  }
+
+  .footer-links {
+    flex-direction: row !important;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .footer-divider {
+    display: inline !important;
+    margin: 0 0.5rem;
+  }
+
+  .footer-links a {
+    display: inline-block !important;
+    width: auto !important;
+    white-space: nowrap;
   }
 }
 
@@ -847,12 +884,22 @@ main {
   }
 
   .footer-links {
-    flex-direction: column;
-    gap: 0.25rem;
+    flex-direction: row !important;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
   }
 
   .footer-divider {
-    display: none;
+    display: inline !important;
+    margin: 0 0.5rem;
+  }
+
+  .footer-links a {
+    display: inline-block !important;
+    width: auto !important;
+    white-space: nowrap;
   }
 }
 
