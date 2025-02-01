@@ -944,4 +944,20 @@ main {
 
 .player:hover::before {
   opacity: 1;
+}
+
+/* Remove the mobile-specific hiding rules from the general styles */
+.settings-panel:not(.expanded) .form-group:first-child,
+.settings-panel:not(.expanded) .form-group:not(:first-child),
+.settings-panel:not(.expanded) #save-image {
+  display: block; /* Show on desktop by default */
+}
+
+/* Keep mobile-specific hiding rules inside the media query */
+@media (max-width: 768px) {
+  .settings-panel:not(.expanded) .form-group:first-child,
+  .settings-panel:not(.expanded) .form-group:not(:first-child),
+  .settings-panel:not(.expanded) #save-image {
+    display: none; /* Hide on mobile when collapsed */
+  }
 } 

@@ -1,17 +1,17 @@
 const FORMATION_POSITIONS = {
   '4-4-2': {
     positions: [
-      { x: 50, y: 85 },  // GK
-      { x: 20, y: 70 },  // RB
-      { x: 40, y: 70 },  // RCB
-      { x: 60, y: 70 },  // LCB
-      { x: 80, y: 70 },  // LB
-      { x: 30, y: 50 },  // RM
-      { x: 50, y: 50 },  // CM
-      { x: 70, y: 50 },  // CM
-      { x: 50, y: 30 },  // RF
-      { x: 30, y: 30 },  // CF
-      { x: 70, y: 30 }   // LF
+      { x: 50.0, y: 85.0 },  // GK
+      { x: 20.0, y: 70.0 },  // RB
+      { x: 40.0, y: 70.0 },  // RCB
+      { x: 60.0, y: 70.0 },  // LCB
+      { x: 80.0, y: 70.0 },  // LB
+      { x: 30.0, y: 50.0 },  // RM
+      { x: 50.0, y: 50.0 },  // CM
+      { x: 70.0, y: 50.0 },  // CM
+      { x: 50.0, y: 30.0 },  // RF
+      { x: 30.0, y: 30.0 },  // CF
+      { x: 70.0, y: 30.0 }   // LF
     ],
     priority: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   },
@@ -155,6 +155,10 @@ class LineupBuilder {
     document.querySelector('.toggle-settings').addEventListener('click', function() {
       const panel = document.querySelector('.settings-panel');
       panel.classList.toggle('expanded');
+      
+      // Toggle lineup name visibility
+      const lineupName = document.getElementById('lineup-name');
+      lineupName.style.display = panel.classList.contains('expanded') ? 'block' : 'none';
     });
   }
 
@@ -258,7 +262,6 @@ class LineupBuilder {
   }
 
   handleMouseDown(e) {
-    // Only handle clicks on the player element, not its children
     if (!e.target.classList.contains('player')) return;
     
     e.preventDefault();
@@ -267,19 +270,28 @@ class LineupBuilder {
     player.style.zIndex = 1000;
     player.style.transition = 'none';
 
+    // Store initial click position and player position
+    this.startX = e.clientX;
+    this.startY = e.clientY;
+    this.initialLeft = parseFloat(player.style.left);
+    this.initialTop = parseFloat(player.style.top);
+
     const moveHandler = (moveEvent) => {
       if (this.isDragging) {
-        const container = document.querySelector('.players-container');
         const fieldLines = document.querySelector('.field-lines');
         const fieldRect = fieldLines.getBoundingClientRect();
 
-        // Calculate position relative to container
-        const x = (moveEvent.clientX - fieldRect.left) / fieldRect.width * 100;
-        const y = (moveEvent.clientY - fieldRect.top) / fieldRect.height * 100;
-        
-        // Constrain within field lines
-        const constrainedX = Math.max(0, Math.min(100 - 8, x));
-        const constrainedY = Math.max(0, Math.min(100 - 8, y));
+        // Calculate movement delta
+        const deltaX = ((moveEvent.clientX - this.startX) / fieldRect.width) * 100;
+        const deltaY = ((moveEvent.clientY - this.startY) / fieldRect.height) * 100;
+
+        // Calculate new position
+        const newX = this.initialLeft + deltaX;
+        const newY = this.initialTop + deltaY;
+
+        // Constrain within field boundaries
+        const constrainedX = Math.max(0, Math.min(100 - 8, newX));
+        const constrainedY = Math.max(0, Math.min(100 - 8, newY));
         
         player.style.left = `${constrainedX}%`;
         player.style.top = `${constrainedY}%`;
@@ -326,8 +338,9 @@ class LineupBuilder {
       const fieldLines = document.querySelector('.field-lines');
       const fieldRect = fieldLines.getBoundingClientRect();
 
-      const x = (touch.clientX - fieldRect.left) / fieldRect.width * 100;
-      const y = (touch.clientY - fieldRect.top) / fieldRect.height * 100;
+      // Calculate position with more precision
+      const x = ((touch.clientX - fieldRect.left) / fieldRect.width * 1000).toFixed(0) / 10;
+      const y = ((touch.clientY - fieldRect.top) / fieldRect.height * 1000).toFixed(0) / 10;
       
       const constrainedX = Math.max(0, Math.min(100 - 8, x));
       const constrainedY = Math.max(0, Math.min(100 - 8, y));
