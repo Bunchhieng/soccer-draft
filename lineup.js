@@ -228,26 +228,7 @@ class LineupBuilder {
       player.addEventListener('mousedown', this.handleMouseDown.bind(this));
       
       // Add edit event listeners
-      const handleEdit = (element) => {
-        element.addEventListener('mousedown', (e) => {
-          e.stopPropagation();
-          element.contentEditable = true;
-          if (element === nameElement && element.textContent === 'Click to edit') {
-            element.textContent = '';
-          }
-          element.focus();
-        });
-        element.addEventListener('blur', () => {
-          if (element === nameElement) {
-            element.contentEditable = false;
-            if (element.textContent.trim() === '') {
-              element.textContent = 'Click to edit';
-            }
-          }
-        });
-      };
-      
-      handleEdit(nameElement);
+      this.handleEdit(nameElement);
       
       // Add text selection listeners
       nameElement.addEventListener('touchstart', this.handleTextSelection.bind(this));
@@ -436,6 +417,32 @@ class LineupBuilder {
     if (selection.toString().length > 0) {
       e.stopPropagation();
     }
+  }
+
+  handleEdit(element) {
+    element.addEventListener('mousedown', (e) => {
+      e.stopPropagation();
+      element.contentEditable = true;
+      if (element.textContent.trim() === 'Click to edit') {
+        element.textContent = '';
+      }
+      element.focus();
+    });
+
+    element.addEventListener('touchstart', (e) => {
+      e.stopPropagation();
+      element.contentEditable = true;
+      if (element.textContent.trim() === 'Click to edit') {
+        element.textContent = '';
+      }
+      element.focus();
+    });
+
+    element.addEventListener('blur', () => {
+      if (element.textContent.trim() === '') {
+        element.textContent = 'Click to edit';
+      }
+    });
   }
 }
 
