@@ -749,7 +749,6 @@ body {
 
   .footer-links {
     flex-direction: row !important;
-    gap: 0.5rem;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
@@ -772,30 +771,26 @@ body {
   }
 
   .app-header {
-    position: fixed;
     top: 0;
     left: 0;
     right: 0;
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(10px);
-    padding: 0.75rem 1rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    z-index: 1000;
     text-align: center;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   }
 
   .app-header h1 {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: 1rem;
     color: #2d3748;
     font-weight: 600;
-    letter-spacing: -0.02em;
   }
 
   .header-links {
     display: block;
-    font-size: 0.8rem;
+    font-size: 0.6rem;
     color: #4a5568;
     margin-top: 0.25rem;
     line-height: 1.4;
@@ -824,8 +819,8 @@ body {
   }
 
   .footer-links {
+    font-size: 13px;
     display: flex;
-    gap: 0.5rem;
     justify-content: center;
     margin-top: 0.25rem;
   }
@@ -971,7 +966,6 @@ main {
   left: 0;
   right: 0;
   background: rgba(76, 175, 80, 0.95);
-  padding: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   text-align: center;
@@ -1181,7 +1175,6 @@ main {
     background: transparent;
     box-shadow: none;
     padding: 0;
-    margin-bottom: 2rem;
   }
 
   .app-header h1 {
@@ -1242,7 +1235,7 @@ main {
 @media (max-width: 768px) {
   .save-image-container {
     position: fixed;
-    bottom: 6rem;
+    bottom: 5rem;
     right: 1rem;
     margin-bottom: 0;
     padding: 0;
