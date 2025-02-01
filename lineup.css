@@ -466,6 +466,13 @@ body {
   pointer-events: all;
   transform: translate(-50%, -50%);
   background: none !important;
+  cursor: grab;
+  transition: transform 0.1s ease;
+}
+
+.player:active {
+  cursor: grabbing;
+  transform: scale(1.05);
 }
 
 .fa-shirt {
@@ -489,6 +496,7 @@ body {
   font-weight: bold;
   pointer-events: auto;
   margin-top: 0.2rem;
+  cursor: text;
 }
 
 .player-name {
@@ -502,6 +510,7 @@ body {
   margin-top: 0.2rem;
   pointer-events: auto;
   font-family: 'Arial', sans-serif;
+  cursor: text;
 }
 
 /* Add neckline */
@@ -912,4 +921,26 @@ main {
     width: 100%;
     text-align: center;
   }
+}
+
+@media (hover: hover) {
+  .player:hover {
+    filter: brightness(1.1);
+  }
+}
+
+.player::before {
+  content: '⇳';
+  position: absolute;
+  top: -1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.2rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.player:hover::before {
+  opacity: 1;
 } 

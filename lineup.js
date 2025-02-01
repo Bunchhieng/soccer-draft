@@ -247,6 +247,10 @@ class LineupBuilder {
       handleEdit(numberElement);
       handleEdit(nameElement);
       
+      // Add text selection listeners
+      nameElement.addEventListener('touchstart', this.handleTextSelection.bind(this));
+      numberElement.addEventListener('touchstart', this.handleTextSelection.bind(this));
+      
       container.appendChild(player);
       this.players.push(player);
     }
@@ -295,39 +299,51 @@ class LineupBuilder {
   }
 
   handleTouchStart(e) {
+    // Check if we're touching an editable element
+    const editableElement = e.target.closest('[contenteditable]');
+    if (editableElement) {
+      editableElement.contentEditable = true;
+      editableElement.focus();
+      return;
+    }
+
+    // Handle dragging
     e.preventDefault();
     this.isDragging = true;
-    const player = e.target;
+    const player = e.target.closest('.player');
+    if (!player) return;
+    
     player.style.zIndex = 1000;
     player.style.transition = 'none';
+    this.currentPlayer = player;
   }
 
   handleTouchMove(e) {
-    if (this.isDragging) {
-      const player = e.target;
+    if (this.isDragging && this.currentPlayer) {
+      e.preventDefault();
       const touch = e.touches[0];
       const container = document.querySelector('.players-container');
       const fieldLines = document.querySelector('.field-lines');
       const fieldRect = fieldLines.getBoundingClientRect();
 
-      // Calculate position relative to container
       const x = (touch.clientX - fieldRect.left) / fieldRect.width * 100;
       const y = (touch.clientY - fieldRect.top) / fieldRect.height * 100;
       
-      // Constrain within field lines
       const constrainedX = Math.max(0, Math.min(100 - 8, x));
       const constrainedY = Math.max(0, Math.min(100 - 8, y));
       
-      player.style.left = `${constrainedX}%`;
-      player.style.top = `${constrainedY}%`;
+      this.currentPlayer.style.left = `${constrainedX}%`;
+      this.currentPlayer.style.top = `${constrainedY}%`;
     }
   }
 
   handleTouchEnd() {
-    this.isDragging = false;
-    const player = event.target;
-    player.style.zIndex = '';
-    player.style.transition = 'all 0.2s ease';
+    if (this.isDragging && this.currentPlayer) {
+      this.isDragging = false;
+      this.currentPlayer.style.zIndex = '';
+      this.currentPlayer.style.transition = 'all 0.2s ease';
+      this.currentPlayer = null;
+    }
   }
 
   openPlayerModal(player) {
@@ -388,6 +404,14 @@ class LineupBuilder {
       link.href = canvas.toDataURL();
       link.click();
     });
+  }
+
+  // Add this new method to handle text selection
+  handleTextSelection(e) {
+    const selection = window.getSelection();
+    if (selection.toString().length > 0) {
+      e.stopPropagation();
+    }
   }
 }
 
