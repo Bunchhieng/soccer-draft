@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soccer Lineup Builder</title>
+  <link rel="stylesheet" href="lineup.css">
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Settings Panel -->
+    <aside class="settings-panel">
+      <div class="settings-header">
+        <h2>Lineup Settings</h2>
+        <button class="toggle-settings" aria-label="Toggle settings">
+          <i class="fas fa-cog"></i>
+        </button>
+      </div>
+      <div class="settings-content">
+        <div class="form-group">
+          <label for="lineup-name">Lineup Name</label>
+          <input type="text" id="lineup-name" placeholder="Team Name">
+        </div>
+        <div class="form-group">
+          <label for="formation">Formation</label>
+          <select id="formation">
+            <option value="4-4-2">4-4-2</option>
+            <option value="4-3-3">4-3-3</option>
+            <option value="3-5-2">3-5-2</option>
+            <option value="4-2-3-1">4-2-3-1</option>
+            <option value="3-4-3">3-4-3</option>
+            <option value="5-3-2">5-3-2</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="player-count">Player Count</label>
+          <select id="player-count">
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11" selected>11</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="jersey-color">Jersey Color</label>
+          <input type="color" id="jersey-color" value="#ff0000">
+        </div>
+        <div class="form-group">
+          <label for="text-color">Jersey Text Color</label>
+          <input type="color" id="text-color" value="#ffffff">
+        </div>
+        <button id="save-image">Save as Image</button>
+      </div>
+    </aside>
+
+    <!-- Soccer Field -->
+    <main class="field-container">
+      <div class="soccer-field">
+        <div class="field-title" id="field-title"></div>
+        <div class="field-lines">
+          <!-- Center Elements -->
+          <div class="center-circle"></div>
+          <div class="center-spot"></div>
+          <div class="halfway-line"></div>
+
+          <!-- Penalty Areas -->
+          <div class="penalty-area top"></div>
+          <div class="penalty-area bottom"></div>
+
+          <!-- Goal Areas -->
+          <div class="goal-area top"></div>
+          <div class="goal-area bottom"></div>
+
+          <!-- Goals -->
+          <div class="goal-post top"></div>
+          <div class="goal-post bottom"></div>
+
+          <!-- Penalty Spots -->
+          <div class="penalty-spot top"></div>
+          <div class="penalty-spot bottom"></div>
+
+          <!-- Corner Arcs -->
+          <div class="corner-arc top-left"></div>
+          <div class="corner-arc top-right"></div>
+          <div class="corner-arc bottom-left"></div>
+          <div class="corner-arc bottom-right"></div>
+        </div>
+        <div class="players-container"></div>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    Built with <span class="heart">❤️</span> by <a href="https://www.facebook.com/profile.php?id=61555674030331"
+                                                 target="_blank" rel="noopener noreferrer">Lowell Warriors FC</a> ©
+    <span id="currentYear"></span>
+    <div class="footer-links">
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <span class="footer-divider">•</span>
+      <a href="terms-of-service.html">Terms of Service</a>
+      <span class="footer-divider">•</span>
+      <a href="index.html">Pickup Draft</a>
+    </div>
+  </footer>
+
+  <script src="lineup.js"></script>
+  <script>
+    // Add current year to footer
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html> 

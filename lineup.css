@@ -1,0 +1,869 @@
+:root {
+  --field-green: #3d8b3d;
+  --field-light-green: #4CAF50;
+  --white: #ffffff;
+  --black: #000000;
+  --border-width: 2px;
+  --goal-color: #d3d3d3;
+  --field-padding: 4%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  display: flex;
+  min-height: 100vh;
+  background: #f8f9fa;
+  justify-content: center;
+  align-items: center;
+}
+
+.app-container {
+  display: flex;
+  width: 100%;
+  gap: 1rem;
+  padding: 1rem;
+  box-sizing: border-box;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: flex-start;
+  overflow: hidden;
+  flex: 1;
+}
+
+.settings-panel {
+  width: 300px;
+  padding: 1.5rem;
+  background: var(--white);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: fit-content;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  position: sticky;
+  top: 1rem;
+  margin-top: 0;
+}
+
+.settings-panel h2 {
+  margin-top: 0;
+  color: #333;
+  font-size: 1.5rem;
+  text-align: center;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.field-container {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: fit-content;
+  padding: 1rem 0;
+  overflow: hidden;
+}
+
+.soccer-field {
+  position: relative;
+  width: 90%;
+  max-width: 800px;
+  aspect-ratio: 2 / 3;
+  background: linear-gradient(
+    45deg,
+    var(--field-green) 25%,
+    var(--field-light-green) 25%,
+    var(--field-light-green) 50%,
+    var(--field-green) 50%,
+    var(--field-green) 75%,
+    var(--field-light-green) 75%
+  );
+  background-size: 40px 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  padding: var(--field-padding);
+  box-sizing: border-box;
+}
+
+.field-lines {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--field-green);
+  border: var(--border-width) solid var(--white);
+}
+
+/* Goal Posts */
+.goal-post {
+  position: absolute;
+  left: 50%;
+  width: 12%;
+  height: 3%;
+  background: var(--goal-color);
+  transform: translateX(-50%);
+}
+
+.goal-post.bottom {
+  bottom: 0%;
+}
+
+/* Penalty Lines */
+.penalty-line {
+  position: absolute;
+  background: var(--white);
+  width: 40%;
+  height: 1%;
+}
+
+.penalty-line.top {
+  top: 20%;
+  left: 30%;
+}
+
+.penalty-line.bottom {
+  bottom: 20%;
+  left: 30%;
+}
+
+/* Outside Lines */
+.outside-line {
+  position: absolute;
+  background: var(--white);
+}
+
+.outside-line.top {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--border-width);
+}
+
+.outside-line.bottom {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: var(--border-width);
+}
+
+.outside-line.left {
+  top: 0;
+  left: 0;
+  width: var(--border-width);
+  height: 100%;
+}
+
+.outside-line.right {
+  top: 0;
+  right: 0;
+  width: var(--border-width);
+  height: 100%;
+}
+
+/* Corner Flags */
+.corner-flag {
+  position: absolute;
+  width: 2%;
+  height: 4%;
+  background: var(--white);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.corner-flag.top-left {
+  top: 0;
+  left: 0;
+}
+
+.corner-flag.top-right {
+  top: 0;
+  right: 0;
+}
+
+.corner-flag.bottom-left {
+  bottom: 0;
+  left: 0;
+}
+
+.corner-flag.bottom-right {
+  bottom: 0;
+  right: 0;
+}
+
+/* Corner Circles */
+.corner-circle {
+  position: absolute;
+  width: 3%;
+  height: 3%;
+  border: var(--border-width) solid var(--white);
+  border-radius: 50%;
+}
+
+.corner-circle.top-left {
+  top: 0;
+  left: 0;
+  border-right: none;
+  border-bottom: none;
+}
+
+.corner-circle.top-right {
+  top: 0;
+  right: 0;
+  border-left: none;
+  border-bottom: none;
+}
+
+.corner-circle.bottom-left {
+  bottom: 0;
+  left: 0;
+  border-right: none;
+  border-top: none;
+}
+
+.corner-circle.bottom-right {
+  bottom: 0;
+  right: 0;
+  border-left: none;
+  border-top: none;
+}
+
+/* Center Circle */
+.center-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20%;
+  height: 13%;
+  border: var(--border-width) solid var(--white);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.center-circle::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 2px;
+  background: var(--white);
+  transform: translate(-50%, -50%);
+}
+
+.center-spot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background: var(--white);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Halfway Line */
+.halfway-line {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  height: var(--border-width);
+  background: var(--white);
+  transform: translateY(-50%);
+}
+
+/* Penalty Areas */
+.penalty-area {
+  position: absolute;
+  left: 50%;
+  width: 44%;
+  height: 20%;
+  border: var(--border-width) solid var(--white);
+  transform: translateX(-50%);
+}
+
+.penalty-area.top {
+  top: 0;
+}
+
+.penalty-area.bottom {
+  bottom: 0;
+}
+
+/* Goal Areas */
+.goal-area {
+  position: absolute;
+  left: 50%;
+  width: 20%;
+  height: 8%;
+  border: var(--border-width) solid var(--white);
+  transform: translateX(-50%);
+}
+
+.goal-area.top {
+  top: 0;
+}
+
+.goal-area.bottom {
+  bottom: 0;
+}
+
+/* Penalty Spots */
+.penalty-spot {
+  position: absolute;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background: var(--white);
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+.penalty-spot.top {
+  top: 15%;
+}
+
+.penalty-spot.bottom {
+  bottom: 15%;
+}
+
+/* Penalty Arcs */
+.penalty-arc {
+  position: absolute;
+  left: 50%;
+  width: 20%;
+  height: 10%;
+  border: var(--border-width) solid var(--white);
+  border-radius: 50% 50% 0 0;
+  transform: translateX(-50%);
+}
+
+.penalty-arc.top {
+  top: 18%;
+}
+
+.penalty-arc.bottom {
+  bottom: 18%;
+  transform: translateX(-50%) rotate(180deg);
+}
+
+/* Corner Arcs */
+.corner-arc {
+  position: absolute;
+  width: 4%;
+  height: 4%;
+  border: var(--border-width) solid var(--white);
+  border-radius: 50%;
+}
+
+.corner-arc.top-left {
+  top: 0;
+  left: 0;
+  border-top: none;
+  border-left: none;
+}
+
+.corner-arc.top-right {
+  top: 0;
+  right: 0;
+  border-top: none;
+  border-right: none;
+}
+
+.corner-arc.bottom-left {
+  bottom: 0;
+  left: 0;
+  border-bottom: none;
+  border-left: none;
+}
+
+.corner-arc.bottom-right {
+  bottom: 0;
+  right: 0;
+  border-bottom: none;
+  border-right: none;
+}
+
+.touchline {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: var(--border-width) solid var(--white);
+}
+
+.goal-line {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: var(--border-width) solid var(--white);
+}
+
+.players-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.player {
+  position: absolute;
+  width: 8%;
+  height: 6%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+  transform: translate(-50%, -50%);
+  background: none !important;
+}
+
+.fa-shirt {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+  font-size: 4rem;
+}
+
+.player-number {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  color: white;
+  font-size: 2.5rem;
+  font-weight: bold;
+  pointer-events: auto;
+  margin-top: 0.2rem;
+}
+
+.player-name {
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  text-align: center;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-top: 0.2rem;
+  pointer-events: auto;
+}
+
+/* Add neckline */
+.player::after {
+  content: '';
+  position: absolute;
+  top: -0.5vh;
+  width: 30%;
+  height: 0.5vh;
+  background: inherit;
+  border-radius: 50% 50% 0 0;
+}
+
+[contenteditable]:focus {
+  outline: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  cursor: text;
+}
+
+#save-image {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#save-image:hover {
+  background: #45a049;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: var(--white);
+  margin: 10% auto;
+  padding: 1.5rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+}
+
+@media (max-width: 768px) {
+  body {
+    overflow: auto;
+    height: auto;
+    font-size: 14px;
+  }
+
+  .app-container {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    padding: 0;
+    gap: 0;
+    overflow: visible;
+  }
+
+  .settings-panel {
+    width: 90%;
+    margin: 0 auto;
+    padding: 0.8rem;
+    margin-bottom: 30px;
+  }
+
+  .settings-panel h2 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 0.8rem;
+  }
+
+  .form-group label {
+    font-size: 0.8rem;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 0.3rem;
+    font-size: 0.8rem;
+  }
+
+  .field-container {
+    flex: 1;
+    width: 100%;
+    height: auto;
+    padding: 0;
+    overflow: visible;
+    position: static;
+  }
+
+  .soccer-field {
+    width: 90%;
+    max-width: 90%;
+    aspect-ratio: 3/4;
+    padding: 0.25rem;
+  }
+
+  .player {
+    width: 10%;
+    height: 8%;
+  }
+
+  .fa-solid {
+    font-size: 3rem !important;
+  }
+
+  .player-number {
+    font-size: 0.9rem !important;
+  }
+
+  .player-name {
+    font-size: 0.7rem !important;
+  }
+
+  #save-image {
+    margin: 1rem 0;
+    font-size: 0.8rem;
+  }
+
+  .footer {
+    font-size: 0.8rem;
+  }
+
+  .form-group select {
+    font-size: 0.9rem !important;
+    padding: 0.4rem;
+  }
+
+  .form-group select option {
+    font-size: 0.9rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-panel {
+    width: 90%;
+    padding: 0.5rem;
+  }
+
+  .soccer-field {
+    width: 95%;
+    max-width: 95%;
+  }
+
+  .player {
+    width: 12%;
+    height: 10%;
+  }
+
+  .fa-shirt {
+    font-size: 1.5rem;
+  }
+
+  .player-number {
+    font-size: 0.8rem;
+  }
+
+  .player-name {
+    font-size: 0.65rem;
+  }
+
+  #save-image {
+    font-size: 0.75rem;
+  }
+
+  .footer {
+    font-size: 0.75rem;
+  }
+
+  .form-group select {
+    font-size: 0.85rem;
+  }
+
+  .form-group select option {
+    font-size: 0.85rem;
+  }
+}
+
+.field-title {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  padding: 0.5rem 1rem;
+  z-index: 100;
+  pointer-events: none;
+}
+
+input[type="color"] {
+  width: 100%;
+  height: 40px;
+  padding: 0.25rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+input[type="color"]:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+#lineup-name {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+#lineup-name:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+/* Add these styles to make footer stick to bottom */
+html, body {
+  height: auto;
+  margin: 0;
+  display: block;
+  overflow: auto;
+}
+
+main {
+  flex: none;
+}
+
+.footer {
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #333;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-top: 2rem;
+  background: transparent;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.footer-divider {
+  color: #666;
+  margin: 0 0.5rem;
+}
+
+.footer a {
+  color: #4CAF50;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: #45a049;
+  text-decoration: underline;
+}
+
+.heart {
+  color: #e74c3c;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.toggle-settings {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: none;
+  color: #4CAF50;
+}
+
+.toggle-settings:hover {
+  color: #45a049;
+}
+
+.settings-content {
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .toggle-settings {
+    display: block;
+  }
+
+  .settings-panel {
+    max-height: 3.5rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .settings-panel.expanded {
+    max-height: 1000px;
+  }
+
+  .toggle-settings i {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+  }
+
+  .settings-panel.expanded .toggle-settings i {
+    transform: rotate(180deg);
+  }
+
+  .footer {
+    padding: 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .footer-links {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .footer-divider {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 0.5rem;
+  }
+  
+  .footer-links a {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+} 
