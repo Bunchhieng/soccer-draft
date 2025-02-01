@@ -647,13 +647,12 @@ body {
   }
 
   .soccer-field {
-    width: 100vw;
-    max-width: 95vw;
-    height: auto;
+    width: 95vw;
+    height: calc(100vh - 200px); /* Adjust based on other elements */
+    max-height: 90vh;
     aspect-ratio: 3/4;
-    border-radius: 0;
-    box-shadow: none;
     margin: 0 auto;
+    overflow: hidden;
   }
 
   .player {
@@ -748,7 +747,7 @@ body {
   }
 
   .soccer-field {
-    aspect-ratio: 2/3; /* Slightly wider on very small screens */
+    height: calc(100vh - 150px); /* Smaller adjustment for very small screens */
   }
 
   .player {
