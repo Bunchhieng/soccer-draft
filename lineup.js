@@ -1,97 +1,97 @@
 const FORMATION_POSITIONS = {
   '4-4-2': {
     positions: [
-      { x: 50.0, y: 85.0 },  // GK
-      { x: 20.0, y: 70.0 },  // RB
-      { x: 40.0, y: 70.0 },  // RCB
-      { x: 60.0, y: 70.0 },  // LCB
-      { x: 80.0, y: 70.0 },  // LB
-      { x: 25.0, y: 50.0 },  // RM
-      { x: 50.0, y: 50.0 },  // CM
-      { x: 75.0, y: 50.0 },  // CM
-      { x: 50.0, y: 30.0 },  // RF
-      { x: 30.0, y: 30.0 },  // CF
-      { x: 70.0, y: 30.0 }   // LF
+      {x: 50.0, y: 85.0},  // GK
+      {x: 20.0, y: 70.0},  // RB
+      {x: 40.0, y: 70.0},  // RCB
+      {x: 60.0, y: 70.0},  // LCB
+      {x: 80.0, y: 70.0},  // LB
+      {x: 25.0, y: 50.0},  // RM
+      {x: 50.0, y: 50.0},  // CM
+      {x: 75.0, y: 50.0},  // CM
+      {x: 50.0, y: 30.0},  // RF
+      {x: 30.0, y: 30.0},  // CF
+      {x: 70.0, y: 30.0}   // LF
     ],
     priority: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   },
   '4-3-3': {
     positions: [
-      { x: 50, y: 85 },  // GK
-      { x: 20, y: 70 },  // RB
-      { x: 40, y: 70 },  // RCB
-      { x: 60, y: 70 },  // LCB
-      { x: 80, y: 70 },  // LB
-      { x: 35, y: 50 },  // RM
-      { x: 50, y: 50 },  // CM
-      { x: 65, y: 50 },  // CM
-      { x: 30, y: 30 },  // RF
-      { x: 50, y: 30 },  // CF
-      { x: 70, y: 30 }   // LF
+      {x: 50, y: 85},  // GK
+      {x: 20, y: 70},  // RB
+      {x: 40, y: 70},  // RCB
+      {x: 60, y: 70},  // LCB
+      {x: 80, y: 70},  // LB
+      {x: 35, y: 50},  // RM
+      {x: 50, y: 50},  // CM
+      {x: 65, y: 50},  // CM
+      {x: 30, y: 30},  // RF
+      {x: 50, y: 30},  // CF
+      {x: 70, y: 30}   // LF
     ],
     priority: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   },
   '3-5-2': {
     positions: [
-      { x: 50, y: 85 },  // GK
-      { x: 30, y: 70 },  // RCB
-      { x: 50, y: 70 },  // CB
-      { x: 70, y: 70 },  // LCB
-      { x: 20, y: 50 },  // RM
-      { x: 40, y: 50 },  // CM
-      { x: 60, y: 50 },  // CM
-      { x: 80, y: 50 },  // LM
-      { x: 50, y: 50 },  // CAM
-      { x: 40, y: 30 },  // CF
-      { x: 60, y: 30 }   // CF
+      {x: 50, y: 85},  // GK
+      {x: 30, y: 70},  // RCB
+      {x: 50, y: 70},  // CB
+      {x: 70, y: 70},  // LCB
+      {x: 20, y: 50},  // RM
+      {x: 40, y: 50},  // CM
+      {x: 60, y: 50},  // CM
+      {x: 80, y: 50},  // LM
+      {x: 50, y: 50},  // CAM
+      {x: 40, y: 30},  // CF
+      {x: 60, y: 30}   // CF
     ],
     priority: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   },
   '4-2-3-1': {
     positions: [
-      { x: 50, y: 85 },  // GK
-      { x: 20, y: 70 },  // RB
-      { x: 40, y: 70 },  // RCB
-      { x: 60, y: 70 },  // LCB
-      { x: 80, y: 70 },  // LB
-      { x: 35, y: 55 },  // CDM
-      { x: 65, y: 55 },  // CDM
-      { x: 25, y: 40 },  // RM
-      { x: 50, y: 40 },  // CAM
-      { x: 75, y: 40 },  // LM
-      { x: 50, y: 25 }   // CF
+      {x: 50, y: 85},  // GK
+      {x: 20, y: 70},  // RB
+      {x: 40, y: 70},  // RCB
+      {x: 60, y: 70},  // LCB
+      {x: 80, y: 70},  // LB
+      {x: 35, y: 55},  // CDM
+      {x: 65, y: 55},  // CDM
+      {x: 25, y: 40},  // RM
+      {x: 50, y: 40},  // CAM
+      {x: 75, y: 40},  // LM
+      {x: 50, y: 25}   // CF
     ],
     priority: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   },
   '3-4-3': {
     positions: [
-      { x: 50, y: 85 },  // GK
-      { x: 30, y: 70 },  // RCB
-      { x: 50, y: 70 },  // CB
-      { x: 70, y: 70 },  // LCB
-      { x: 20, y: 50 },  // RWB
-      { x: 80, y: 50 },  // LWB
-      { x: 40, y: 50 },  // RM
-      { x: 60, y: 50 },  // LM
-      { x: 30, y: 30 },  // RW
-      { x: 50, y: 30 },  // CF
-      { x: 70, y: 30 }   // LW
+      {x: 50, y: 85},  // GK
+      {x: 30, y: 70},  // RCB
+      {x: 50, y: 70},  // CB
+      {x: 70, y: 70},  // LCB
+      {x: 20, y: 50},  // RWB
+      {x: 80, y: 50},  // LWB
+      {x: 40, y: 50},  // RM
+      {x: 60, y: 50},  // LM
+      {x: 30, y: 30},  // RW
+      {x: 50, y: 30},  // CF
+      {x: 70, y: 30}   // LW
     ],
     priority: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   },
   '5-3-2': {
     positions: [
-      { x: 50, y: 85 },  // GK
-      { x: 15, y: 70 },  // RWB
-      { x: 30, y: 70 },  // RCB
-      { x: 50, y: 70 },  // CB
-      { x: 70, y: 70 },  // LCB
-      { x: 85, y: 70 },  // LWB
-      { x: 35, y: 50 },  // CM
-      { x: 50, y: 50 },  // CM
-      { x: 65, y: 50 },  // CM
-      { x: 40, y: 30 },  // CF
-      { x: 60, y: 30 }   // CF
+      {x: 50, y: 85},  // GK
+      {x: 15, y: 70},  // RWB
+      {x: 30, y: 70},  // RCB
+      {x: 50, y: 70},  // CB
+      {x: 70, y: 70},  // LCB
+      {x: 85, y: 70},  // LWB
+      {x: 35, y: 50},  // CM
+      {x: 50, y: 50},  // CM
+      {x: 65, y: 50},  // CM
+      {x: 40, y: 30},  // CF
+      {x: 60, y: 30}   // CF
     ],
     priority: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   }
@@ -177,7 +177,7 @@ class LineupBuilder {
     for (let i = 0; i < count; i++) {
       const player = document.createElement('div');
       player.classList.add('player');
-      
+
       // Add jersey icon
       const jerseyIcon = document.createElement('i');
       jerseyIcon.className = 'fa-solid fa-shirt';
@@ -186,7 +186,7 @@ class LineupBuilder {
       jerseyIcon.style.position = 'absolute';
       jerseyIcon.style.zIndex = '1';
       player.appendChild(jerseyIcon);
-      
+
       // Add number
       const numberElement = document.createElement('div');
       numberElement.className = 'player-number';
@@ -198,7 +198,7 @@ class LineupBuilder {
       numberElement.style.fontWeight = 'bold';
       numberElement.style.marginTop = '0.2rem';
       player.appendChild(numberElement);
-      
+
       // Add name
       const nameElement = document.createElement('div');
       nameElement.className = 'player-name';
@@ -212,26 +212,26 @@ class LineupBuilder {
       nameElement.style.fontSize = '1rem';
       nameElement.style.minWidth = '100px';
       player.appendChild(nameElement);
-      
-      const { x, y } = positions[i];
+
+      const {x, y} = positions[i];
       const centeredX = 50 + (x - 50) * scaleFactor;
       const centeredY = 50 + (y - 50) * scaleFactor;
-      
+
       player.style.left = `${centeredX}%`;
       player.style.top = `${centeredY}%`;
-      
+
       // Add event listeners
       player.addEventListener('touchstart', this.handleTouchStart.bind(this));
       player.addEventListener('touchmove', this.handleTouchMove.bind(this));
       player.addEventListener('touchend', this.handleTouchEnd.bind(this));
       player.addEventListener('mousedown', this.handleMouseDown.bind(this));
-      
+
       // Add edit event listeners
       this.handleEdit(nameElement);
-      
+
       // Add text selection listeners
       nameElement.addEventListener('touchstart', this.handleTextSelection.bind(this));
-      
+
       container.appendChild(player);
       this.players.push(player);
     }
@@ -240,12 +240,12 @@ class LineupBuilder {
 
   handleMouseDown(e) {
     if (!e.target.classList.contains('player')) return;
-    
+
     e.preventDefault();
     this.isDragging = true;
     const player = e.target;
     player.style.zIndex = 1000;
-    
+
     // Remove transition during drag
     player.style.transition = 'none';
     player.style.transform = 'translate(-50%, -50%)';
@@ -272,7 +272,7 @@ class LineupBuilder {
         // Constrain within field boundaries
         const constrainedX = Math.max(0, Math.min(100 - 8, newX));
         const constrainedY = Math.max(0, Math.min(100 - 8, newY));
-        
+
         player.style.left = `${constrainedX}%`;
         player.style.top = `${constrainedY}%`;
       }
@@ -281,11 +281,11 @@ class LineupBuilder {
     const upHandler = () => {
       this.isDragging = false;
       player.style.zIndex = '';
-      
+
       // Reset transition after drag
       player.style.transition = 'z-index 0.2s ease';
       player.style.transform = 'translate(-50%, -50%)';
-      
+
       document.removeEventListener('mousemove', moveHandler);
       document.removeEventListener('mouseup', upHandler);
     };
@@ -308,7 +308,7 @@ class LineupBuilder {
     this.isDragging = true;
     const player = e.target.closest('.player');
     if (!player) return;
-    
+
     player.style.zIndex = 1000;
     player.style.transition = 'none';
     this.currentPlayer = player;
@@ -325,10 +325,10 @@ class LineupBuilder {
       // Calculate position with more precision
       const x = ((touch.clientX - fieldRect.left) / fieldRect.width * 1000).toFixed(0) / 10;
       const y = ((touch.clientY - fieldRect.top) / fieldRect.height * 1000).toFixed(0) / 10;
-      
+
       const constrainedX = Math.max(0, Math.min(100 - 8, x));
       const constrainedY = Math.max(0, Math.min(100 - 8, y));
-      
+
       this.currentPlayer.style.left = `${constrainedX}%`;
       this.currentPlayer.style.top = `${constrainedY}%`;
     }
@@ -353,11 +353,11 @@ class LineupBuilder {
   savePlayerChanges() {
     const number = document.getElementById('player-number').value;
     const name = document.getElementById('player-name').value;
-    
+
     if (this.currentPlayer) {
       this.currentPlayer.textContent = number;
       this.currentPlayer.dataset.name = name;
-      
+
       // Add name display if name exists
       if (name) {
         const nameElement = document.createElement('div');
@@ -377,14 +377,14 @@ class LineupBuilder {
   updateJerseyColors() {
     const jerseyColor = document.getElementById('jersey-color').value;
     const textColor = document.getElementById('text-color').value;
-    
+
     this.players.forEach(player => {
       // Update jersey color
       const jerseyIcon = player.querySelector('.fa-shirt');
       if (jerseyIcon) {
         jerseyIcon.style.color = jerseyColor;
       }
-      
+
       // Update number color only
       const numberElement = player.querySelector('.player-number');
       if (numberElement) {
@@ -395,12 +395,12 @@ class LineupBuilder {
 
   saveAsImage() {
     const field = document.querySelector('.soccer-field');
-    
+
     // Temporarily adjust styles for capture
     const originalOverflow = field.style.overflow;
     const originalWidth = field.style.width;
     const originalHeight = field.style.height;
-    
+
     field.style.overflow = 'visible';
     field.style.width = '100%';
     field.style.height = 'auto';
@@ -468,7 +468,7 @@ class LineupBuilder {
 
     if (isTouchDevice) {
       // For touch devices, only use touchstart
-      element.addEventListener('touchstart', handleFocus, { passive: false });
+      element.addEventListener('touchstart', handleFocus, {passive: false});
       element.removeEventListener('mousedown', handleFocus);
     } else {
       // For non-touch devices, use mousedown
