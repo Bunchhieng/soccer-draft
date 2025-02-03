@@ -144,6 +144,11 @@ class LineupBuilder {
     document.getElementById('player-style').value = this.currentPlayerStyle;
     document.getElementById('player-count-display').textContent = this.state.playerCount;
 
+    // Set initial text color
+    const textColor = this.state.textColor;
+    const fieldTitle = document.getElementById('field-title');
+    if (fieldTitle) fieldTitle.style.color = textColor;
+
     // Initialize file upload visibility
     const faceUploadGroup = document.getElementById('face-upload-group');
     faceUploadGroup.style.display = this.currentPlayerStyle === 'face' ? 'block' : 'none';
@@ -567,19 +572,18 @@ class LineupBuilder {
     const jerseyColor = document.getElementById('jersey-color').value;
     const textColor = document.getElementById('text-color').value;
 
+    // Update player numbers and names
     this.players.forEach(player => {
-      // Update jersey color
-      const jerseyIcon = player.querySelector('.fa-shirt');
-      if (jerseyIcon) {
-        jerseyIcon.style.color = jerseyColor;
-      }
-
-      // Update number color only
-      const numberElement = player.querySelector('.player-number');
-      if (numberElement) {
-        numberElement.style.color = textColor;
-      }
+      const number = player.querySelector('.player-number');
+      const name = player.querySelector('.player-name');
+      
+      if (number) number.style.color = textColor;
+      if (name) name.style.color = textColor;
     });
+
+    // Update team name color
+    const fieldTitle = document.getElementById('field-title');
+    if (fieldTitle) fieldTitle.style.color = textColor;
   }
 
   saveAsImage() {

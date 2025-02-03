@@ -1010,8 +1010,8 @@ body {
 
 .field-title {
     position: absolute;
-    top: 1rem;
-    left: 1rem;
+    top: 2rem;
+    left: 2rem;
     font-size: 1.5rem;
     font-weight: 600; /* Semi-bold for titles */
     color: white;
@@ -2049,4 +2049,25 @@ and (max-device-width: 1024px) {
 
 #reset-lineup:active {
   background-color: #bd2130; /* Even darker red when active */
+}
+
+/* Add this for desktop alignment */
+@media (min-width: 769px) {
+  #jersey-color-group,
+  #text-color-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  #jersey-color-group label,
+  #text-color-group label {
+    width: 100px; /* Fixed width for labels */
+    margin-bottom: 0;
+  }
+
+  #jersey-color-group input[type="color"],
+  #text-color-group input[type="color"] {
+    width: 200px; /* Fixed width for color inputs */
+  }
 }
