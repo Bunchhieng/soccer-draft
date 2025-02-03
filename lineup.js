@@ -115,7 +115,8 @@ class LineupBuilder {
       jerseyColor: '#ff0000',
       textColor: '#ffffff',
       lineupName: '',
-      playerPositions: []
+      playerPositions: [],
+      playerStyle: 'jersey'
     };
     this.drawingMode = false;
     this.currentTool = DRAW_TOOLS.PENCIL;
@@ -140,6 +141,12 @@ class LineupBuilder {
     document.getElementById('jersey-color').value = this.state.jerseyColor;
     document.getElementById('text-color').value = this.state.textColor;
     document.getElementById('lineup-name').value = this.state.lineupName;
+    document.getElementById('player-style').value = this.currentPlayerStyle;
+    document.getElementById('player-count-display').textContent = this.state.playerCount;
+
+    // Initialize file upload visibility
+    const faceUploadGroup = document.getElementById('face-upload-group');
+    faceUploadGroup.style.display = this.currentPlayerStyle === 'face' ? 'block' : 'none';
 
     this.generatePlayers(this.state.playerCount);
     this.updateJerseyColors();
@@ -150,12 +157,12 @@ class LineupBuilder {
   }
 
   saveState() {
-    // Save current state to localStorage
     this.state.playerCount = parseInt(document.getElementById('player-count').value);
     this.state.formation = document.getElementById('formation').value;
     this.state.jerseyColor = document.getElementById('jersey-color').value;
     this.state.textColor = document.getElementById('text-color').value;
     this.state.lineupName = document.getElementById('lineup-name').value;
+    this.state.playerStyle = this.currentPlayerStyle;
 
     // Save player positions
     this.state.playerPositions = this.players.map(player => ({
@@ -172,10 +179,12 @@ class LineupBuilder {
     const savedState = localStorage.getItem('lineupState');
     if (savedState) {
       this.state = JSON.parse(savedState);
+      this.currentPlayerStyle = this.state.playerStyle || 'jersey';
     } else {
       // Default to 8 players on mobile
       const isMobile = window.matchMedia('(max-width: 768px)').matches;
       this.state.playerCount = isMobile ? 8 : 11;
+      this.currentPlayerStyle = 'jersey';
     }
   }
 
@@ -674,7 +683,7 @@ class LineupBuilder {
   resetLineup() {
     // Clear localStorage
     localStorage.removeItem('lineupState');
-
+    
     // Reset state to default values
     this.state = {
       playerCount: window.matchMedia('(max-width: 768px)').matches ? 8 : 11,
@@ -682,37 +691,41 @@ class LineupBuilder {
       jerseyColor: '#ff0000',
       textColor: '#ffffff',
       lineupName: '',
-      playerPositions: []
+      playerPositions: [],
+      playerStyle: 'jersey'
     };
-
+    
     // Update UI elements
     document.getElementById('player-count').value = this.state.playerCount;
     document.getElementById('formation').value = this.state.formation;
     document.getElementById('jersey-color').value = this.state.jerseyColor;
     document.getElementById('text-color').value = this.state.textColor;
     document.getElementById('lineup-name').value = this.state.lineupName;
-
-    // Update the max player count display
+    document.getElementById('player-style').value = this.currentPlayerStyle;
     document.getElementById('player-count-display').textContent = this.state.playerCount;
 
+    // Clear file upload input
+    const faceUpload = document.getElementById('face-upload');
+    faceUpload.value = '';
+    
     // Clear all face images
     this.players.forEach(player => {
       const face = player.querySelector('.player-face');
       const faceImg = player.querySelector('.player-face img');
       faceImg.src = '';
       face.classList.add('default');
-
+      
       // Hide player number if using face circle
       if (this.currentPlayerStyle === 'face') {
         const number = player.querySelector('.player-number');
         if (number) number.style.display = 'none';
       }
     });
-
+    
     // Regenerate players
     this.generatePlayers(this.state.playerCount);
     this.updateJerseyColors();
-
+    
     // Clear field title
     document.getElementById('field-title').textContent = '';
   }
@@ -1132,10 +1145,14 @@ class LineupBuilder {
     const styleSelector = document.getElementById('player-style');
     const faceUploadGroup = document.getElementById('face-upload-group');
 
+    // Set initial visibility based on saved state
+    faceUploadGroup.style.display = this.currentPlayerStyle === 'face' ? 'block' : 'none';
+
     styleSelector.addEventListener('change', (e) => {
       this.currentPlayerStyle = e.target.value;
       faceUploadGroup.style.display = this.currentPlayerStyle === 'face' ? 'block' : 'none';
       this.updateAllPlayers();
+      this.saveState();
     });
   }
 
