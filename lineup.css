@@ -69,7 +69,7 @@ body {
 }
 
 .settings-panel.expanded {
-  max-height: 450px !important;
+  max-height: 500px !important;
   padding: 1rem;
   width: 90% !important;
 }
@@ -577,29 +577,7 @@ body {
 }
 
 .save-image-container {
-  position: fixed;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: auto;
-  min-width: 200px;
-}
-
-.save-image-container .utility-button {
-  background: rgba(76, 175, 80, 0.95);
-  backdrop-filter: blur(5px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.9rem;
-  border-radius: 25px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
-}
-
-.save-image-container .utility-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.25);
+  display: none;
 }
 
 .modal {
@@ -674,12 +652,13 @@ body {
     overflow: hidden;
     display: flex;
     justify-content: center;
+    padding-bottom: 10rem !important;
   }
 
   .soccer-field {
     width: 100vw;
     max-width: 95vw;
-    height: 60vh;
+    height: calc(100vh - 200px); /* Adjust based on available space */
     aspect-ratio: 3/4;
     border-radius: 0;
     box-shadow: none;
@@ -959,52 +938,99 @@ main {
   display: none;
 }
 
-/* Update the header styles */
+/* Remove the fixed header styles */
 .app-header {
+  display: none;
+}
+
+/* Add menu button styles */
+.menu-button {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 1rem;
+  right: 1rem;
   background: rgba(76, 175, 80, 0.95);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
   z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.menu-button:hover {
+  transform: scale(1.1);
+  background: #45a049;
+}
+
+/* Add menu styles */
+.menu {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  z-index: 1000;
+  transform: scale(0);
+  transform-origin: top right;
+  transition: transform 0.2s ease;
+  width: 200px;
+}
+
+.menu.open {
+  transform: scale(1);
+}
+
+.menu-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   text-align: center;
 }
 
-.app-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: white;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+.menu-link {
+  color: #4CAF50;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
 }
 
-.header-links {
-  display: none; /* Hide by default */
+.menu-link:hover {
+  background: #f0f0f0;
+  color: #45a049;
+  transform: translateX(4px);
 }
 
-/* Show header links only on mobile */
+.menu-link i {
+  width: 1.25rem;
+  text-align: center;
+}
+
+/* Update mobile styles */
 @media (max-width: 768px) {
-  .header-links {
-    display: block;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.9);
-    margin-top: 0.5rem;
+  .menu-button {
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 36px;
+    height: 36px;
   }
-
-  .header-links a {
-    color: white;
-    text-decoration: none;
-  }
-
-  .header-links a:hover {
-    text-decoration: underline;
-  }
-}
-
-/* Update desktop header styles */
-@media (min-width: 769px) {
-  .app-header {
-    display: none;
+  
+  .menu {
+    width: 180px;
+    top: 0.5rem;
+    right: 0.5rem;
   }
 }
 
@@ -1016,7 +1042,13 @@ main {
   }
 
   .save-image-container {
-    display: none; /* Hide floating save button on desktop */
+    display: block; /* Show save button on desktop */
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    min-width: 200px;
   }
 
   .settings-panel .utility-button {
@@ -1092,39 +1124,29 @@ main {
 /* Update the save button styles in settings panel */
 .settings-panel .utility-button {
   width: 100%;
-  margin: 1rem auto 0;
-  justify-content: center;
-  display: flex;
-  align-items: center;
-}
-
-@media (max-width: 768px) {
-  .settings-panel .utility-button {
-    margin: 0.5rem auto 0;
-    padding: 0.5rem 1rem;
-  }
-}
-
-/* Add these styles to prevent focus issues */
-.player-name {
-  -webkit-user-select: text;
-  user-select: text;
-  -webkit-tap-highlight-color: transparent;
-}
-
-[contenteditable] {
-  -webkit-user-select: text;
-  user-select: text;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.utility-button {
-  display: flex;
+  margin: 1rem 0 0;
+  padding: 0.75rem 1.5rem;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
   justify-content: center;
   align-items: center;
-  margin: 0 auto;
-  width: 100%;
-  max-width: 200px;
+  z-index: 2;
+  position: relative;
+  display: flex !important; /* Force visibility */
+}
+
+.settings-panel .utility-button:hover {
+  background: #45a049;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.utility-button i {
+  margin-right: 0.5rem; /* Add spacing between icon and text */
 }
 
 /* Update the app container for desktop layout */
@@ -1199,7 +1221,13 @@ main {
   }
 
   .save-image-container {
-    display: none; /* Hide the floating save button on desktop */
+    display: block; /* Show save button on desktop */
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    min-width: 200px;
   }
 
   .settings-panel .utility-button {
@@ -1243,7 +1271,9 @@ main {
   }
 
   .settings-panel .utility-button {
-    display: none; /* Hide save button in settings panel on mobile */
+    display: flex !important; /* Ensure visibility on mobile */
+    margin: 0.5rem 0 0;
+    padding: 0.5rem 1rem;
   }
 
   .soccer-field {
@@ -1286,6 +1316,17 @@ main {
   }
 
   .save-image-container {
-    display: none; /* Hide the floating save button on desktop */
+    display: block; /* Show save button on desktop */
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    min-width: 200px;
   }
+}
+
+.field-container {
+  height: calc(100vh - 200px); /* Match field height */
+  padding-bottom: 0;
 } 

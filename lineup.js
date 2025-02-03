@@ -121,9 +121,6 @@ class LineupBuilder {
     document.getElementById('save-image').addEventListener('click', () => {
       this.saveAsImage();
     });
-    document.getElementById('save-image-mobile').addEventListener('click', () => {
-      this.saveAsImage();
-    });
 
     // Jersey color change with immediate update
     const jerseyColorInput = document.getElementById('jersey-color');
@@ -159,6 +156,25 @@ class LineupBuilder {
       const panel = document.querySelector('.settings-panel');
       panel.classList.toggle('expanded');
     });
+
+    // Add menu toggle functionality
+    const menuButton = document.getElementById('menu-button');
+    const menu = document.getElementById('menu');
+
+    menuButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menu.classList.toggle('open');
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!menu.contains(e.target) && !menuButton.contains(e.target)) {
+        menu.classList.remove('open');
+      }
+    });
+
+    // Add current year to menu
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
   }
 
   generatePlayers(count) {
@@ -483,8 +499,9 @@ class LineupBuilder {
 // Initialize the lineup builder
 document.addEventListener('DOMContentLoaded', () => {
   const lineupBuilder = new LineupBuilder();
-
-  // Remove the save button from settings panel
-  const saveButton = document.querySelector('#save-image');
-  document.querySelector('.settings-panel').removeChild(saveButton.parentElement);
+  
+  // Add save button event listener
+  document.getElementById('save-image').addEventListener('click', () => {
+    lineupBuilder.saveAsImage();
+  });
 }); 
