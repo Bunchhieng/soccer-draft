@@ -133,14 +133,14 @@ class LineupBuilder {
     this.loadState();
     this.setupEventListeners();
     this.createSVGContainer();
-    
+
     // Set initial values from state
     document.getElementById('player-count').value = this.state.playerCount;
     document.getElementById('formation').value = this.state.formation;
     document.getElementById('jersey-color').value = this.state.jerseyColor;
     document.getElementById('text-color').value = this.state.textColor;
     document.getElementById('lineup-name').value = this.state.lineupName;
-    
+
     this.generatePlayers(this.state.playerCount);
     this.updateJerseyColors();
     this.restorePlayerPositions();
@@ -156,7 +156,7 @@ class LineupBuilder {
     this.state.jerseyColor = document.getElementById('jersey-color').value;
     this.state.textColor = document.getElementById('text-color').value;
     this.state.lineupName = document.getElementById('lineup-name').value;
-    
+
     // Save player positions
     this.state.playerPositions = this.players.map(player => ({
       left: player.style.left,
@@ -164,7 +164,7 @@ class LineupBuilder {
       number: player.querySelector('.player-number').textContent,
       name: player.querySelector('.player-name').textContent
     }));
-    
+
     localStorage.setItem('lineupState', JSON.stringify(this.state));
   }
 
@@ -199,7 +199,7 @@ class LineupBuilder {
       const count = parseInt(e.target.value);
       this.generatePlayers(count);
       this.saveState();
-      
+
       // Update the max player count display
       document.getElementById('player-count-display').textContent = count;
     });
@@ -276,7 +276,7 @@ class LineupBuilder {
 
     // Reset lineup
     document.getElementById('reset-lineup').addEventListener('click', () => {
-        this.resetLineup();
+      this.resetLineup();
     });
 
     // Update the toggle drawing event listener
@@ -286,12 +286,12 @@ class LineupBuilder {
       button.classList.toggle('active', this.drawingMode);
       const field = document.querySelector('.soccer-field');
       field.style.cursor = this.drawingMode ? 'crosshair' : 'default';
-      
+
       // Show/hide drawing tools
       const drawingTools = document.querySelector('.drawing-tools');
       if (drawingTools) {
         drawingTools.style.display = this.drawingMode ? 'flex' : 'none';
-        
+
         // Reset position on mobile
         if (window.matchMedia('(max-width: 768px)').matches) {
           drawingTools.style.left = '20px';
@@ -299,7 +299,7 @@ class LineupBuilder {
           drawingTools.style.transform = 'none';
         }
       }
-      
+
       // Add/remove drawing event listeners based on mode
       if (this.drawingMode) {
         field.addEventListener('mousedown', this.startDrawing.bind(this));
@@ -365,22 +365,22 @@ class LineupBuilder {
       numberElement.style.fontSize = '1.5rem';
       numberElement.style.fontWeight = 'bold';
       numberElement.style.marginTop = '0.2rem';
-      
+
       // Hide number if using face circle
       if (this.currentPlayerStyle === 'face') {
         numberElement.style.display = 'none';
       }
-      
+
       player.appendChild(numberElement);
 
       // Add name
       const nameElement = document.createElement('div');
       nameElement.className = 'player-name';
-      
+
       // Restore name from state if available
       const savedName = this.state.playerPositions[i]?.name || 'Click to edit';
       nameElement.textContent = savedName;
-      
+
       nameElement.contentEditable = true;
       nameElement.style.position = 'absolute';
       nameElement.style.top = '100%';
@@ -605,7 +605,7 @@ class LineupBuilder {
         clonedField.style.overflow = 'visible';
         clonedField.style.width = '100%';
         clonedField.style.height = 'auto';
-        
+
         // Adjust field size for mobile in cloned document
         if (isMobile) {
           clonedField.style.transform = 'scale(0.8)';
@@ -674,7 +674,7 @@ class LineupBuilder {
   resetLineup() {
     // Clear localStorage
     localStorage.removeItem('lineupState');
-    
+
     // Reset state to default values
     this.state = {
       playerCount: window.matchMedia('(max-width: 768px)').matches ? 8 : 11,
@@ -684,35 +684,35 @@ class LineupBuilder {
       lineupName: '',
       playerPositions: []
     };
-    
+
     // Update UI elements
     document.getElementById('player-count').value = this.state.playerCount;
     document.getElementById('formation').value = this.state.formation;
     document.getElementById('jersey-color').value = this.state.jerseyColor;
     document.getElementById('text-color').value = this.state.textColor;
     document.getElementById('lineup-name').value = this.state.lineupName;
-    
+
     // Update the max player count display
     document.getElementById('player-count-display').textContent = this.state.playerCount;
-    
+
     // Clear all face images
     this.players.forEach(player => {
       const face = player.querySelector('.player-face');
       const faceImg = player.querySelector('.player-face img');
       faceImg.src = '';
       face.classList.add('default');
-      
+
       // Hide player number if using face circle
       if (this.currentPlayerStyle === 'face') {
         const number = player.querySelector('.player-number');
         if (number) number.style.display = 'none';
       }
     });
-    
+
     // Regenerate players
     this.generatePlayers(this.state.playerCount);
     this.updateJerseyColors();
-    
+
     // Clear field title
     document.getElementById('field-title').textContent = '';
   }
@@ -807,31 +807,31 @@ class LineupBuilder {
       if (isDragging) {
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        
+
         // Calculate new position with window boundaries
         const newX = clientX - offsetX;
         const newY = clientY - offsetY;
-        
+
         // Get viewport dimensions
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
-        
+
         // Get tools dimensions
         const toolsWidth = toolsContainer.offsetWidth;
         const toolsHeight = toolsContainer.offsetHeight;
-        
+
         // Calculate maximum positions
         const maxX = viewportWidth - toolsWidth;
         const maxY = viewportHeight - toolsHeight;
-        
+
         // Constrain positions
         const constrainedX = Math.max(0, Math.min(newX, maxX));
         const constrainedY = Math.max(0, Math.min(newY, maxY));
-        
+
         // Apply new position
         toolsContainer.style.left = `${constrainedX}px`;
         toolsContainer.style.top = `${constrainedY}px`;
-        
+
         // Prevent default touch behavior
         e.preventDefault();
       }
@@ -856,19 +856,19 @@ class LineupBuilder {
       const field = document.querySelector('.soccer-field');
       field.style.cursor = 'default';
       document.getElementById('toggle-drawing').classList.remove('active');
-      
+
       // Reset position on mobile
       if (window.matchMedia('(max-width: 768px)').matches) {
         toolsContainer.style.left = '20px';
         toolsContainer.style.bottom = '150px';
         toolsContainer.style.transform = 'none';
       }
-      
+
       // Ensure drawing is fully disabled
       this.isDrawing = false;
       this.currentArrow = null;
       this.startPoint = null;
-      
+
       // Remove drawing event listeners
       field.removeEventListener('mousedown', this.startDrawing.bind(this));
       field.removeEventListener('mousemove', this.draw.bind(this));
@@ -886,16 +886,16 @@ class LineupBuilder {
     toolsContainer.querySelectorAll('.drawing-tool').forEach(button => {
       button.addEventListener('click', (e) => {
         this.currentTool = e.currentTarget.dataset.tool;
-        toolsContainer.querySelectorAll('.drawing-tool').forEach(btn => 
+        toolsContainer.querySelectorAll('.drawing-tool').forEach(btn =>
           btn.classList.remove('active')
         );
         e.currentTarget.classList.add('active');
-        
+
         // Update cursor based on selected tool
         const field = document.querySelector('.soccer-field');
         field.classList.remove('hand-cursor', 'grab-cursor', 'grabbing');
         field.style.cursor = 'default';
-        
+
         switch (this.currentTool) {
           case DRAW_TOOLS.PENCIL:
             field.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\'><path d=\'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z\'/></svg>") 0 24, auto';
@@ -921,7 +921,7 @@ class LineupBuilder {
     const colorPicker = toolsContainer.querySelector('.drawing-color');
     colorPicker.addEventListener('input', (e) => {
       this.currentColor = e.target.value;
-      
+
       // Update cursor color for pencil tool
       if (this.currentTool === DRAW_TOOLS.PENCIL) {
         const field = document.querySelector('.soccer-field');
@@ -1004,28 +1004,28 @@ class LineupBuilder {
   updateArrow(arrow, startPoint, endPoint) {
     const line = arrow.querySelector('line');
     const arrowhead = arrow.querySelector('polygon');
-    
+
     // Update line coordinates
     line.setAttribute('x1', startPoint.x);
     line.setAttribute('y1', startPoint.y);
     line.setAttribute('x2', endPoint.x);
     line.setAttribute('y2', endPoint.y);
-    
+
     // Update arrowhead coordinates
     const angle = Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x);
     const arrowSize = 10;
     const arrowPoints = [
-      { x: endPoint.x, y: endPoint.y },
-      { 
+      {x: endPoint.x, y: endPoint.y},
+      {
         x: endPoint.x - arrowSize * Math.cos(angle - Math.PI / 6),
         y: endPoint.y - arrowSize * Math.sin(angle - Math.PI / 6)
       },
-      { 
+      {
         x: endPoint.x - arrowSize * Math.cos(angle + Math.PI / 6),
         y: endPoint.y - arrowSize * Math.sin(angle + Math.PI / 6)
       }
     ];
-    
+
     arrowhead.setAttribute('points', arrowPoints.map(p => `${p.x},${p.y}`).join(' '));
   }
 
@@ -1044,7 +1044,7 @@ class LineupBuilder {
     const svg = document.querySelector('.soccer-field svg');
     const svgNS = 'http://www.w3.org/2000/svg';
     const group = document.createElementNS(svgNS, 'g');
-    
+
     // Line
     const line = document.createElementNS(svgNS, 'line');
     line.setAttribute('x1', startPoint.x);
@@ -1053,26 +1053,26 @@ class LineupBuilder {
     line.setAttribute('y2', endPoint.y);
     line.setAttribute('stroke', this.currentColor);
     line.setAttribute('stroke-width', '2');
-    
+
     // Arrowhead
     const angle = Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x);
     const arrowSize = 10;
     const arrowPoints = [
-      { x: endPoint.x, y: endPoint.y },
-      { 
+      {x: endPoint.x, y: endPoint.y},
+      {
         x: endPoint.x - arrowSize * Math.cos(angle - Math.PI / 6),
         y: endPoint.y - arrowSize * Math.sin(angle - Math.PI / 6)
       },
-      { 
+      {
         x: endPoint.x - arrowSize * Math.cos(angle + Math.PI / 6),
         y: endPoint.y - arrowSize * Math.sin(angle + Math.PI / 6)
       }
     ];
-    
+
     const arrowhead = document.createElementNS(svgNS, 'polygon');
     arrowhead.setAttribute('points', arrowPoints.map(p => `${p.x},${p.y}`).join(' '));
     arrowhead.setAttribute('fill', this.currentColor);
-    
+
     group.appendChild(line);
     group.appendChild(arrowhead);
     svg.appendChild(group);
@@ -1080,7 +1080,7 @@ class LineupBuilder {
   }
 
   updatePath(path) {
-    const d = path.points.map((p, i) => 
+    const d = path.points.map((p, i) =>
       `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`
     ).join(' ');
     path.setAttribute('d', d);
@@ -1091,7 +1091,7 @@ class LineupBuilder {
     const rect = field.getBoundingClientRect();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    
+
     return {
       x: clientX - rect.left,
       y: clientY - rect.top
@@ -1131,7 +1131,7 @@ class LineupBuilder {
   setupPlayerStyleSelector() {
     const styleSelector = document.getElementById('player-style');
     const faceUploadGroup = document.getElementById('face-upload-group');
-    
+
     styleSelector.addEventListener('change', (e) => {
       this.currentPlayerStyle = e.target.value;
       faceUploadGroup.style.display = this.currentPlayerStyle === 'face' ? 'block' : 'none';
@@ -1145,7 +1145,7 @@ class LineupBuilder {
       const jersey = player.querySelector('.fa-shirt');
       const face = player.querySelector('.player-face');
       const number = player.querySelector('.player-number');
-      
+
       if (this.currentPlayerStyle === 'jersey') {
         jersey.style.display = 'block';
         if (face) face.style.display = 'none';
@@ -1161,22 +1161,22 @@ class LineupBuilder {
   createPlayer() {
     const player = document.createElement('div');
     player.className = 'player';
-    
+
     // Add both jersey and face elements
     const jersey = document.createElement('i');
     jersey.className = 'fa-solid fa-shirt';
     jersey.style.display = this.currentPlayerStyle === 'jersey' ? 'block' : 'none';
-    
+
     const face = document.createElement('div');
     face.className = 'player-face default';
     face.style.display = this.currentPlayerStyle === 'face' ? 'block' : 'none';
     const faceImg = document.createElement('img');
     faceImg.src = '';
     face.appendChild(faceImg);
-    
+
     player.appendChild(jersey);
     player.appendChild(face);
-    
+
     // ... rest of the player creation code
   }
 
@@ -1190,13 +1190,13 @@ class LineupBuilder {
 
   uploadFaces(files) {
     const playerCount = this.players.length;
-    
+
     // Filter out any null or undefined files
     files = files.filter(file => file);
-    
+
     // Get the current index to start uploading
     let startIndex = 0;
-    
+
     // Find the first empty slot (face with default class)
     for (let i = 0; i < this.players.length; i++) {
       const face = this.players[i].querySelector('.player-face');
@@ -1205,13 +1205,13 @@ class LineupBuilder {
         break;
       }
     }
-    
+
     // Limit the number of files to available slots
     const availableSlots = playerCount - startIndex;
     if (files.length > availableSlots) {
       files = files.slice(0, availableSlots);
     }
-    
+
     files.forEach((file, index) => {
       const reader = new FileReader();
       reader.onload = (e) => {
