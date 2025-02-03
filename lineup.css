@@ -172,7 +172,7 @@ body {
   padding: var(--field-padding);
   box-sizing: border-box;
   overflow: visible;
-  cursor: crosshair;
+  cursor: default;
 }
 
 .soccer-field svg {
@@ -1552,7 +1552,7 @@ main {
     left: 20px !important; /* Start from left instead of center */
     right: auto !important; /* Remove right constraint */
     transform: none; /* Remove center transform */
-    width: 280px !important; /* Fixed width */
+    width: 330px !important; /* Fixed width */
     min-width: 200px;
     touch-action: none; /* Prevent default touch behaviors */
   }
@@ -1588,4 +1588,31 @@ main {
   background: #ccc;
   cursor: not-allowed;
   transform: none;
-} 
+}
+
+/* Update hand tool styles */
+.drawing-tool[data-tool="hand"] {
+  color: #333;
+}
+
+.drawing-tool[data-tool="hand"]:hover {
+  background: #e0e0e0;
+}
+
+.drawing-tool[data-tool="hand"].active {
+  background: #d0d0d0;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Update cursor styles */
+.soccer-field {
+  cursor: default;
+}
+
+.soccer-field.grab-cursor {
+  cursor: grab;
+}
+
+.soccer-field.grabbing {
+  cursor: grabbing;
+}

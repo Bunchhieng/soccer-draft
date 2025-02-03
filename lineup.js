@@ -100,7 +100,8 @@ const FORMATION_POSITIONS = {
 const DRAW_TOOLS = {
   PENCIL: 'pencil',
   ARROW: 'arrow',
-  ERASER: 'eraser'
+  ERASER: 'eraser',
+  HAND: 'hand'
 };
 
 class LineupBuilder {
@@ -686,23 +687,31 @@ class LineupBuilder {
         </button>
       </div>
       <div class="drawing-tools-body">
-              <input type="color" class="drawing-color" value="#000000">
-        <button class="drawing-tool" data-tool="pencil">
+        <button class="drawing-tool active" data-tool="hand" title="Move players">
+          <i class="fas fa-hand-paper"></i>
+        </button>
+        <button class="drawing-tool" data-tool="pencil" title="Draw">
           <i class="fas fa-pencil-alt"></i>
         </button>
-        <button class="drawing-tool" data-tool="arrow">
+        <button class="drawing-tool" data-tool="arrow" title="Draw arrows">
           <i class="fas fa-arrow-right"></i>
         </button>
-        <button class="drawing-tool" data-tool="eraser">
+        <button class="drawing-tool" data-tool="eraser" title="Erase">
           <i class="fas fa-eraser"></i>
         </button>
-            <button class="drawing-undo" title="Undo last action">
+        <input type="color" class="drawing-color" value="#000000">
+        <button class="drawing-clear">Clear</button>
+        <button class="drawing-undo" title="Undo last action">
           <i class="fas fa-undo"></i>
         </button>
-        <button class="drawing-clear">Clear</button>
       </div>
     `;
     document.body.appendChild(toolsContainer);
+
+    // Set hand tool as default
+    this.currentTool = DRAW_TOOLS.HAND;
+    const field = document.querySelector('.soccer-field');
+    field.classList.add('hand-cursor');
 
     // Add drag functionality
     let isDragging = false;
@@ -812,6 +821,9 @@ class LineupBuilder {
         
         // Update cursor based on selected tool
         const field = document.querySelector('.soccer-field');
+        field.classList.remove('hand-cursor', 'grab-cursor', 'grabbing');
+        field.style.cursor = 'default';
+        
         switch (this.currentTool) {
           case DRAW_TOOLS.PENCIL:
             field.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\'><path d=\'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z\'/></svg>") 0 24, auto';
@@ -821,6 +833,13 @@ class LineupBuilder {
             break;
           case DRAW_TOOLS.ERASER:
             field.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\'><path d=\'M16.24 3.56l4.95 4.94c.78.79.78 2.05 0 2.84L12 20.41l-7.19-7.19L16.24 3.56M10.83 8.5l-1.41 1.41 3.54 3.54-1.41 1.41-3.54-3.54-3.54 3.54-1.41-1.41 3.54-3.54L3.05 7.05l1.41-1.41L10.83 8.5z\'/></svg>") 12 12, auto';
+            break;
+          case DRAW_TOOLS.HAND:
+            field.classList.add('hand-cursor');
+            field.style.cursor = 'grab';
+            this.isDrawing = false;
+            this.currentArrow = null;
+            this.startPoint = null;
             break;
         }
       });
@@ -849,7 +868,6 @@ class LineupBuilder {
     });
 
     // Add drawing event listeners to the field
-    const field = document.querySelector('.soccer-field');
     field.addEventListener('mousedown', this.startDrawing.bind(this));
     field.addEventListener('mousemove', this.draw.bind(this));
     field.addEventListener('mouseup', this.stopDrawing.bind(this));
@@ -861,7 +879,7 @@ class LineupBuilder {
   }
 
   startDrawing(e) {
-    if (!this.drawingMode) return;
+    if (!this.drawingMode || this.currentTool === DRAW_TOOLS.HAND) return;
     e.preventDefault();
     this.isDrawing = true;
     const point = this.getCoordinates(e);
@@ -873,7 +891,7 @@ class LineupBuilder {
   }
 
   draw(e) {
-    if (!this.isDrawing || !this.drawingMode) return;
+    if (!this.isDrawing || !this.drawingMode || this.currentTool === DRAW_TOOLS.HAND) return;
     e.preventDefault();
     const point = this.getCoordinates(e);
 
