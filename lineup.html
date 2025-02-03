@@ -81,13 +81,20 @@
                     <option value="11" selected>11</option>
                 </select>
             </div>
-            <div class="form-group" style="display: flex; flex-direction: row; align-items: center;">
+            <div class="form-group" id="jersey-color-group" style="display: flex; flex-direction: row; align-items: center;">
                 <label for="jersey-color">Jersey Color</label>
                 <input type="color" id="jersey-color" value="#ff0000">
             </div>
-            <div class="form-group" style="display: flex; flex-direction: row; align-items: center;">
-                <label for="text-color">Jersey Text Color</label>
+            <div class="form-group" id="text-color-group" style="display: flex; flex-direction: row; align-items: center;">
+                <label for="text-color">Text Color</label>
                 <input type="color" id="text-color" value="#ffffff">
+            </div>
+            <div class="form-group">
+                <label for="player-style">Player Style</label>
+                <select id="player-style">
+                    <option value="jersey">Jersey</option>
+                    <option value="face">Face Circle</option>
+                </select>
             </div>
             <div class="form-group">
                 <button class="utility-button" id="toggle-drawing">
@@ -106,6 +113,11 @@
                     <i class="fas fa-undo"></i>
                     Reset Lineup
                 </button>
+            </div>
+            <div class="form-group" id="face-upload-group" style="display: none;">
+                <label for="face-upload">Player Faces (Max: <span id="player-count-display">11</span>)</label>
+                <input type="file" id="face-upload" accept="image/*" multiple>
+                <small class="upload-hint">Formats: JPG, PNG</small>
             </div>
         </div>
     </div>

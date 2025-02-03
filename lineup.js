@@ -125,6 +125,7 @@ class LineupBuilder {
     this.startPoint = null;
     this.drawnElements = [];
     this.currentArrow = null;
+    this.currentPlayerStyle = 'jersey';
     this.init();
   }
 
@@ -144,6 +145,8 @@ class LineupBuilder {
     this.updateJerseyColors();
     this.restorePlayerPositions();
     this.setupDrawingTools();
+    this.setupPlayerStyleSelector();
+    this.setupFaceUpload();
   }
 
   saveState() {
@@ -196,6 +199,9 @@ class LineupBuilder {
       const count = parseInt(e.target.value);
       this.generatePlayers(count);
       this.saveState();
+      
+      // Update the max player count display
+      document.getElementById('player-count-display').textContent = count;
     });
 
     // Handle save button - only one listener needed
@@ -337,7 +343,17 @@ class LineupBuilder {
       jerseyIcon.style.fontSize = '4rem';
       jerseyIcon.style.position = 'absolute';
       jerseyIcon.style.zIndex = '1';
+      jerseyIcon.style.display = this.currentPlayerStyle === 'jersey' ? 'block' : 'none';
       player.appendChild(jerseyIcon);
+
+      // Add face circle
+      const faceCircle = document.createElement('div');
+      faceCircle.className = 'player-face default';
+      faceCircle.style.display = this.currentPlayerStyle === 'face' ? 'block' : 'none';
+      const faceImg = document.createElement('img');
+      faceImg.src = '';
+      faceCircle.appendChild(faceImg);
+      player.appendChild(faceCircle);
 
       // Add number
       const numberElement = document.createElement('div');
@@ -349,6 +365,12 @@ class LineupBuilder {
       numberElement.style.fontSize = '1.5rem';
       numberElement.style.fontWeight = 'bold';
       numberElement.style.marginTop = '0.2rem';
+      
+      // Hide number if using face circle
+      if (this.currentPlayerStyle === 'face') {
+        numberElement.style.display = 'none';
+      }
+      
       player.appendChild(numberElement);
 
       // Add name
@@ -395,11 +417,12 @@ class LineupBuilder {
   }
 
   handleMouseDown(e) {
-    if (!e.target.classList.contains('player')) return;
+    // Check if we're clicking on a player element or its children
+    const player = e.target.closest('.player');
+    if (!player) return;
 
     e.preventDefault();
     this.isDragging = true;
-    const player = e.target;
     player.style.zIndex = 1000;
 
     // Remove transition during drag
@@ -451,6 +474,10 @@ class LineupBuilder {
   }
 
   handleTouchStart(e) {
+    // Check if we're touching a player element or its children
+    const player = e.target.closest('.player');
+    if (!player) return;
+
     // Check if we're touching an editable element
     const editableElement = e.target.closest('[contenteditable]');
     if (editableElement) {
@@ -462,9 +489,6 @@ class LineupBuilder {
     // Handle dragging
     e.preventDefault();
     this.isDragging = true;
-    const player = e.target.closest('.player');
-    if (!player) return;
-
     player.style.zIndex = 1000;
     player.style.transition = 'none';
     this.currentPlayer = player;
@@ -667,6 +691,23 @@ class LineupBuilder {
     document.getElementById('jersey-color').value = this.state.jerseyColor;
     document.getElementById('text-color').value = this.state.textColor;
     document.getElementById('lineup-name').value = this.state.lineupName;
+    
+    // Update the max player count display
+    document.getElementById('player-count-display').textContent = this.state.playerCount;
+    
+    // Clear all face images
+    this.players.forEach(player => {
+      const face = player.querySelector('.player-face');
+      const faceImg = player.querySelector('.player-face img');
+      faceImg.src = '';
+      face.classList.add('default');
+      
+      // Hide player number if using face circle
+      if (this.currentPlayerStyle === 'face') {
+        const number = player.querySelector('.player-number');
+        if (number) number.style.display = 'none';
+      }
+    });
     
     // Regenerate players
     this.generatePlayers(this.state.playerCount);
@@ -1085,6 +1126,108 @@ class LineupBuilder {
         lastElement.remove();
       }
     }
+  }
+
+  setupPlayerStyleSelector() {
+    const styleSelector = document.getElementById('player-style');
+    const faceUploadGroup = document.getElementById('face-upload-group');
+    
+    styleSelector.addEventListener('change', (e) => {
+      this.currentPlayerStyle = e.target.value;
+      faceUploadGroup.style.display = this.currentPlayerStyle === 'face' ? 'block' : 'none';
+      this.updateAllPlayers();
+    });
+  }
+
+  updateAllPlayers() {
+    const players = document.querySelectorAll('.player');
+    players.forEach(player => {
+      const jersey = player.querySelector('.fa-shirt');
+      const face = player.querySelector('.player-face');
+      const number = player.querySelector('.player-number');
+      
+      if (this.currentPlayerStyle === 'jersey') {
+        jersey.style.display = 'block';
+        if (face) face.style.display = 'none';
+        if (number) number.style.display = 'block';
+      } else {
+        jersey.style.display = 'none';
+        if (face) face.style.display = 'block';
+        if (number) number.style.display = 'none';
+      }
+    });
+  }
+
+  createPlayer() {
+    const player = document.createElement('div');
+    player.className = 'player';
+    
+    // Add both jersey and face elements
+    const jersey = document.createElement('i');
+    jersey.className = 'fa-solid fa-shirt';
+    jersey.style.display = this.currentPlayerStyle === 'jersey' ? 'block' : 'none';
+    
+    const face = document.createElement('div');
+    face.className = 'player-face default';
+    face.style.display = this.currentPlayerStyle === 'face' ? 'block' : 'none';
+    const faceImg = document.createElement('img');
+    faceImg.src = '';
+    face.appendChild(faceImg);
+    
+    player.appendChild(jersey);
+    player.appendChild(face);
+    
+    // ... rest of the player creation code
+  }
+
+  setupFaceUpload() {
+    const faceUpload = document.getElementById('face-upload');
+    faceUpload.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      this.uploadFaces(files);
+    });
+  }
+
+  uploadFaces(files) {
+    const playerCount = this.players.length;
+    
+    // Filter out any null or undefined files
+    files = files.filter(file => file);
+    
+    // Get the current index to start uploading
+    let startIndex = 0;
+    
+    // Find the first empty slot (face with default class)
+    for (let i = 0; i < this.players.length; i++) {
+      const face = this.players[i].querySelector('.player-face');
+      if (face.classList.contains('default')) {
+        startIndex = i;
+        break;
+      }
+    }
+    
+    // Limit the number of files to available slots
+    const availableSlots = playerCount - startIndex;
+    if (files.length > availableSlots) {
+      files = files.slice(0, availableSlots);
+    }
+    
+    files.forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const playerIndex = startIndex + index;
+        if (playerIndex < this.players.length) {
+          const player = this.players[playerIndex];
+          if (player) {
+            const face = player.querySelector('.player-face');
+            const faceImg = player.querySelector('.player-face img');
+            faceImg.src = e.target.result;
+            face.classList.remove('default');
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    });
   }
 }
 

@@ -595,11 +595,19 @@ body {
   transform: translate(-50%, -50%);
   background: none !important;
   cursor: grab;
+  touch-action: none; /* Prevent default touch behavior */
 }
 
 .player:active {
   cursor: grabbing;
-  transform: translate(-50%, -50%);
+}
+
+.player * {
+  pointer-events: none; /* Disable pointer events on child elements */
+}
+
+.player-name {
+  pointer-events: auto; /* Enable pointer events for name editing */
 }
 
 .fa-shirt {
@@ -705,6 +713,10 @@ body {
     position: fixed;
   }
 
+  #face-upload-group {
+    text-align: center;
+  }
+
   .app-container {
     height: 100vh;
     overflow: hidden;
@@ -725,7 +737,7 @@ body {
   }
 
   .settings-panel.expanded {
-    max-height: 70vh !important;
+    max-height: 80vh !important;
     overflow-y: auto;
     touch-action: pan-y; /* Allow vertical scrolling only in settings */
   }
@@ -1854,4 +1866,173 @@ main {
     .player-name {
       font-size: 1rem !important;
     }
+}
+
+/* Face circle styles */
+.player-face {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background-color: #fff;
+  border: 2px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+.player-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.player-face.default::before {
+  content: '?';
+  font-size: 2rem;
+  font-weight: bold;
+  color: #666;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Remove the player number position adjustment for face circle */
+.player-face + .player-number {
+  margin-top: 0.5rem;
+  display: block; /* Default state */
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .player-face {
+    width: 3rem;
+    height: 3rem;
+  }
+  
+  .player-face.default::before {
+    font-size: 1.5rem;
+  }
+}
+
+/* Update file upload styles */
+#face-upload-group {
+  transition: opacity 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+#face-upload {
+  width: 280px;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  color: #333;
+  transition: all 0.2s ease;
+  min-height: 38px; /* Match other inputs */
+}
+
+#face-upload:hover {
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+}
+
+#face-upload:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+/* Custom file upload button */
+#face-upload::-webkit-file-upload-button {
+  visibility: hidden;
+}
+
+#face-upload::before {
+  content: 'Upload';
+  display: inline-block;
+  background: #4CAF50;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  margin-right: 0.8rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+#face-upload:hover::before {
+  background: #45a049;
+}
+
+.upload-hint {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+  color: #666;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  #face-upload {
+    padding: 0.4rem;
+    font-size: 0.8rem;
+  }
+
+  #face-upload::before {
+    padding: 0.3rem 0.6rem;
+    margin-right: 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Add this to update the player count display */
+#player-count-display {
+  font-weight: 500;
+  color: #4CAF50;
+}
+
+/* Update the form group styles for mobile */
+@media (max-width: 768px) {
+  .form-group[style*="flex-direction: row"] {
+    flex-direction: column !important;
+    gap: 0.5rem;
+  }
+
+  .form-group[style*="flex-direction: row"] label {
+    margin-bottom: 0.3rem;
+  }
+
+  .form-group[style*="flex-direction: row"] input[type="color"] {
+    width: 100%;
+  }
+
+  /* Specific styles for color inputs in mobile */
+  #jersey-color-group,
+  #text-color-group {
+    display: flex;
+    flex-direction: row !important;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  #jersey-color-group label,
+  #text-color-group label {
+    width: 40%;
+    margin-bottom: 0;
+  }
+
+  #jersey-color-group input[type="color"],
+  #text-color-group input[type="color"] {
+    width: 60%;
+  }
 }
