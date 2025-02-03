@@ -99,28 +99,24 @@
                     <option value="face">Face Circle</option>
                 </select>
             </div>
-            <div class="form-group">
-                <button class="utility-button" id="toggle-drawing">
-                    <i class="fas fa-paint-brush"></i>
-                    Toggle Drawing
-                </button>
-            </div>
-            <div class="form-group">
-                <button class="utility-button" id="save-image">
-                    <i class="fas fa-camera"></i>
-                    Save as Image
-                </button>
-            </div>
-            <div class="form-group">
-                <button class="utility-button" id="reset-lineup">
-                    <i class="fas fa-undo"></i>
-                    Reset Lineup
-                </button>
-            </div>
             <div class="form-group" id="face-upload-group" style="display: none;">
                 <label for="face-upload">Player Faces (Max: <span id="player-count-display">11</span>)</label>
                 <input type="file" id="face-upload" accept="image/*" multiple>
                 <small class="upload-hint">Formats: JPG, PNG</small>
+            </div>
+            <div class="form-group" id="utility-groups">
+                <button class="utility-button" id="toggle-drawing">
+                    <i class="fas fa-paint-brush"></i>
+                    Drawing
+                </button>
+                <button class="utility-button" id="save-image">
+                    <i class="fas fa-camera"></i>
+                    Image
+                </button>
+                <button class="utility-button" id="reset-lineup">
+                    <i class="fas fa-undo"></i>
+                    Reset
+                </button>
             </div>
         </div>
     </div>
