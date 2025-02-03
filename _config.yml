@@ -1,0 +1,7 @@
+# GitHub Pages configuration
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+
+# Disable caching
+cache: false 
