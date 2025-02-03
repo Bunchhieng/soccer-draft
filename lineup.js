@@ -97,6 +97,12 @@ const FORMATION_POSITIONS = {
   }
 };
 
+const DRAW_TOOLS = {
+  PENCIL: 'pencil',
+  ARROW: 'arrow',
+  ERASER: 'eraser'
+};
+
 class LineupBuilder {
   constructor() {
     this.players = [];
@@ -110,12 +116,21 @@ class LineupBuilder {
       lineupName: '',
       playerPositions: []
     };
+    this.drawingMode = false;
+    this.currentTool = DRAW_TOOLS.PENCIL;
+    this.currentColor = '#000000';
+    this.drawingHistory = [];
+    this.isDrawing = false;
+    this.startPoint = null;
+    this.drawnElements = [];
+    this.currentArrow = null;
     this.init();
   }
 
   init() {
     this.loadState();
     this.setupEventListeners();
+    this.createSVGContainer();
     
     // Set initial values from state
     document.getElementById('player-count').value = this.state.playerCount;
@@ -127,6 +142,7 @@ class LineupBuilder {
     this.generatePlayers(this.state.playerCount);
     this.updateJerseyColors();
     this.restorePlayerPositions();
+    this.setupDrawingTools();
   }
 
   saveState() {
@@ -254,6 +270,28 @@ class LineupBuilder {
     // Reset lineup
     document.getElementById('reset-lineup').addEventListener('click', () => {
         this.resetLineup();
+    });
+
+    // Update the toggle drawing event listener
+    document.getElementById('toggle-drawing').addEventListener('click', () => {
+      this.drawingMode = !this.drawingMode;
+      const button = document.getElementById('toggle-drawing');
+      button.classList.toggle('active', this.drawingMode);
+      const field = document.querySelector('.soccer-field');
+      field.style.cursor = this.drawingMode ? 'crosshair' : 'default';
+      
+      // Show/hide drawing tools
+      const drawingTools = document.querySelector('.drawing-tools');
+      if (drawingTools) {
+        drawingTools.style.display = this.drawingMode ? 'flex' : 'none';
+        
+        // Reset position on mobile
+        if (window.matchMedia('(max-width: 768px)').matches) {
+          drawingTools.style.left = '20px';
+          drawingTools.style.bottom = '150px';
+          drawingTools.style.transform = 'none';
+        }
+      }
     });
   }
 
@@ -618,6 +656,355 @@ class LineupBuilder {
     
     // Clear field title
     document.getElementById('field-title').textContent = '';
+  }
+
+  setupDrawingTools() {
+    // Create drawing tools container
+    const toolsContainer = document.createElement('div');
+    toolsContainer.className = 'drawing-tools';
+    toolsContainer.innerHTML = `
+      <div class="drawing-tools-header">
+        <button class="close-drawing-tools">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="drawing-tools-body">
+              <input type="color" class="drawing-color" value="#000000">
+        <button class="drawing-tool" data-tool="pencil">
+          <i class="fas fa-pencil-alt"></i>
+        </button>
+        <button class="drawing-tool" data-tool="arrow">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <button class="drawing-tool" data-tool="eraser">
+          <i class="fas fa-eraser"></i>
+        </button>
+            <button class="drawing-undo" title="Undo last action">
+          <i class="fas fa-undo"></i>
+        </button>
+        <button class="drawing-clear">Clear</button>
+      </div>
+    `;
+    document.body.appendChild(toolsContainer);
+
+    // Add drag functionality
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    toolsContainer.querySelector('.drawing-tools-header').addEventListener('mousedown', (e) => {
+      isDragging = true;
+      offsetX = e.clientX - toolsContainer.offsetLeft;
+      offsetY = e.clientY - toolsContainer.offsetTop;
+      toolsContainer.style.width = `${toolsContainer.offsetWidth}px`;
+      toolsContainer.style.height = `${toolsContainer.offsetHeight}px`;
+      e.preventDefault();
+    });
+
+    // Add touchstart event listener for dragging
+    toolsContainer.querySelector('.drawing-tools-header').addEventListener('touchstart', (e) => {
+      isDragging = true;
+      const touch = e.touches[0];
+      offsetX = touch.clientX - toolsContainer.offsetLeft;
+      offsetY = touch.clientY - toolsContainer.offsetTop;
+      toolsContainer.style.width = `${toolsContainer.offsetWidth}px`;
+      toolsContainer.style.height = `${toolsContainer.offsetHeight}px`;
+      e.preventDefault();
+    });
+
+    // Update the event listeners to handle both mouse and touch
+    const handleMove = (e) => {
+      if (isDragging) {
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        
+        const x = clientX - offsetX;
+        const y = clientY - offsetY;
+        
+        // Constrain to window boundaries with mobile-specific adjustments
+        const maxX = window.innerWidth - toolsContainer.offsetWidth;
+        const maxY = window.innerHeight - toolsContainer.offsetHeight;
+        
+        // Add minimum left position for mobile
+        const minX = 0;
+        const minY = 0;
+        
+        // Calculate new position with constraints
+        const newX = Math.max(minX, Math.min(x, maxX));
+        const newY = Math.max(minY, Math.min(y, maxY));
+        
+        // Apply position with smooth transition
+        toolsContainer.style.transition = 'none';
+        toolsContainer.style.left = `${newX}px`;
+        toolsContainer.style.top = `${newY}px`;
+        e.preventDefault();
+      }
+    };
+
+    const handleEnd = () => {
+      isDragging = false;
+    };
+
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('touchmove', handleMove);
+    document.addEventListener('mouseup', handleEnd);
+    document.addEventListener('touchend', handleEnd);
+
+    // Update the close button functionality
+    const closeButton = toolsContainer.querySelector('.close-drawing-tools');
+    closeButton.addEventListener('click', handleClose);
+    closeButton.addEventListener('touchend', handleClose);
+
+    function handleClose(e) {
+      e.preventDefault();
+      this.drawingMode = false;
+      toolsContainer.style.display = 'none';
+      const field = document.querySelector('.soccer-field');
+      field.style.cursor = 'default';
+      document.getElementById('toggle-drawing').classList.remove('active');
+      
+      // Reset position on mobile
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        toolsContainer.style.left = '20px';
+        toolsContainer.style.bottom = '150px';
+        toolsContainer.style.transform = 'none';
+      }
+    }
+
+    // Add event listeners for drawing tools
+    toolsContainer.querySelectorAll('.drawing-tool').forEach(button => {
+      button.addEventListener('click', (e) => {
+        this.currentTool = e.currentTarget.dataset.tool;
+        toolsContainer.querySelectorAll('.drawing-tool').forEach(btn => 
+          btn.classList.remove('active')
+        );
+        e.currentTarget.classList.add('active');
+        
+        // Update cursor based on selected tool
+        const field = document.querySelector('.soccer-field');
+        switch (this.currentTool) {
+          case DRAW_TOOLS.PENCIL:
+            field.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\'><path d=\'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z\'/></svg>") 0 24, auto';
+            break;
+          case DRAW_TOOLS.ARROW:
+            field.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\'><path fill=\'${this.currentColor}\' d=\'M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z\'/></svg>") 12 12, auto';
+            break;
+          case DRAW_TOOLS.ERASER:
+            field.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\'><path d=\'M16.24 3.56l4.95 4.94c.78.79.78 2.05 0 2.84L12 20.41l-7.19-7.19L16.24 3.56M10.83 8.5l-1.41 1.41 3.54 3.54-1.41 1.41-3.54-3.54-3.54 3.54-1.41-1.41 3.54-3.54L3.05 7.05l1.41-1.41L10.83 8.5z\'/></svg>") 12 12, auto';
+            break;
+        }
+      });
+    });
+
+    // Color picker
+    const colorPicker = toolsContainer.querySelector('.drawing-color');
+    colorPicker.addEventListener('input', (e) => {
+      this.currentColor = e.target.value;
+      
+      // Update cursor color for pencil tool
+      if (this.currentTool === DRAW_TOOLS.PENCIL) {
+        const field = document.querySelector('.soccer-field');
+        field.style.cursor = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='${this.currentColor}' d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z'/></svg>") 0 24, auto`;
+      }
+    });
+
+    // Clear button
+    toolsContainer.querySelector('.drawing-clear').addEventListener('click', () => {
+      this.clearDrawings();
+    });
+
+    // Add undo functionality
+    toolsContainer.querySelector('.drawing-undo').addEventListener('click', () => {
+      this.undoLastAction();
+    });
+
+    // Add drawing event listeners to the field
+    const field = document.querySelector('.soccer-field');
+    field.addEventListener('mousedown', this.startDrawing.bind(this));
+    field.addEventListener('mousemove', this.draw.bind(this));
+    field.addEventListener('mouseup', this.stopDrawing.bind(this));
+    field.addEventListener('mouseleave', this.stopDrawing.bind(this));
+
+    field.addEventListener('touchstart', this.startDrawing.bind(this));
+    field.addEventListener('touchmove', this.draw.bind(this));
+    field.addEventListener('touchend', this.stopDrawing.bind(this));
+  }
+
+  startDrawing(e) {
+    if (!this.drawingMode) return;
+    e.preventDefault();
+    this.isDrawing = true;
+    const point = this.getCoordinates(e);
+    this.startPoint = point;
+
+    if (this.currentTool === DRAW_TOOLS.PENCIL) {
+      this.drawnElements.push(this.createPath(point));
+    }
+  }
+
+  draw(e) {
+    if (!this.isDrawing || !this.drawingMode) return;
+    e.preventDefault();
+    const point = this.getCoordinates(e);
+
+    switch (this.currentTool) {
+      case DRAW_TOOLS.PENCIL:
+        this.drawPencil(point);
+        break;
+      case DRAW_TOOLS.ARROW:
+        this.drawArrow(point);
+        break;
+    }
+  }
+
+  stopDrawing() {
+    if (!this.drawingMode) return;
+    this.isDrawing = false;
+    this.currentArrow = null;
+    this.startPoint = null;
+  }
+
+  drawPencil(point) {
+    const path = this.drawnElements[this.drawnElements.length - 1];
+    path.points.push(point);
+    this.updatePath(path);
+  }
+
+  drawArrow(point) {
+    // Only create a new arrow when we start drawing
+    if (!this.currentArrow) {
+      this.currentArrow = this.createArrow(this.startPoint, point);
+      this.drawnElements.push(this.currentArrow);
+    } else {
+      // Update the existing arrow while drawing
+      this.updateArrow(this.currentArrow, this.startPoint, point);
+    }
+  }
+
+  updateArrow(arrow, startPoint, endPoint) {
+    const line = arrow.querySelector('line');
+    const arrowhead = arrow.querySelector('polygon');
+    
+    // Update line coordinates
+    line.setAttribute('x1', startPoint.x);
+    line.setAttribute('y1', startPoint.y);
+    line.setAttribute('x2', endPoint.x);
+    line.setAttribute('y2', endPoint.y);
+    
+    // Update arrowhead coordinates
+    const angle = Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x);
+    const arrowSize = 10;
+    const arrowPoints = [
+      { x: endPoint.x, y: endPoint.y },
+      { 
+        x: endPoint.x - arrowSize * Math.cos(angle - Math.PI / 6),
+        y: endPoint.y - arrowSize * Math.sin(angle - Math.PI / 6)
+      },
+      { 
+        x: endPoint.x - arrowSize * Math.cos(angle + Math.PI / 6),
+        y: endPoint.y - arrowSize * Math.sin(angle + Math.PI / 6)
+      }
+    ];
+    
+    arrowhead.setAttribute('points', arrowPoints.map(p => `${p.x},${p.y}`).join(' '));
+  }
+
+  createPath(startPoint) {
+    const svg = document.querySelector('.soccer-field svg');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('stroke', this.currentColor);
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('fill', 'none');
+    path.points = [startPoint];
+    svg.appendChild(path);
+    return path;
+  }
+
+  createArrow(startPoint, endPoint) {
+    const svg = document.querySelector('.soccer-field svg');
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const group = document.createElementNS(svgNS, 'g');
+    
+    // Line
+    const line = document.createElementNS(svgNS, 'line');
+    line.setAttribute('x1', startPoint.x);
+    line.setAttribute('y1', startPoint.y);
+    line.setAttribute('x2', endPoint.x);
+    line.setAttribute('y2', endPoint.y);
+    line.setAttribute('stroke', this.currentColor);
+    line.setAttribute('stroke-width', '2');
+    
+    // Arrowhead
+    const angle = Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x);
+    const arrowSize = 10;
+    const arrowPoints = [
+      { x: endPoint.x, y: endPoint.y },
+      { 
+        x: endPoint.x - arrowSize * Math.cos(angle - Math.PI / 6),
+        y: endPoint.y - arrowSize * Math.sin(angle - Math.PI / 6)
+      },
+      { 
+        x: endPoint.x - arrowSize * Math.cos(angle + Math.PI / 6),
+        y: endPoint.y - arrowSize * Math.sin(angle + Math.PI / 6)
+      }
+    ];
+    
+    const arrowhead = document.createElementNS(svgNS, 'polygon');
+    arrowhead.setAttribute('points', arrowPoints.map(p => `${p.x},${p.y}`).join(' '));
+    arrowhead.setAttribute('fill', this.currentColor);
+    
+    group.appendChild(line);
+    group.appendChild(arrowhead);
+    svg.appendChild(group);
+    return group;
+  }
+
+  updatePath(path) {
+    const d = path.points.map((p, i) => 
+      `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`
+    ).join(' ');
+    path.setAttribute('d', d);
+  }
+
+  getCoordinates(e) {
+    const field = document.querySelector('.soccer-field');
+    const rect = field.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
+  }
+
+  clearDrawings() {
+    const svg = document.querySelector('.soccer-field svg');
+    while (svg.firstChild) {
+      svg.removeChild(svg.firstChild);
+    }
+    this.drawnElements = [];
+  }
+
+  createSVGContainer() {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.style.position = 'absolute';
+    svg.style.top = '0';
+    svg.style.left = '0';
+    svg.style.pointerEvents = 'none';
+    document.querySelector('.soccer-field').appendChild(svg);
+    return svg;
+  }
+
+  // Add this new method to handle undo
+  undoLastAction() {
+    if (this.drawnElements.length > 0) {
+      const lastElement = this.drawnElements.pop();
+      if (lastElement) {
+        lastElement.remove();
+      }
+    }
   }
 }
 
