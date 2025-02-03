@@ -102,54 +102,116 @@ class LineupBuilder {
     this.players = [];
     this.currentPlayer = null;
     this.isDragging = false;
+    this.state = {
+      playerCount: 11,
+      formation: '4-4-2',
+      jerseyColor: '#ff0000',
+      textColor: '#ffffff',
+      lineupName: '',
+      playerPositions: []
+    };
     this.init();
   }
 
   init() {
+    this.loadState();
     this.setupEventListeners();
-    this.generatePlayers(11);
+    
+    // Set initial values from state
+    document.getElementById('player-count').value = this.state.playerCount;
+    document.getElementById('formation').value = this.state.formation;
+    document.getElementById('jersey-color').value = this.state.jerseyColor;
+    document.getElementById('text-color').value = this.state.textColor;
+    document.getElementById('lineup-name').value = this.state.lineupName;
+    
+    this.generatePlayers(this.state.playerCount);
     this.updateJerseyColors();
+    this.restorePlayerPositions();
+  }
+
+  saveState() {
+    // Save current state to localStorage
+    this.state.playerCount = parseInt(document.getElementById('player-count').value);
+    this.state.formation = document.getElementById('formation').value;
+    this.state.jerseyColor = document.getElementById('jersey-color').value;
+    this.state.textColor = document.getElementById('text-color').value;
+    this.state.lineupName = document.getElementById('lineup-name').value;
+    
+    // Save player positions
+    this.state.playerPositions = this.players.map(player => ({
+      left: player.style.left,
+      top: player.style.top,
+      number: player.querySelector('.player-number').textContent,
+      name: player.querySelector('.player-name').textContent
+    }));
+    
+    localStorage.setItem('lineupState', JSON.stringify(this.state));
+  }
+
+  loadState() {
+    const savedState = localStorage.getItem('lineupState');
+    if (savedState) {
+      this.state = JSON.parse(savedState);
+    } else {
+      // Default to 8 players on mobile
+      const isMobile = window.matchMedia('(max-width: 768px)').matches;
+      this.state.playerCount = isMobile ? 8 : 11;
+    }
+  }
+
+  restorePlayerPositions() {
+    if (this.state.playerPositions.length > 0) {
+      this.players.forEach((player, index) => {
+        const position = this.state.playerPositions[index];
+        if (position) {
+          player.style.left = position.left;
+          player.style.top = position.top;
+          player.querySelector('.player-number').textContent = position.number;
+          player.querySelector('.player-name').textContent = position.name;
+        }
+      });
+    }
   }
 
   setupEventListeners() {
     // Player count change
     document.getElementById('player-count').addEventListener('change', (e) => {
-      this.generatePlayers(parseInt(e.target.value));
+      const count = parseInt(e.target.value);
+      this.generatePlayers(count);
+      this.saveState();
     });
 
-    // Handle both save buttons
-    document.getElementById('save-image').addEventListener('click', () => {
-      this.saveAsImage();
-    });
+    // Handle save button - only one listener needed
+    const saveButton = document.getElementById('save-image');
+    saveButton.removeEventListener('click', this.saveAsImage.bind(this)); // Remove existing listener
+    saveButton.addEventListener('click', this.saveAsImage.bind(this));
 
-    // Jersey color change with immediate update
+    // Jersey color change
     const jerseyColorInput = document.getElementById('jersey-color');
     jerseyColorInput.addEventListener('input', () => {
       this.updateJerseyColors();
-    });
-    jerseyColorInput.addEventListener('change', () => {
-      this.updateJerseyColors();
+      this.saveState();
     });
 
-    // Text color change with immediate update
+    // Text color change
     const textColorInput = document.getElementById('text-color');
     textColorInput.addEventListener('input', () => {
       this.updateJerseyColors();
-    });
-    textColorInput.addEventListener('change', () => {
-      this.updateJerseyColors();
+      this.saveState();
     });
 
     // Formation change
     document.getElementById('formation').addEventListener('change', () => {
       const count = parseInt(document.getElementById('player-count').value);
       this.generatePlayers(count);
+      this.saveState();
     });
 
     // Lineup name change
     document.getElementById('lineup-name').addEventListener('input', (e) => {
       const title = document.getElementById('field-title');
       title.textContent = e.target.value;
+      this.saveState();
     });
 
     document.querySelector('.toggle-settings').addEventListener('click', () => {
@@ -175,6 +237,24 @@ class LineupBuilder {
 
     // Add current year to menu
     document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+    // Add save state when players are moved
+    document.addEventListener('mouseup', () => {
+      if (this.isDragging) {
+        this.saveState();
+      }
+    });
+
+    document.addEventListener('touchend', () => {
+      if (this.isDragging) {
+        this.saveState();
+      }
+    });
+
+    // Reset lineup
+    document.getElementById('reset-lineup').addEventListener('click', () => {
+        this.resetLineup();
+    });
   }
 
   generatePlayers(count) {
@@ -197,7 +277,7 @@ class LineupBuilder {
       // Add jersey icon
       const jerseyIcon = document.createElement('i');
       jerseyIcon.className = 'fa-solid fa-shirt';
-      jerseyIcon.style.color = '#001f3f'; // Jersey color
+      jerseyIcon.style.color = '#001f3f';
       jerseyIcon.style.fontSize = '4rem';
       jerseyIcon.style.position = 'absolute';
       jerseyIcon.style.zIndex = '1';
@@ -218,7 +298,11 @@ class LineupBuilder {
       // Add name
       const nameElement = document.createElement('div');
       nameElement.className = 'player-name';
-      nameElement.textContent = 'Click to edit';
+      
+      // Restore name from state if available
+      const savedName = this.state.playerPositions[i]?.name || 'Click to edit';
+      nameElement.textContent = savedName;
+      
       nameElement.contentEditable = true;
       nameElement.style.position = 'absolute';
       nameElement.style.top = '100%';
@@ -411,6 +495,7 @@ class LineupBuilder {
 
   saveAsImage() {
     const field = document.querySelector('.soccer-field');
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
     // Temporarily adjust styles for capture
     const originalOverflow = field.style.overflow;
@@ -421,20 +506,31 @@ class LineupBuilder {
     field.style.width = '100%';
     field.style.height = 'auto';
 
+    // Adjust scale and dimensions for mobile
+    const scale = isMobile ? 1.5 : 2;
+    const canvasWidth = isMobile ? field.offsetWidth * 1.2 : field.scrollWidth;
+    const canvasHeight = isMobile ? field.offsetHeight * 1.2 : field.scrollHeight;
+
     html2canvas(field, {
       useCORS: true,
       logging: true,
-      scale: 2,
+      scale: scale,
       backgroundColor: null,
       scrollX: 0,
       scrollY: 0,
-      windowWidth: field.scrollWidth,
-      windowHeight: field.scrollHeight,
+      windowWidth: canvasWidth,
+      windowHeight: canvasHeight,
       onclone: (clonedDoc) => {
         const clonedField = clonedDoc.querySelector('.soccer-field');
         clonedField.style.overflow = 'visible';
         clonedField.style.width = '100%';
         clonedField.style.height = 'auto';
+        
+        // Adjust field size for mobile in cloned document
+        if (isMobile) {
+          clonedField.style.transform = 'scale(0.8)';
+          clonedField.style.transformOrigin = 'top left';
+        }
       }
     }).then(canvas => {
       // Restore original styles
@@ -480,28 +576,52 @@ class LineupBuilder {
       if (element.textContent.trim() === '') {
         element.textContent = 'Click to edit';
       }
+      this.saveState(); // Save state when name is edited
     };
 
     if (isTouchDevice) {
-      // For touch devices, only use touchstart
       element.addEventListener('touchstart', handleFocus, {passive: false});
       element.removeEventListener('mousedown', handleFocus);
     } else {
-      // For non-touch devices, use mousedown
       element.addEventListener('mousedown', handleFocus);
       element.removeEventListener('touchstart', handleFocus);
     }
 
     element.addEventListener('blur', handleBlur);
+    element.addEventListener('input', () => this.saveState()); // Save state on input
+  }
+
+  resetLineup() {
+    // Clear localStorage
+    localStorage.removeItem('lineupState');
+    
+    // Reset state to default values
+    this.state = {
+      playerCount: window.matchMedia('(max-width: 768px)').matches ? 8 : 11,
+      formation: '4-4-2',
+      jerseyColor: '#ff0000',
+      textColor: '#ffffff',
+      lineupName: '',
+      playerPositions: []
+    };
+    
+    // Update UI elements
+    document.getElementById('player-count').value = this.state.playerCount;
+    document.getElementById('formation').value = this.state.formation;
+    document.getElementById('jersey-color').value = this.state.jerseyColor;
+    document.getElementById('text-color').value = this.state.textColor;
+    document.getElementById('lineup-name').value = this.state.lineupName;
+    
+    // Regenerate players
+    this.generatePlayers(this.state.playerCount);
+    this.updateJerseyColors();
+    
+    // Clear field title
+    document.getElementById('field-title').textContent = '';
   }
 }
 
 // Initialize the lineup builder
 document.addEventListener('DOMContentLoaded', () => {
   const lineupBuilder = new LineupBuilder();
-  
-  // Add save button event listener
-  document.getElementById('save-image').addEventListener('click', () => {
-    lineupBuilder.saveAsImage();
-  });
 }); 

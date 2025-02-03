@@ -69,7 +69,7 @@ body {
 }
 
 .settings-panel.expanded {
-  max-height: 500px !important;
+  max-height: 600px !important;
   padding: 1rem;
   width: 90% !important;
 }
@@ -671,7 +671,7 @@ body {
   }
 
   .fa-solid {
-    font-size: 3rem !important;
+    font-size: 2.6rem !important;
   }
 
   .player-number {
@@ -695,7 +695,6 @@ body {
   #save-image {
     padding: 0.75rem 1.25rem;
     font-size: 0.9rem;
-    border-radius: 25px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     background: rgba(76, 175, 80, 0.95);
     backdrop-filter: blur(5px);
@@ -852,7 +851,6 @@ body {
   }
 
   #save-image {
-    padding: 0.6rem 1rem;
     font-size: 0.85rem;
   }
 
@@ -1234,7 +1232,6 @@ main {
     display: flex !important;
     width: 100%;
     margin: 1rem 0 0;
-    padding: 0.75rem 1.5rem;
     background: #4CAF50;
     color: white;
     border: none;
@@ -1273,7 +1270,6 @@ main {
   .settings-panel .utility-button {
     display: flex !important; /* Ensure visibility on mobile */
     margin: 0.5rem 0 0;
-    padding: 0.5rem 1rem;
   }
 
   .soccer-field {
@@ -1329,4 +1325,91 @@ main {
 .field-container {
   height: calc(100vh - 200px); /* Match field height */
   padding-bottom: 0;
+}
+
+/* Add these styles for consistent button styling */
+.utility-button {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0.5rem 0;
+}
+
+.utility-button:hover {
+  background: #45a049;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.utility-button i {
+  font-size: 1.2rem;
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 768px) {
+  .utility-button {
+    font-size: 0.9rem;
+  }
+  
+  .utility-button i {
+    font-size: 1rem;
+  }
+  
+  /* Ensure buttons are visible in mobile settings panel */
+  .settings-panel.expanded .utility-button {
+    display: flex !important;
+  }
+}
+
+/* Desktop specific adjustments */
+@media (min-width: 769px) {
+  .utility-button {
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+}
+
+/* Add ball animation styles */
+.ball-animation {
+  margin-left: 0.5rem;
+  color: #000000;
+  animation: bounce 1s infinite alternate;
+  transform-origin: bottom;
+}
+
+@keyframes bounce {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-5px) scale(1.1);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Add rotation on hover */
+.ball-animation:hover {
+  animation: bounce 0.5s infinite alternate, spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 } 
