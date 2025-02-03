@@ -1839,3 +1839,19 @@ main {
   visibility: visible;
   opacity: 1;
 }
+
+/* iPad specific player styles */
+@media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1024px) {
+    .fa-shirt {
+      font-size: 3rem !important;
+    }
+    .player-number {
+      font-size: 1rem !important;
+    }
+
+    .player-name {
+      font-size: 1rem !important;
+    }
+}
