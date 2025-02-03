@@ -698,11 +698,31 @@ body {
 
 @media (max-width: 768px) {
   body {
-    overflow: auto;
-    height: auto;
-    font-size: 14px;
+    overflow: hidden;
+    height: 100vh;
   }
-  
+
+  .app-container {
+    height: 100vh;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .field-container {
+    height: calc(100vh - 200px); /* Adjust based on your header/footer height */
+    overflow: hidden;
+  }
+
+  .soccer-field {
+    max-height: 100%;
+    overflow: hidden;
+  }
+
+  .settings-panel.expanded {
+    max-height: 70vh !important; /* Limit settings panel height */
+    overflow-y: auto;
+  }
+
   .drawing-tool {
     top: 0 !important;
     bottom: 70px !important;
