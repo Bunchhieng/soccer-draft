@@ -698,7 +698,7 @@ body {
 
 @media (max-width: 768px) {
   body {
-    overflow: hidden;
+    overflow: hidden !important;
     height: 100vh;
   }
 
