@@ -697,20 +697,26 @@ body {
 }
 
 @media (max-width: 768px) {
-  body {
+  html, body {
     overflow: hidden !important;
+    touch-action: none;
     height: 100vh;
+    width: 100vw;
+    position: fixed;
   }
 
   .app-container {
     height: 100vh;
     overflow: hidden;
     padding: 0;
+    margin: 0;
   }
 
   .field-container {
-    height: calc(100vh - 200px); /* Adjust based on your header/footer height */
+    height: calc(100vh - 200px); /* Adjust based on header/footer height */
     overflow: hidden;
+    padding: 0;
+    margin: 0;
   }
 
   .soccer-field {
@@ -719,8 +725,14 @@ body {
   }
 
   .settings-panel.expanded {
-    max-height: 70vh !important; /* Limit settings panel height */
+    max-height: 70vh !important;
     overflow-y: auto;
+    touch-action: pan-y; /* Allow vertical scrolling only in settings */
+  }
+
+  /* Prevent overscroll behavior */
+  body {
+    overscroll-behavior: none;
   }
 
   .drawing-tool {
