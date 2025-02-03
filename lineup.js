@@ -292,6 +292,23 @@ class LineupBuilder {
           drawingTools.style.transform = 'none';
         }
       }
+      
+      // Add/remove drawing event listeners based on mode
+      if (this.drawingMode) {
+        field.addEventListener('mousedown', this.startDrawing.bind(this));
+        field.addEventListener('mousemove', this.draw.bind(this));
+        field.addEventListener('mouseup', this.stopDrawing.bind(this));
+        field.addEventListener('touchstart', this.startDrawing.bind(this));
+        field.addEventListener('touchmove', this.draw.bind(this));
+        field.addEventListener('touchend', this.stopDrawing.bind(this));
+      } else {
+        field.removeEventListener('mousedown', this.startDrawing.bind(this));
+        field.removeEventListener('mousemove', this.draw.bind(this));
+        field.removeEventListener('mouseup', this.stopDrawing.bind(this));
+        field.removeEventListener('touchstart', this.startDrawing.bind(this));
+        field.removeEventListener('touchmove', this.draw.bind(this));
+        field.removeEventListener('touchend', this.stopDrawing.bind(this));
+      }
     });
   }
 
@@ -721,11 +738,11 @@ class LineupBuilder {
         const y = clientY - offsetY;
         
         // Constrain to window boundaries with mobile-specific adjustments
-        const maxX = window.innerWidth - toolsContainer.offsetWidth;
+        const maxX = window.innerWidth - 20; // Allow partial display
         const maxY = window.innerHeight - toolsContainer.offsetHeight;
         
         // Add minimum left position for mobile
-        const minX = 0;
+        const minX = 20 - toolsContainer.offsetWidth; // Allow partial display
         const minY = 0;
         
         // Calculate new position with constraints
@@ -751,10 +768,7 @@ class LineupBuilder {
 
     // Update the close button functionality
     const closeButton = toolsContainer.querySelector('.close-drawing-tools');
-    closeButton.addEventListener('click', handleClose);
-    closeButton.addEventListener('touchend', handleClose);
-
-    function handleClose(e) {
+    const handleClose = (e) => {
       e.preventDefault();
       this.drawingMode = false;
       toolsContainer.style.display = 'none';
@@ -768,7 +782,24 @@ class LineupBuilder {
         toolsContainer.style.bottom = '150px';
         toolsContainer.style.transform = 'none';
       }
-    }
+      
+      // Ensure drawing is fully disabled
+      this.isDrawing = false;
+      this.currentArrow = null;
+      this.startPoint = null;
+      
+      // Remove drawing event listeners
+      field.removeEventListener('mousedown', this.startDrawing.bind(this));
+      field.removeEventListener('mousemove', this.draw.bind(this));
+      field.removeEventListener('mouseup', this.stopDrawing.bind(this));
+      field.removeEventListener('touchstart', this.startDrawing.bind(this));
+      field.removeEventListener('touchmove', this.draw.bind(this));
+      field.removeEventListener('touchend', this.stopDrawing.bind(this));
+    };
+
+    // Update the event listeners to use the bound handleClose
+    closeButton.addEventListener('click', handleClose.bind(this));
+    closeButton.addEventListener('touchend', handleClose.bind(this));
 
     // Add event listeners for drawing tools
     toolsContainer.querySelectorAll('.drawing-tool').forEach(button => {
