@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap');
 
 :root {
   --field-green: #3d8b3d;
@@ -8,11 +9,13 @@
   --border-width: 2px;
   --goal-color: #d3d3d3;
   --field-padding: 4%;
+  --font-family: 'Geist', 'Roboto', sans-serif;
+  --font-family-mono: 'Geist Mono', monospace;
 }
 
 body {
   margin: 0;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family);
   min-height: 100vh;
   background: 
     linear-gradient(
@@ -30,6 +33,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  font-weight: 400; /* Regular weight for body text */
 }
 
 .app-container {
@@ -189,7 +193,7 @@ body {
   width: 100%;
   height: 100%;
   background: var(--field-green);
-  border: var(--border-width) solid var(--white);
+  border: var(--border-width) solid rgba(255, 255, 255, 0.9);
 }
 
 /* Goal Posts */
@@ -198,12 +202,79 @@ body {
   left: 50%;
   width: 12%;
   height: 3%;
-  background: var(--goal-color);
+  background: linear-gradient(
+    to right,
+    #d3d3d3 0%,
+    #d3d3d3 20%,
+    #b0b0b0 20%,
+    #b0b0b0 80%,
+    #d3d3d3 80%,
+    #d3d3d3 100%
+  );
   transform: translateX(-50%);
+  border-radius: 2px;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 0 4px rgba(255, 255, 255, 0.2);
+}
+
+.goal-post::before,
+.goal-post::after {
+  content: '';
+  position: absolute;
+  background: #d3d3d3;
+  border-radius: 2px;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 0 4px rgba(255, 255, 255, 0.2);
+}
+
+.goal-post::before {
+  width: 100%;
+  height: 0.5%;
+  top: -0.5%;
+  left: 0;
+}
+
+.goal-post::after {
+  width: 0.5%;
+  height: 100%;
+  top: 0;
+  left: -0.5%;
 }
 
 .goal-post.bottom {
   bottom: 0%;
+}
+
+.goal-post.top {
+  top: 0%;
+}
+
+/* Add goal net effect */
+.goal-post::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(
+      45deg,
+      transparent 49%,
+      rgba(255, 255, 255, 0.1) 49%,
+      rgba(255, 255, 255, 0.1) 51%,
+      transparent 51%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 49%,
+      rgba(255, 255, 255, 0.1) 49%,
+      rgba(255, 255, 255, 0.1) 51%,
+      transparent 51%
+    );
+  background-size: 10px 10px;
+  opacity: 0.3;
+  pointer-events: none;
 }
 
 /* Penalty Lines */
@@ -227,7 +298,8 @@ body {
 /* Outside Lines */
 .outside-line {
   position: absolute;
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 2px rgba(128, 128, 128, 0.3);
 }
 
 .outside-line.top {
@@ -331,9 +403,10 @@ body {
   left: 50%;
   width: 20%;
   height: 13%;
-  border: var(--border-width) solid var(--white);
+  border: var(--border-width) solid rgba(255, 255, 255, 0.9);
   border-radius: 50%;
   transform: translate(-50%, -50%);
+  box-shadow: 0 0 2px rgba(128, 128, 128, 0.3);
 }
 
 .center-circle::before {
@@ -353,9 +426,10 @@ body {
   left: 50%;
   width: 6px;
   height: 6px;
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 50%;
   transform: translate(-50%, -50%);
+  box-shadow: 0 0 2px rgba(128, 128, 128, 0.3);
 }
 
 /* Halfway Line */
@@ -364,18 +438,20 @@ body {
   top: 50%;
   width: 100%;
   height: var(--border-width);
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.9);
   transform: translateY(-50%);
+  box-shadow: 0 0 2px rgba(128, 128, 128, 0.3);
 }
 
 /* Penalty Areas */
 .penalty-area {
   position: absolute;
   left: 50%;
-  width: 44%;
-  height: 20%;
-  border: var(--border-width) solid var(--white);
+  width: 50%;
+  height: 17%;
+  border: var(--border-width) solid rgba(255, 255, 255, 0.9);
   transform: translateX(-50%);
+  box-shadow: 0 0 2px rgba(128, 128, 128, 0.3);
 }
 
 .penalty-area.top {
@@ -390,10 +466,11 @@ body {
 .goal-area {
   position: absolute;
   left: 50%;
-  width: 20%;
-  height: 8%;
-  border: var(--border-width) solid var(--white);
+  width: 26%;
+  height: 7%;
+  border: var(--border-width) solid rgba(255, 255, 255, 0.9);
   transform: translateX(-50%);
+  box-shadow: 0 0 2px rgba(128, 128, 128, 0.3);
 }
 
 .goal-area.top {
@@ -410,9 +487,10 @@ body {
   left: 50%;
   width: 6px;
   height: 6px;
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 50%;
   transform: translateX(-50%);
+  box-shadow: 0 0 2px rgba(128, 128, 128, 0.3);
 }
 
 .penalty-spot.top {
@@ -429,9 +507,10 @@ body {
   left: 50%;
   width: 20%;
   height: 10%;
-  border: var(--border-width) solid var(--white);
+  border: var(--border-width) solid rgba(255, 255, 255, 0.9);
   border-radius: 50% 50% 0 0;
   transform: translateX(-50%);
+  box-shadow: 0 0 2px rgba(128, 128, 128, 0.3);
 }
 
 .penalty-arc.top {
@@ -448,8 +527,9 @@ body {
   position: absolute;
   width: 4%;
   height: 4%;
-  border: var(--border-width) solid var(--white);
+  border: var(--border-width) solid rgba(255, 255, 255, 0.9);
   border-radius: 50%;
+  box-shadow: 0 0 2px rgba(128, 128, 128, 0.3);
 }
 
 .corner-arc.top-left {
@@ -540,10 +620,11 @@ body {
   z-index: 2;
   color: white;
   font-size: 1.5rem;
-  font-weight: bold;
+  font-weight: 500; /* Medium weight for numbers */
   margin-top: 0.2rem;
   pointer-events: none;
   cursor: default;
+  font-family: var(--font-family-mono); /* Use monospace for numbers */
 }
 
 .player-name {
@@ -553,10 +634,10 @@ body {
   text-align: center;
   color: white;
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 500; /* Medium weight for better readability */
   margin-top: 0.7rem;
   pointer-events: auto;
-  font-family: 'Arial', sans-serif;
+  font-family: var(--font-family); /* Now using Inter */
   cursor: text;
   min-width: 0;
   max-width: 100%;
@@ -887,12 +968,13 @@ body {
   top: 1rem;
   left: 1rem;
   font-size: 1.5rem;
-  font-weight: bold;
+  font-weight: 600; /* Semi-bold for titles */
   color: white;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
   padding: 0.5rem 1rem;
   z-index: 100;
   pointer-events: none;
+  font-family: var(--font-family);
 }
 
 input[type="color"] {
@@ -1018,6 +1100,7 @@ main {
   align-items: center;
   gap: 0.5rem;
   font-weight: 500;
+  font-family: var(--font-family);
 }
 
 .menu-link:hover {
@@ -1150,6 +1233,8 @@ main {
   z-index: 2;
   position: relative;
   display: flex !important; /* Force visibility */
+  font-family: var(--font-family);
+  font-weight: 500; /* Medium weight for buttons */
 }
 
 .settings-panel .utility-button:hover {
@@ -1257,6 +1342,8 @@ main {
     align-items: center;
     z-index: 2;
     position: relative;
+    font-family: var(--font-family);
+    font-weight: 500; /* Medium weight for buttons */
   }
 
   .settings-panel .utility-button:hover {
@@ -1318,6 +1405,8 @@ main {
     align-items: center;
     z-index: 2;
     position: relative;
+    font-family: var(--font-family);
+    font-weight: 500; /* Medium weight for buttons */
   }
 
   .settings-panel .utility-button:hover {
@@ -1359,6 +1448,7 @@ main {
   font-size: 1rem;
   font-weight: 500;
   margin: 0.5rem 0;
+  font-family: var(--font-family);
 }
 
 .utility-button:hover {
@@ -1470,7 +1560,6 @@ main {
 .close-drawing-tools {
   background: none;
   border: none;
-  padding: 0.25rem;
   cursor: pointer;
   color: #666;
   transition: all 0.2s ease;
@@ -1528,10 +1617,11 @@ main {
   background: #ff4444;
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
+  height: 36px;
+  width: 36px;
 }
 
 .drawing-clear:hover {
@@ -1546,20 +1636,47 @@ main {
 
 /* Update the drawing tools styles for mobile */
 @media (max-width: 768px) {
+  .drawing-tools-body {
+    gap: 0.3rem !important;
+  }
   .drawing-tools {
     position: fixed;
-    bottom: 150px;
-    left: 20px !important; /* Start from left instead of center */
-    right: auto !important; /* Remove right constraint */
-    transform: none; /* Remove center transform */
-    width: 330px !important; /* Fixed width */
-    min-width: 200px;
-    touch-action: none; /* Prevent default touch behaviors */
+    bottom: 120px; /* Move up slightly */
+    left: 10px; /* Reduce left margin */
+    right: auto;
+    transform: none;
+    width: 280px; /* Reduce width */
+    min-width: 180px; /* Reduce minimum width */
+    padding: 0.5rem; /* Reduce padding */
+    gap: 0.3rem; /* Reduce gap between items */
+    touch-action: none;
+    z-index: 1000;
   }
 
-  .close-drawing-tools {
-    padding: 0.5rem; /* Increase touch area */
-    touch-action: none; /* Prevent default touch behaviors */
+  .drawing-tools-header {
+    padding-bottom: 0.3rem; /* Reduce padding */
+  }
+
+  .drawing-tool {
+    width: 30px; /* Reduce size */
+    height: 30px;
+    padding: 0.3rem; /* Reduce padding */
+  }
+
+  .drawing-color {
+    width: 30px !important; /* Reduce size */
+    height: 30px !important;
+  }
+
+  .drawing-clear {
+    font-size: 0.8rem; /* Reduce font size */
+    width: 30px !important; /* Reduce size */
+    height: 30px !important;
+  }
+
+  .drawing-undo {
+    width: 30px !important; /* Reduce size */
+    height: 30px !important;
   }
 }
 
@@ -1615,4 +1732,76 @@ main {
 
 .soccer-field.grabbing {
   cursor: grabbing;
+}
+
+/* Add tooltip styles */
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip {
+  visibility: hidden;
+  width: max-content;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  text-align: center;
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+  position: absolute;
+  z-index: 1001;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  font-size: 0.8rem;
+  pointer-events: none;
+}
+
+.tooltip-container:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Mobile tooltip adjustments */
+@media (max-width: 768px) {
+  .tooltip {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+    bottom: 110%;
+  }
+
+  .tooltip-container {
+    margin: 0 0.1rem;
+  }
+}
+
+/* Add tooltip for close button */
+.close-drawing-tools {
+  position: relative;
+}
+
+.close-drawing-tools::after {
+  content: 'Close Tools';
+  position: absolute;
+  visibility: hidden;
+  width: max-content;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  text-align: center;
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  font-size: 0.8rem;
+  pointer-events: none;
+}
+
+.close-drawing-tools:hover::after {
+  visibility: visible;
+  opacity: 1;
 }

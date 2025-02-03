@@ -687,23 +687,46 @@ class LineupBuilder {
         </button>
       </div>
       <div class="drawing-tools-body">
-        <button class="drawing-tool active" data-tool="hand" title="Move players">
-          <i class="fas fa-hand-paper"></i>
-        </button>
-        <button class="drawing-tool" data-tool="pencil" title="Draw">
-          <i class="fas fa-pencil-alt"></i>
-        </button>
-        <button class="drawing-tool" data-tool="arrow" title="Draw arrows">
-          <i class="fas fa-arrow-right"></i>
-        </button>
-        <button class="drawing-tool" data-tool="eraser" title="Erase">
-          <i class="fas fa-eraser"></i>
-        </button>
-        <input type="color" class="drawing-color" value="#000000">
-        <button class="drawing-clear">Clear</button>
-        <button class="drawing-undo" title="Undo last action">
-          <i class="fas fa-undo"></i>
-        </button>
+        <div class="tooltip-container">
+          <button class="drawing-tool active" data-tool="hand">
+            <i class="fas fa-hand-paper"></i>
+            <span class="tooltip">Move Players</span>
+          </button>
+        </div>
+        <div class="tooltip-container">
+          <button class="drawing-tool" data-tool="pencil">
+            <i class="fas fa-pencil-alt"></i>
+            <span class="tooltip">Draw</span>
+          </button>
+        </div>
+        <div class="tooltip-container">
+          <button class="drawing-tool" data-tool="arrow">
+            <i class="fas fa-arrow-right"></i>
+            <span class="tooltip">Draw Arrows</span>
+          </button>
+        </div>
+        <div class="tooltip-container">
+          <button class="drawing-tool" data-tool="eraser">
+            <i class="fas fa-eraser"></i>
+            <span class="tooltip">Erase</span>
+          </button>
+        </div>
+        <div class="tooltip-container">
+          <input type="color" class="drawing-color" value="#000000">
+          <span class="tooltip">Color Picker</span>
+        </div>
+        <div class="tooltip-container">
+          <button class="drawing-undo" title="Undo last action">
+            <i class="fas fa-undo"></i>
+            <span class="tooltip">Undo</span>
+          </button>
+        </div>
+        <div class="tooltip-container">
+          <button class="drawing-clear">
+            <i class="fas fa-trash"></i>
+            <span class="tooltip">Clear All</span>
+          </button>
+        </div>
       </div>
     `;
     document.body.appendChild(toolsContainer);
@@ -734,6 +757,7 @@ class LineupBuilder {
       offsetY = touch.clientY - toolsContainer.offsetTop;
       toolsContainer.style.width = `${toolsContainer.offsetWidth}px`;
       toolsContainer.style.height = `${toolsContainer.offsetHeight}px`;
+      toolsContainer.classList.add('dragging'); // Add dragging class
       e.preventDefault();
     });
 
@@ -743,31 +767,38 @@ class LineupBuilder {
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         
-        const x = clientX - offsetX;
-        const y = clientY - offsetY;
+        // Calculate new position with window boundaries
+        const newX = clientX - offsetX;
+        const newY = clientY - offsetY;
         
-        // Constrain to window boundaries with mobile-specific adjustments
-        const maxX = window.innerWidth - 20; // Allow partial display
-        const maxY = window.innerHeight - toolsContainer.offsetHeight;
+        // Get viewport dimensions
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
         
-        // Add minimum left position for mobile
-        const minX = 20 - toolsContainer.offsetWidth; // Allow partial display
-        const minY = 0;
+        // Get tools dimensions
+        const toolsWidth = toolsContainer.offsetWidth;
+        const toolsHeight = toolsContainer.offsetHeight;
         
-        // Calculate new position with constraints
-        const newX = Math.max(minX, Math.min(x, maxX));
-        const newY = Math.max(minY, Math.min(y, maxY));
+        // Calculate maximum positions
+        const maxX = viewportWidth - toolsWidth;
+        const maxY = viewportHeight - toolsHeight;
         
-        // Apply position with smooth transition
-        toolsContainer.style.transition = 'none';
-        toolsContainer.style.left = `${newX}px`;
-        toolsContainer.style.top = `${newY}px`;
+        // Constrain positions
+        const constrainedX = Math.max(0, Math.min(newX, maxX));
+        const constrainedY = Math.max(0, Math.min(newY, maxY));
+        
+        // Apply new position
+        toolsContainer.style.left = `${constrainedX}px`;
+        toolsContainer.style.top = `${constrainedY}px`;
+        
+        // Prevent default touch behavior
         e.preventDefault();
       }
     };
 
     const handleEnd = () => {
       isDragging = false;
+      toolsContainer.classList.remove('dragging'); // Remove dragging class
     };
 
     document.addEventListener('mousemove', handleMove);
