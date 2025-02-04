@@ -574,6 +574,13 @@ class LineupBuilder {
 
     // Update player numbers and names
     this.players.forEach(player => {
+      // Update jersey color
+      const jerseyIcon = player.querySelector('.fa-shirt');
+      if (jerseyIcon) {
+        jerseyIcon.style.color = jerseyColor;
+      }
+
+      // Update text colors
       const number = player.querySelector('.player-number');
       const name = player.querySelector('.player-name');
       
