@@ -223,6 +223,14 @@ body {
     justify-content: space-between;
 }
 
+/* Add this new CSS rule for white team hover state */
+.team-col[style*="--team-color: #ffffff"] .team-player:hover {
+    background: #4CAF50; /* Use a green background for white teams */
+    color: white;
+    transform: translateX(4px);
+}
+
+/* Update existing hover state for other teams */
 .team-player:hover {
     background: var(--team-color);
     color: white;
@@ -241,9 +249,9 @@ body {
 }
 
 .remove-player-btn {
-    background: none;
+    background: white;
     border: none;
-    color: #dc3545;
+    color: #64748b;  /* Neutral slate color */
     opacity: 0;
     cursor: pointer;
     padding: 4px;
@@ -256,16 +264,25 @@ body {
     border-radius: 50%;
     transition: all 0.2s ease;
     margin-left: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .team-player:hover .remove-player-btn {
     opacity: 1;
-    background: rgba(220, 53, 69, 0.1);
+    background: white;
 }
 
 .remove-player-btn:hover {
-    background: rgba(220, 53, 69, 0.2) !important;
+    background: #f1f5f9 !important;  /* Light slate background */
+    color: #475569;  /* Darker slate for contrast */
     transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Remove the red team specific styles since we now have a universal solution */
+.team-col[style*="--team-color: #e53e3e"] .team-player:hover .remove-player-btn,
+.team-col[style*="--team-color: #e53e3e"] .team-player:hover .remove-player-btn:hover {
+    /* Remove these rules */
 }
 
 .player-count {
@@ -2776,4 +2793,361 @@ input:checked + .slider:before {
 .footer-divider {
     margin: 0 8px;
     color: var(--text-secondary);
+}
+
+/* Add these new CSS rules for red team hover state */
+.team-col[style*="--team-color: #e53e3e"] .team-player:hover .remove-player-btn {
+    opacity: 1;
+    background: white;
+    color: #e53e3e;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.team-col[style*="--team-color: #e53e3e"] .team-player:hover .remove-player-btn:hover {
+    background: #ffebee !important;  /* Light red background on hover */
+    color: #c62828;  /* Darker red for better contrast */
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Add these new styles for the enhanced player input */
+.players-input-container {
+    position: relative;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 8px;
+    min-height: 100px;
+    margin: 5px 0;
+}
+
+.players-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.player-tag {
+    background: #f0f9ff;
+    border: 1px solid #93c5fd;
+    color: #1e40af;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    animation: tagAppear 0.2s ease-out;
+}
+
+.player-tag .remove-tag {
+    color: #1e40af;
+    cursor: pointer;
+    font-size: 1.1rem;
+    opacity: 0.6;
+    transition: all 0.2s;
+}
+
+.player-tag .remove-tag:hover {
+    opacity: 1;
+}
+
+.players-input {
+    border: none;
+    outline: none;
+    padding: 4px;
+    font-size: 0.95rem;
+    width: 100%;
+    font-family: inherit;
+}
+
+.players-input:focus {
+    border: none;
+    outline: none;
+}
+
+.players-count {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+@keyframes tagAppear {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Add a placeholder style */
+.players-input-container.empty::before {
+    content: 'Enter player names (press Enter or comma to add)';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #94a3b8;
+    font-size: 0.9rem;
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+/* Add these new styles for the teams input interface */
+.teams-input-container {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 10px 0;
+}
+
+.teams-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.team-input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 12px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    position: relative;
+    animation: slideIn 0.3s ease-out;
+}
+
+.team-input-row.removing {
+    animation: slideOut 0.3s ease-out forwards;
+}
+
+.team-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.team-input-group label {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.team-input-group input {
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.team-input-group input:focus {
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.1);
+    outline: none;
+}
+
+.team-color-input {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 120px;
+}
+
+.team-color-input .color-options {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 4px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+}
+
+.team-color-input .color-option {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.team-color-input .color-option[data-color="#ffffff"] {
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    background-image: linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+    linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+    linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+    background-size: 10px 10px;
+    background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+}
+
+.team-color-input .color-option:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.team-color-input .color-option.selected {
+    border: 2px solid #000;
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.team-color-input .color-option.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    font-size: 16px;
+}
+
+.team-color-input .color-option[data-color="#ffffff"].selected::after {
+    color: #000;
+    text-shadow: none;
+}
+
+.team-color-picker {
+    width: 100%;
+    height: 36px;
+    padding: 4px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #f8f9fa;
+    transition: all 0.2s;
+}
+
+.team-color-picker:hover {
+    border-color: #cbd5e0;
+    background: #f1f5f9;
+}
+
+.team-color-picker::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.team-color-picker::-webkit-color-swatch {
+    border: none;
+    border-radius: 4px;
+}
+
+.team-color-picker::-moz-color-swatch {
+    border: none;
+    border-radius: 4px;
+}
+
+@media (max-width: 640px) {
+    .team-color-input {
+        min-width: 100%;
+    }
+    
+    .team-color-input .color-options {
+        justify-content: center;
+    }
+    
+    .team-color-input .color-option {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+.add-team-button {
+    width: 100%;
+    padding: 12px;
+    background: #f8f9fa;
+    border: 2px dashed #e2e8f0;
+    border-radius: 8px;
+    color: #64748b;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+    transition: all 0.2s;
+}
+
+.add-team-button:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e0;
+    color: #475569;
+}
+
+.plus-icon {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.remove-team-input {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #fee2e2;
+    border: none;
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    opacity: 0;
+    transition: all 0.2s;
+    transform: scale(0.8);
+}
+
+.team-input-row:hover .remove-team-input {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.remove-team-input:hover {
+    background: #fecaca;
+    transform: scale(1.1);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+@media (max-width: 640px) {
+    .team-input-row {
+        grid-template-columns: 1fr;
+    }
 }

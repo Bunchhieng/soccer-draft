@@ -117,7 +117,7 @@
             </div>
             <div class="instruction-step">
                 <div class="step-number">2</div>
-                <div class="step-content">📋 Add players (separated by comma, spaces, or new lines) ✨</div>
+                <div class="step-content">📋 Add players (separated by comma) ✨</div>
             </div>
             <div class="instruction-step">
                 <div class="step-number">3</div>
@@ -142,37 +142,18 @@
         <div>
             <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; justify-content: center;">
                 <div class="step-number">1</div>
-                <h3>Add New Team</h3>
+                <h3>Add Teams</h3>
             </div>
-            <input type="text" id="teamName" placeholder="Team name">
-            <input type="text" id="captain" placeholder="Captain name">
-            <div class="step-content" style="text-align: center;">Pick a team color:</div>
-            <div class="color-input-group">
-                <div class="color-options">
-                    <div class="color-option" style="background: #ffffff" data-color="#ffffff"
-                         onclick="DraftManager.selectColor(this, 'teamColor')" title="White"></div>
-                    <div class="color-option" style="background: #3182ce" data-color="#3182ce"
-                         onclick="DraftManager.selectColor(this, 'teamColor')" title="Blue"></div>
-                    <div class="color-option" style="background: #e53e3e" data-color="#e53e3e"
-                         onclick="DraftManager.selectColor(this, 'teamColor')" title="Red"></div>
-                    <div class="color-option" style="background: #38a169" data-color="#38a169"
-                         onclick="DraftManager.selectColor(this, 'teamColor')" title="Green"></div>
-                    <div class="color-option" style="background: #805ad5" data-color="#805ad5"
-                         onclick="DraftManager.selectColor(this, 'teamColor')" title="Purple"></div>
-                    <div class="color-option" style="background: #d69e2e" data-color="#d69e2e"
-                         onclick="DraftManager.selectColor(this, 'teamColor')" title="Yellow"></div>
-                    <div class="color-option" style="background: #dd6b20" data-color="#dd6b20"
-                         onclick="DraftManager.selectColor(this, 'teamColor')" title="Orange"></div>
-                    <div class="color-option" style="background: #1a202c" data-color="#1a202c"
-                         onclick="DraftManager.selectColor(this, 'teamColor')" title="Black"></div>
-                    <div class="custom-color">
-                        <span>🎨 Custom</span>
-                        <input type="color" id="teamColor" class="color-picker"
-                               onchange="DraftManager.updateCustomColor(this.value, 'teamColor')">
-                    </div>
-                </div>
+            
+            <div class="teams-input-container">
+                <div class="teams-list"></div>
+                <button class="add-team-button" onclick="DraftManager.addTeamInput()">
+                    <span class="plus-icon">+</span>
+                    Add Another Team
+                </button>
             </div>
-            <button class="primary-button" onclick="DraftManager.addTeam()">⚽ Add Team</button>
+            
+            <button class="primary-button" onclick="DraftManager.saveTeams()">⚽ Save Teams</button>
         </div>
 
         <div>
@@ -181,7 +162,7 @@
                 <h3>Players List & Draft Order</h3>
             </div>
             <textarea id="players" rows="6"
-                      placeholder="Enter players (separated by commas, spaces, or new lines)"></textarea>
+                      placeholder="Enter players (separated by commas)"></textarea>
             <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; justify-content: center;">
                 <div class="step-number">3</div>
                 <h3 class="draft-order-text">Drag teams to set draft order</h3>

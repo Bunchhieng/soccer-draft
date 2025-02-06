@@ -72,14 +72,21 @@ const DraftManager = (() => {
   }
 
   function parsePlayers(input) {
+    // Strict comma-only parsing with validation
+    if (typeof input !== 'string') return [];
+    
     return input
-      .split(/,/)  // Split only by commas
-      .map(p => p.trim())  // Remove whitespace
-      .filter(p => p.length > 0)  // Remove empty entries
+      .split(',') // Strict comma separation
+      .map(p => p.trim()) // Clean whitespace
+      .filter(p => {
+        // Validate each player name
+        const isValid = /^[a-zA-Z\s'-]+$/.test(p); // Allow letters, spaces, apostrophes, hyphens
+        return p.length > 0 && isValid;
+      })
       .map(p => ({
         name: p,
         teamId: null,
-        id: crypto.randomUUID()  // Add unique ID for each player
+        id: crypto.randomUUID()
       }));
   }
 
@@ -501,6 +508,178 @@ const DraftManager = (() => {
     return Math.floor(totalPlayers / numTeams);
   }
 
+  function initPlayersInput() {
+    const container = document.createElement('div');
+    container.className = 'players-input-container empty';
+    
+    const tagsContainer = document.createElement('div');
+    tagsContainer.className = 'players-tags';
+    
+    const input = document.createElement('input');
+    input.className = 'players-input';
+    input.type = 'text';
+    input.placeholder = '';
+    
+    const countDisplay = document.createElement('div');
+    countDisplay.className = 'players-count';
+    
+    container.appendChild(tagsContainer);
+    container.appendChild(input);
+    container.appendChild(countDisplay);
+    
+    // Replace the textarea with our new input
+    const textarea = document.getElementById('players');
+    textarea.style.display = 'none';
+    textarea.parentNode.insertBefore(container, textarea);
+    
+    let players = new Set();
+    
+    function updateCount() {
+        countDisplay.textContent = `${players.size} player${players.size !== 1 ? 's' : ''}`;
+        container.classList.toggle('empty', players.size === 0);
+        // Update hidden textarea for compatibility
+        textarea.value = Array.from(players).join(', ');
+    }
+    
+    function addPlayer(name) {
+        name = name.trim();
+        if (!name) return;
+        
+        if (players.has(name)) {
+            input.value = '';
+            return;
+        }
+        
+        players.add(name);
+        
+        const tag = document.createElement('div');
+        tag.className = 'player-tag';
+        tag.innerHTML = `
+            <span>${name}</span>
+            <span class="remove-tag">×</span>
+        `;
+        
+        tag.querySelector('.remove-tag').addEventListener('click', () => {
+            players.delete(name);
+            tag.remove();
+            updateCount();
+        });
+        
+        tagsContainer.appendChild(tag);
+        input.value = '';
+        updateCount();
+    }
+    
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            const names = input.value.split(',');
+            names.forEach(name => addPlayer(name));
+        }
+    });
+    
+    input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const paste = (e.clipboardData || window.clipboardData).getData('text');
+        const names = paste.split(/[,\n]/);
+        names.forEach(name => addPlayer(name));
+    });
+    
+    // Load existing players if any
+    if (textarea.value) {
+        textarea.value.split(',').forEach(name => addPlayer(name));
+    }
+    
+    container.addEventListener('click', () => input.focus());
+  }
+
+  function addTeamInput() {
+    const teamsList = document.querySelector('.teams-list');
+    const teamRow = document.createElement('div');
+    teamRow.className = 'team-input-row';
+    
+    teamRow.innerHTML = `
+        <div class="team-input-group">
+            <label>Team Name</label>
+            <input type="text" class="team-name-input" placeholder="Enter team name">
+        </div>
+        <div class="team-input-group">
+            <label>Captain Name</label>
+            <input type="text" class="captain-input" placeholder="Enter captain name">
+        </div>
+        <div class="team-color-input">
+            <label>Team Color</label>
+            <div class="color-options">
+                <div class="color-option" style="background: #ffffff" data-color="#ffffff"></div>
+                <div class="color-option" style="background: #3182ce" data-color="#3182ce"></div>
+                <div class="color-option" style="background: #e53e3e" data-color="#e53e3e"></div>
+                <div class="color-option" style="background: #38a169" data-color="#38a169"></div>
+                <div class="color-option" style="background: #805ad5" data-color="#805ad5"></div>
+                <div class="color-option" style="background: #d69e2e" data-color="#d69e2e"></div>
+            </div>
+            <input type="color" class="team-color-picker" value="#ffffff">
+        </div>
+        <button class="remove-team-input" onclick="DraftManager.removeTeamInput(this)">×</button>
+    `;
+    
+    // Add color option click handlers
+    teamRow.querySelectorAll('.color-option').forEach(option => {
+        option.addEventListener('click', () => {
+            teamRow.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+            option.classList.add('selected');
+            teamRow.querySelector('.team-color-picker').value = option.dataset.color;
+        });
+    });
+    
+    teamsList.appendChild(teamRow);
+  }
+
+  function removeTeamInput(button) {
+    const row = button.closest('.team-input-row');
+    row.classList.add('removing');
+    setTimeout(() => row.remove(), 300);
+  }
+
+  function saveTeams() {
+    const teamRows = document.querySelectorAll('.team-input-row');
+    let hasError = false;
+    
+    teamRows.forEach(row => {
+        const teamName = row.querySelector('.team-name-input').value.trim();
+        const captainName = row.querySelector('.captain-input').value.trim();
+        
+        if (!teamName || !captainName) {
+            hasError = true;
+            row.style.border = '1px solid #ef4444';
+            setTimeout(() => row.style.border = 'none', 2000);
+        }
+    });
+    
+    if (hasError) {
+        showAlert('Please fill in all team names and captains');
+        return;
+    }
+    
+    teamRows.forEach(row => {
+        const teamName = row.querySelector('.team-name-input').value.trim();
+        const captainName = row.querySelector('.captain-input').value.trim();
+        const teamColor = row.querySelector('.team-color-picker').value;
+        
+        state.teams.push({
+            id: crypto.randomUUID(),
+            name: teamName,
+            color: teamColor,
+            captain: captainName,
+            players: []
+        });
+    });
+    
+    document.getElementById('draftOrderSection').style.display = 'block';
+    renderDraftOrderList();
+    save();
+    render();
+  }
+
   return {
     init() {
       const saved = localStorage.getItem(KEY);
@@ -591,7 +770,7 @@ const DraftManager = (() => {
         
         // Update draft order if draft has started
         if (state.draftOrder.length > 0) {
-          state.draftOrder = DraftManager.generateDraftOrder();
+          state.draftOrder = this.generateDraftOrder();
         }
         
         save();
@@ -604,6 +783,7 @@ const DraftManager = (() => {
       // Add resize listener for responsive text
       window.addEventListener('resize', updateDraftOrderText);
       
+      initPlayersInput();
       render();
     },
 
@@ -625,6 +805,22 @@ const DraftManager = (() => {
       document.getElementById('captain').value = '';
       document.getElementById('snakeDraft').checked = false;
       document.getElementById('teamColor').value = '#ffffff';
+
+      // Clear the players input container
+      const tagsContainer = document.querySelector('.players-tags');
+      if (tagsContainer) {
+        tagsContainer.innerHTML = '';
+      }
+      
+      // Reset container state and count
+      const container = document.querySelector('.players-input-container');
+      if (container) {
+        container.classList.add('empty');
+      }
+      const countDisplay = document.querySelector('.players-count');
+      if (countDisplay) {
+        countDisplay.textContent = '0 players';
+      }
 
       // Clear color selections
       document.querySelectorAll('.color-option').forEach(opt => {
@@ -716,7 +912,12 @@ const DraftManager = (() => {
 
       // Update the teams array to match the new order
       state.teams = [...orderedTeams];
-      state.players = parsePlayers(playerInput);
+      const parsedPlayers = parsePlayers(playerInput);
+      if (parsedPlayers.length < 2) {
+        showAlert('Please enter at least 2 players!');
+        return;
+      }
+      state.players = parsedPlayers;
       
       // Make sure snake draft state is properly set
       state.snakeDraft = document.getElementById('snakeDraft').checked;
@@ -793,17 +994,36 @@ const DraftManager = (() => {
             isSettingOrder: false
         };
 
-        // Reset all form inputs
-        document.getElementById('players').value = '';
-        document.getElementById('teamName').value = '';
-        document.getElementById('captain').value = '';
+        // Reset snake draft switch
         document.getElementById('snakeDraft').checked = false;
-        document.getElementById('teamColor').value = '#ffffff';
+        
+        // Clear the teams list
+        const teamsList = document.querySelector('.teams-list');
+        if (teamsList) {
+            teamsList.innerHTML = '';
+        }
 
-        // Clear color selections
-        document.querySelectorAll('.color-option').forEach(opt => {
-            opt.classList.remove('selected');
-        });
+        // Clear the players input container
+        const tagsContainer = document.querySelector('.players-tags');
+        if (tagsContainer) {
+            tagsContainer.innerHTML = '';
+        }
+        
+        // Reset container state and count
+        const container = document.querySelector('.players-input-container');
+        if (container) {
+            container.classList.add('empty');
+        }
+        const countDisplay = document.querySelector('.players-count');
+        if (countDisplay) {
+            countDisplay.textContent = '0 players';
+        }
+
+        // Reset hidden players textarea
+        const playersTextarea = document.getElementById('players');
+        if (playersTextarea) {
+            playersTextarea.value = '';
+        }
 
         // Reset UI sections
         document.getElementById('draftOrderSection').style.display = 'none';
@@ -820,11 +1040,11 @@ const DraftManager = (() => {
         document.querySelector('.draft-controls').style.display = 'block';
         document.getElementById('currentTurn').style.display = 'block';
 
-        // Reset snake draft text
+        // Reset draft type text
         const typeText = document.getElementById('draftTypeText');
         const description = document.getElementById('draftDescription');
-        typeText.textContent = 'Classic Draft';
-        description.textContent = 'A→B→C, A→B→C';
+        if (typeText) typeText.textContent = 'Classic Draft';
+        if (description) description.textContent = 'A→B→C, A→B→C';
 
         render();
     },
@@ -1035,29 +1255,33 @@ const DraftManager = (() => {
     },
 
     exportCSV() {
-// Create headers with team names (without empty first column)
-      let headers = state.teams.map(team => `${team.name} (${team.captain})`);
-      let csvContent = headers.join(',') + '\n';
+        // Create headers with team names
+        let headers = state.teams.map(team => team.name);
+        let csvContent = headers.join(',') + '\n';
 
-// Get max number of players across all teams
-      const maxPlayers = Math.max(...state.teams.map(team => team.players.length));
+        // Add captains row
+        let captains = state.teams.map(team => team.captain + ' (C)');
+        csvContent += captains.join(',') + '\n';
 
-// Add player rows (without empty first column)
-      for (let i = 0; i < maxPlayers; i++) {
-        let row = state.teams.map(team => team.players[i] ? team.players[i].name : '');
-        csvContent += row.join(',') + '\n';
-      }
+        // Get max number of players across all teams
+        const maxPlayers = Math.max(...state.teams.map(team => team.players.length));
 
-// Create and trigger download
-      const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', 'soccer-draft-teams.csv');
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        // Add player rows
+        for (let i = 0; i < maxPlayers; i++) {
+            let row = state.teams.map(team => team.players[i] ? team.players[i].name : '');
+            csvContent += row.join(',') + '\n';
+        }
+
+        // Create and trigger download
+        const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `draft-${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     },
 
     selectColor(element, targetId) {
@@ -1083,17 +1307,83 @@ const DraftManager = (() => {
     },
 
     loadTestData() {
-      localStorage.removeItem(KEY);
+      // Reset state first
       state = {
         teams: [],
         players: [],
-        snakeDraft: true, // Set default to true for test data
+        snakeDraft: true,
         currentTurn: 0,
         draftOrder: [],
         editingTeam: null,
         isSettingOrder: false
       };
 
+      const testPlayers = [
+        "Jimmy", "Tour", "Sovannrith",
+        "Borey", "Luiz", "Rotana",
+        "Yaw", "Pich", "Khemrath",
+        "Can", "Danny", "Sopha",
+        "Duy", "Thong", "Davit",
+        "Angkea", "Maan", "Michael",
+        "Narath", "Montero", "Panha",
+        "Ean", "Kino", "Sokha", "Ken", "Ajino", "Michael", "Son"
+      ];
+
+      // Clear localStorage to prevent state persistence
+      localStorage.removeItem(KEY);
+
+      // Rest of the existing loadTestData code...
+      // Update the hidden textarea
+      const textarea = document.getElementById('players');
+      textarea.value = testPlayers.join(', ');
+
+      // Find the players input container and clear existing tags
+      const tagsContainer = document.querySelector('.players-tags');
+      if (tagsContainer) {
+        tagsContainer.innerHTML = '';
+        
+        // Add each player as a tag
+        testPlayers.forEach(name => {
+          const tag = document.createElement('div');
+          tag.className = 'player-tag';
+          tag.innerHTML = `
+            <span>${name}</span>
+            <span class="remove-tag">×</span>
+          `;
+          
+          tag.querySelector('.remove-tag').addEventListener('click', () => {
+            tag.remove();
+            // Update textarea value after removal
+            const remainingPlayers = Array.from(document.querySelectorAll('.player-tag span:not(.remove-tag)'))
+              .map(span => span.textContent);
+            textarea.value = remainingPlayers.join(', ');
+            
+            // Update empty state
+            const container = document.querySelector('.players-input-container');
+            container.classList.toggle('empty', remainingPlayers.length === 0);
+            
+            // Update player count
+            const countDisplay = document.querySelector('.players-count');
+            if (countDisplay) {
+              countDisplay.textContent = `${remainingPlayers.length} player${remainingPlayers.length !== 1 ? 's' : ''}`;
+            }
+          });
+          
+          tagsContainer.appendChild(tag);
+        });
+        
+        // Update container empty state
+        const container = document.querySelector('.players-input-container');
+        container.classList.remove('empty');
+        
+        // Update player count
+        const countDisplay = document.querySelector('.players-count');
+        if (countDisplay) {
+          countDisplay.textContent = `${testPlayers.length} players`;
+        }
+      }
+
+      // Rest of the test data loading...
       const teamConfigs = [
         {name: "White Team", color: "#ffffff", captain: "RaDa"},
         {name: "Blue Team", color: "#3182ce", captain: "Saoling"},
@@ -1110,19 +1400,6 @@ const DraftManager = (() => {
           players: []
         });
       });
-
-      const testPlayers = [
-        "Jimmy", "Tour", "Sovannrith",
-        "Borey", "Luiz", "Rotana",
-        "Yaw", "Pich", "Khemrath",
-        "Can", "Danny", "Sopha",
-        "Duy", "Thong", "Davit",
-        "Angkea", "Maan", "Michael",
-        "Narath", "Montero", "Panha",
-        "Ean", "Kino", "Sokha", "Ken", "Ajino", "Michael", "Son"
-      ];
-
-      document.getElementById('players').value = testPlayers.join(', ');
       
       // Update snake draft switch and text
       const snakeDraftSwitch = document.getElementById('snakeDraft');
@@ -1153,66 +1430,69 @@ const DraftManager = (() => {
         </div>
     `).join('');
 
-      // Add drag and drop functionality
-      const items = draftOrderList.querySelectorAll('.draft-order-item');
-      items.forEach(item => {
-        item.addEventListener('dragstart', handleDragStart);
-        item.addEventListener('dragover', handleDragOver);
-        item.addEventListener('drop', handleDrop);
-        item.addEventListener('dragend', handleDragEnd);
-      });
+    // Add drag and drop functionality
+    const items = draftOrderList.querySelectorAll('.draft-order-item');
+    items.forEach(item => {
+      item.addEventListener('dragstart', handleDragStart);
+      item.addEventListener('dragover', handleDragOver);
+      item.addEventListener('drop', handleDrop);
+      item.addEventListener('dragend', handleDragEnd);
+    });
 
-      document.getElementById('draftOrderSection').style.display = 'block';
+    document.getElementById('draftOrderSection').style.display = 'block';
 
-      // Show teams grid
-      const draftInterface = document.getElementById('draftInterface');
-      draftInterface.style.display = 'block';
-      const teamsGrid = draftInterface.querySelector('.teams-grid');
-      teamsGrid.innerHTML = state.teams.map(team => renderTeam(team)).join('');
+    // Show teams grid
+    const draftInterface = document.getElementById('draftInterface');
+    draftInterface.style.display = 'block';
+    const teamsGrid = draftInterface.querySelector('.teams-grid');
+    teamsGrid.innerHTML = state.teams.map(team => renderTeam(team)).join('');
 
-      save();
-      render();
-    },
+    save();
+    render();
+  },
 
-    removeTeam(teamId) {
-      state.teams = state.teams.filter(team => team.id !== teamId);
+  removeTeam(teamId) {
+    state.teams = state.teams.filter(team => team.id !== teamId);
 
-      if (state.teams.length === 0) {
-        document.getElementById('draftOrderSection').style.display = 'none';
-        document.getElementById('draftInterface').style.display = 'none';
-      }
+    if (state.teams.length === 0) {
+      document.getElementById('draftOrderSection').style.display = 'none';
+      document.getElementById('draftInterface').style.display = 'none';
+    }
 
-      // Update draft order list
-      const draftOrderList = document.getElementById('draftOrderList');
-      draftOrderList.innerHTML = state.teams.map((team, index) => `
-        <div class="draft-order-item" draggable="true" data-team-index="${index}">
-            <span class="draft-order-handle">⋮⋮</span>
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 12px; height: 12px; border-radius: 50%; background: ${team.color}"></div>
-                <span>${team.name}</span>
-                <small style="color: #666;">(${team.captain})</small>
-            </div>
-            <div style="display: flex; align-items: center; gap: 4px;">
-                <div class="draft-order-buttons">
-                    <button class="order-button" onclick="DraftManager.moveTeam(${index}, 'up')" ${index === 0 ? 'disabled' : ''}>↑</button>
-                    <button class="order-button" onclick="DraftManager.moveTeam(${index}, 'down')" ${index === state.teams.length - 1 ? 'disabled' : ''}>↓</button>
-                </div>
-                <button onclick="DraftManager.removeTeam('${team.id}')" class="remove-team-button">✕</button>
-            </div>
-        </div>
-    `).join('');
+    // Update draft order list
+    const draftOrderList = document.getElementById('draftOrderList');
+    draftOrderList.innerHTML = state.teams.map((team, index) => `
+      <div class="draft-order-item" draggable="true" data-team-index="${index}">
+          <span class="draft-order-handle">⋮⋮</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 12px; height: 12px; border-radius: 50%; background: ${team.color}"></div>
+              <span>${team.name}</span>
+              <small style="color: #666;">(${team.captain})</small>
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px;">
+              <div class="draft-order-buttons">
+                  <button class="order-button" onclick="DraftManager.moveTeam(${index}, 'up')" ${index === 0 ? 'disabled' : ''}>↑</button>
+                  <button class="order-button" onclick="DraftManager.moveTeam(${index}, 'down')" ${index === state.teams.length - 1 ? 'disabled' : ''}>↓</button>
+              </div>
+              <button onclick="DraftManager.removeTeam('${team.id}')" class="remove-team-button">✕</button>
+          </div>
+      </div>
+  `).join('');
 
 // Update teams grid
-      const draftInterface = document.getElementById('draftInterface');
-      const teamsGrid = draftInterface.querySelector('.teams-grid');
-      teamsGrid.innerHTML = state.teams.map(team => renderTeam(team)).join('');
+    const draftInterface = document.getElementById('draftInterface');
+    const teamsGrid = draftInterface.querySelector('.teams-grid');
+    teamsGrid.innerHTML = state.teams.map(team => renderTeam(team)).join('');
 
-      save();
-      render();
-    },
+    save();
+    render();
+  },
 
-    moveTeam
-  };
+  moveTeam,
+  addTeamInput,
+  removeTeamInput,
+  saveTeams
+};
 })();
 
 window.addEventListener('load', () => DraftManager.init());
