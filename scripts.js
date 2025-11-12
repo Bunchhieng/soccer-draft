@@ -2451,6 +2451,576 @@ const DraftManager = (() => {
 };
 })();
 
+// Onboarding Manager
+const OnboardingManager = (() => {
+  let currentStep = 0;
+  let highlightedElement = null;
+  
+  const steps = [
+    {
+      title: "Welcome! ⚽",
+      description: "Quick guide to using the draft tool.",
+      selector: ".app-title",
+      position: "bottom"
+    },
+    {
+      title: "Add Teams",
+      description: "Create teams with captains and colors, then click Save Teams.",
+      selector: ".team-setup > div:first-child, .teams-input-container",
+      position: "bottom"
+    },
+    {
+      title: "Add Players",
+      description: "Type or paste player names (comma-separated).",
+      selector: ".team-setup > div:last-child, .players-input-container, textarea#players",
+      position: "bottom"
+    },
+    {
+      title: "Set Order",
+      description: "Drag teams to set draft order.",
+      selector: ".draft-order-text, #draftOrderSection, h3.draft-order-text",
+      position: "top"
+    },
+    {
+      title: "Draft Type",
+      description: "Choose Classic or Snake draft.",
+      selector: ".switch-wrapper, .draft-controls",
+      position: "bottom"
+    },
+    {
+      title: "Start Draft",
+      description: "Click Start Draft to begin picking players.",
+      selector: "button[onclick*='startDraft']",
+      position: "top"
+    },
+    {
+      title: "Share & Export",
+      description: "Share link, export CSV, or save as image.",
+      selector: "button[onclick*='copyShareLink']",
+      position: "top"
+    }
+  ];
+  
+  function getElementPosition(element) {
+    // Use getBoundingClientRect for viewport-relative positioning
+    // Since tooltip is fixed positioned, we need viewport coordinates
+    const rect = element.getBoundingClientRect();
+    
+    return {
+      top: rect.top,
+      left: rect.left,
+      width: rect.width,
+      height: rect.height,
+      bottom: rect.bottom,
+      right: rect.right,
+      centerX: rect.left + rect.width / 2,
+      centerY: rect.top + rect.height / 2
+    };
+  }
+  
+  function positionTooltip(element, position) {
+    const tooltip = document.getElementById('onboardingTooltip');
+    const arrow = document.getElementById('onboardingArrow');
+    const elementPos = getElementPosition(element);
+    
+    // Wait for tooltip to be rendered to get accurate dimensions
+    if (!tooltip.offsetWidth || !tooltip.offsetHeight) {
+      // Force a reflow to get dimensions
+      tooltip.style.visibility = 'hidden';
+      tooltip.style.display = 'block';
+    }
+    
+    const tooltipWidth = tooltip.offsetWidth || 240;
+    const tooltipHeight = tooltip.offsetHeight || 150;
+    const padding = 35;
+    const arrowSize = 60;
+    
+    // Remove all position classes and set up hand-drawn arrow SVG
+    arrow.className = 'onboarding-arrow';
+    
+    // Create hand-drawn arrow SVG if it doesn't exist
+    if (!arrow.querySelector('svg')) {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 60 60');
+      svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      
+      // Hand-drawn arrow path (organic, slightly wavy like handwriting) - longer arrow
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      // Longer curved arrow with slight imperfections to look hand-drawn
+      path.setAttribute('d', 'M 10 50 Q 15 45, 20 40 Q 25 35, 28 30 Q 30 25, 30 20 Q 30 15, 30 10 Q 30 8, 30 6 M 30 6 Q 27 9, 24 12 M 30 6 Q 33 9, 36 12');
+      path.setAttribute('stroke', '#333');
+      path.setAttribute('stroke-width', '2.5');
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke-linecap', 'round');
+      path.setAttribute('stroke-linejoin', 'round');
+      path.style.filter = 'drop-shadow(0 1px 1px rgba(0,0,0,0.1))';
+      
+      svg.appendChild(path);
+      arrow.appendChild(svg);
+    }
+    
+    let top, left;
+    
+    switch(position) {
+      case 'top':
+        top = elementPos.top - tooltipHeight - padding - arrowSize;
+        left = elementPos.centerX - (tooltipWidth / 2);
+        arrow.classList.add('top');
+        arrow.style.top = '';
+        arrow.style.bottom = '100%';
+        arrow.style.left = '50%';
+        arrow.style.right = '';
+        arrow.style.marginBottom = '0px';
+        break;
+      case 'bottom':
+        top = elementPos.bottom + padding + arrowSize;
+        left = elementPos.centerX - (tooltipWidth / 2);
+        arrow.classList.add('bottom');
+        arrow.style.top = '100%';
+        arrow.style.bottom = '';
+        arrow.style.left = '50%';
+        arrow.style.right = '';
+        arrow.style.marginTop = '0px';
+        break;
+      case 'left':
+        top = elementPos.centerY - (tooltipHeight / 2);
+        left = elementPos.left - tooltipWidth - padding - arrowSize;
+        arrow.classList.add('left');
+        arrow.style.top = '50%';
+        arrow.style.bottom = '';
+        arrow.style.left = '';
+        arrow.style.right = '100%';
+        arrow.style.marginRight = '0px';
+        break;
+      case 'right':
+        top = elementPos.centerY - (tooltipHeight / 2);
+        left = elementPos.right + padding + arrowSize;
+        arrow.classList.add('right');
+        arrow.style.top = '50%';
+        arrow.style.bottom = '';
+        arrow.style.left = '100%';
+        arrow.style.right = '';
+        arrow.style.marginLeft = '0px';
+        break;
+      default:
+        top = elementPos.bottom + padding + arrowSize;
+        left = elementPos.centerX - (tooltipWidth / 2);
+        arrow.classList.add('bottom');
+        arrow.style.top = '100%';
+        arrow.style.bottom = '';
+        arrow.style.left = '50%';
+        arrow.style.right = '';
+        arrow.style.marginTop = '0px';
+    }
+    
+    // Keep tooltip within viewport
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const margin = 16;
+    
+    // Horizontal constraints
+    if (left < margin) {
+      left = margin;
+      // Adjust arrow if tooltip is constrained
+      if (position === 'top' || position === 'bottom') {
+        const arrowOffset = elementPos.centerX - (left + tooltipWidth / 2);
+        arrow.style.left = `calc(50% + ${arrowOffset}px)`;
+      }
+    }
+    if (left + tooltipWidth > viewportWidth - margin) {
+      left = viewportWidth - tooltipWidth - margin;
+      // Adjust arrow if tooltip is constrained
+      if (position === 'top' || position === 'bottom') {
+        const arrowOffset = elementPos.centerX - (left + tooltipWidth / 2);
+        arrow.style.left = `calc(50% + ${arrowOffset}px)`;
+      }
+    }
+    
+    // Vertical constraints
+    if (top < margin) {
+      top = margin;
+      // Adjust arrow if tooltip is constrained
+      if (position === 'left' || position === 'right') {
+        const arrowOffset = elementPos.centerY - (top + tooltipHeight / 2);
+        arrow.style.top = `calc(50% + ${arrowOffset}px)`;
+      }
+    }
+    if (top + tooltipHeight > viewportHeight - margin) {
+      top = viewportHeight - tooltipHeight - margin;
+      // Adjust arrow if tooltip is constrained
+      if (position === 'left' || position === 'right') {
+        const arrowOffset = elementPos.centerY - (top + tooltipHeight / 2);
+        arrow.style.top = `calc(50% + ${arrowOffset}px)`;
+      }
+    }
+    
+    tooltip.style.top = top + 'px';
+    tooltip.style.left = left + 'px';
+    tooltip.style.transform = 'none';
+    tooltip.style.visibility = 'visible';
+  }
+  
+  function highlightElement(selector) {
+    // Remove previous highlight
+    if (highlightedElement) {
+      highlightedElement.classList.remove('onboarding-highlight');
+    }
+    
+    // Find element - try multiple selectors
+    let element = null;
+    const selectors = selector.split(', ');
+    
+    for (const sel of selectors) {
+      const trimmedSel = sel.trim();
+      // Try direct querySelector first
+      element = document.querySelector(trimmedSel);
+      
+      // Check if element is visible and has dimensions
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        if (rect.width === 0 && rect.height === 0 && element.style.display === 'none') {
+          // Element exists but is hidden, try to find a visible parent
+          let parent = element.parentElement;
+          while (parent && parent !== document.body) {
+            const parentRect = parent.getBoundingClientRect();
+            if (parentRect.width > 0 && parentRect.height > 0) {
+              element = parent;
+              break;
+            }
+            parent = parent.parentElement;
+          }
+        }
+      }
+      
+      // If not found, try finding parent container
+      if (!element && trimmedSel.includes('#')) {
+        const id = trimmedSel.replace('#', '');
+        element = document.getElementById(id);
+      }
+      
+      // If still not found, try finding by class
+      if (!element && trimmedSel.startsWith('.')) {
+        const className = trimmedSel.replace('.', '');
+        element = document.querySelector(`[class*="${className}"]`);
+        // Also try querySelector with the class directly
+        if (!element) {
+          element = document.querySelector(trimmedSel);
+        }
+      }
+      
+      // If still not found and it's a textarea, try to find the parent container
+      if (!element && trimmedSel.includes('textarea')) {
+        const textarea = document.querySelector('textarea#players');
+        if (textarea) {
+          // Find the players-input-container that should be next to it or in parent
+          element = textarea.nextElementSibling;
+          if (!element || !element.classList.contains('players-input-container')) {
+            element = textarea.parentElement.querySelector('.players-input-container');
+          }
+          // If still not found, use the textarea itself (even if hidden)
+          if (!element) {
+            element = textarea;
+          }
+        }
+      }
+      
+      // Special handling for players input - find the visible container
+      if (!element && (trimmedSel.includes('players') || trimmedSel.includes('#players'))) {
+        // Try to find the players-input-container first (the visible one)
+        element = document.querySelector('.players-input-container');
+        // If not found, try the parent section div
+        if (!element) {
+          const textarea = document.getElementById('players');
+          if (textarea) {
+            // Find parent div that contains the players section (second div in team-setup)
+            const teamSetup = textarea.closest('.team-setup');
+            if (teamSetup) {
+              const children = Array.from(teamSetup.children);
+              if (children.length > 1) {
+                element = children[1]; // Second div contains players section
+              } else {
+                element = textarea.closest('.team-setup > div');
+              }
+            }
+            if (!element) {
+              element = textarea;
+            }
+          }
+        }
+      }
+      
+      // Special handling for team-setup divs
+      if (!element && trimmedSel.includes('team-setup')) {
+        const parts = trimmedSel.split('>');
+        if (parts.length > 1) {
+          const selector = parts[1].trim();
+          if (selector.includes('first-child')) {
+            const teamSetup = document.querySelector('.team-setup');
+            if (teamSetup && teamSetup.children.length > 0) {
+              element = teamSetup.children[0];
+            }
+          } else if (selector.includes('last-child')) {
+            const teamSetup = document.querySelector('.team-setup');
+            if (teamSetup && teamSetup.children.length > 0) {
+              element = teamSetup.children[teamSetup.children.length - 1];
+            }
+          }
+        }
+      }
+      
+      // Special handling for draft order - prefer visible elements
+      if (!element && (trimmedSel.includes('draftOrder') || trimmedSel.includes('draft-order'))) {
+        // Try the heading first (always visible)
+        element = document.querySelector('.draft-order-text');
+        if (!element) {
+          element = document.querySelector('h3.draft-order-text');
+        }
+        // Then try the section
+        if (!element) {
+          const section = document.getElementById('draftOrderSection');
+          if (section && section.offsetWidth > 0 && section.offsetHeight > 0) {
+            element = section;
+          }
+        }
+        // Finally try the list
+        if (!element) {
+          const list = document.getElementById('draftOrderList');
+          if (list && list.offsetWidth > 0 && list.offsetHeight > 0) {
+            element = list;
+          }
+        }
+        // If still nothing, use the section anyway (even if hidden)
+        if (!element) {
+          element = document.getElementById('draftOrderSection') || document.querySelector('.draft-order-text');
+        }
+      }
+      
+      // Special handling for switch/draft type
+      if (!element && (trimmedSel.includes('switch') || trimmedSel.includes('snakeDraft'))) {
+        element = document.querySelector('.switch-wrapper');
+        if (!element) {
+          element = document.getElementById('snakeDraft');
+        }
+        if (!element) {
+          element = document.querySelector('.draft-controls');
+        }
+      }
+      
+      // Special handling for buttons - find by onclick attribute
+      if (!element && trimmedSel.includes('onclick')) {
+        const buttons = document.querySelectorAll('button[onclick]');
+        for (const btn of buttons) {
+          const onclickAttr = btn.getAttribute('onclick') || '';
+          if (trimmedSel.includes('startDraft') && onclickAttr.includes('startDraft')) {
+            element = btn;
+            break;
+          }
+          if (trimmedSel.includes('copyShareLink') && onclickAttr.includes('copyShareLink')) {
+            element = btn;
+            break;
+          }
+        }
+      }
+      
+      // Try attribute selector (already handled above, but keep for other attributes)
+      if (!element && trimmedSel.includes('[') && !trimmedSel.includes('onclick')) {
+        // Extract attribute name for other attributes
+        const attrMatch = trimmedSel.match(/\[([^\]]+)\]/);
+        if (attrMatch) {
+          element = document.querySelector(trimmedSel);
+        }
+      }
+      
+      if (element) break;
+    }
+    
+    if (!element) {
+      console.warn('Onboarding: Element not found:', selector);
+      // Try to find a fallback - the parent container
+      const firstSelector = selectors[0].trim();
+      if (firstSelector.startsWith('.')) {
+        const className = firstSelector.replace('.', '');
+        const allElements = document.querySelectorAll(`[class*="${className}"]`);
+        if (allElements.length > 0) {
+          element = allElements[0];
+        }
+      }
+      if (!element) {
+        return null;
+      }
+    }
+    
+    // Ensure element is visible and has dimensions
+    const rect = element.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0 || element.style.display === 'none') {
+      // Try to find a visible parent with dimensions
+      let visibleParent = element.parentElement;
+      let attempts = 0;
+      while (visibleParent && visibleParent !== document.body && attempts < 5) {
+        const parentRect = visibleParent.getBoundingClientRect();
+        if (parentRect.width > 0 && parentRect.height > 0 && 
+            visibleParent.style.display !== 'none' &&
+            !visibleParent.classList.contains('onboarding-overlay')) {
+          element = visibleParent;
+          break;
+        }
+        visibleParent = visibleParent.parentElement;
+        attempts++;
+      }
+    }
+    
+    // Add highlight
+    element.classList.add('onboarding-highlight');
+    highlightedElement = element;
+    
+    // Scroll element into view with a delay to ensure DOM is ready
+    setTimeout(() => {
+      if (element && element.scrollIntoView) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+      }
+    }, 50);
+    
+    return element;
+  }
+  
+  function showStep(stepIndex) {
+    if (stepIndex < 0 || stepIndex >= steps.length) return;
+    
+    const step = steps[stepIndex];
+    const overlay = document.getElementById('onboardingOverlay');
+    const tooltip = document.getElementById('onboardingTooltip');
+    
+    // Show overlay first
+    overlay.style.display = 'block';
+    
+    // Update step info
+    document.getElementById('onboardingStepNumber').textContent = stepIndex + 1;
+    document.getElementById('onboardingStepTotal').textContent = steps.length;
+    document.getElementById('onboardingTitle').textContent = step.title;
+    document.getElementById('onboardingDescription').textContent = step.description;
+    
+    // Show/hide navigation buttons
+    const prevBtn = document.getElementById('onboardingPrev');
+    const nextBtn = document.getElementById('onboardingNext');
+    const finishBtn = document.getElementById('onboardingFinish');
+    
+    prevBtn.style.display = stepIndex > 0 ? 'block' : 'none';
+    nextBtn.style.display = stepIndex < steps.length - 1 ? 'block' : 'none';
+    finishBtn.style.display = stepIndex === steps.length - 1 ? 'block' : 'none';
+    
+    // Make tooltip visible and get dimensions
+    tooltip.style.display = 'block';
+    tooltip.style.visibility = 'hidden'; // Temporarily hide to get accurate dimensions
+    
+    // Highlight element and position tooltip
+    setTimeout(() => {
+      const element = highlightElement(step.selector);
+      if (element) {
+        // Wait for scroll animation and DOM updates, then position
+        setTimeout(() => {
+          // Recalculate position after scroll and ensure element is still valid
+          const currentElement = document.querySelector(step.selector) || element;
+          if (currentElement && currentElement.getBoundingClientRect) {
+            positionTooltip(currentElement, step.position);
+            
+            // Also recalculate on window resize
+            const resizeHandler = () => {
+              if (overlay.style.display === 'block') {
+                const el = document.querySelector(step.selector) || element;
+                if (el) {
+                  positionTooltip(el, step.position);
+                }
+              }
+            };
+            
+            // Remove old listener if exists
+            if (window._onboardingResizeHandler) {
+              window.removeEventListener('resize', window._onboardingResizeHandler);
+            }
+            window._onboardingResizeHandler = resizeHandler;
+            window.addEventListener('resize', resizeHandler);
+          }
+        }, 500);
+      } else {
+        // If element not found, still show tooltip in center
+        tooltip.style.visibility = 'visible';
+        tooltip.style.top = '50%';
+        tooltip.style.left = '50%';
+        tooltip.style.transform = 'translate(-50%, -50%)';
+      }
+    }, 150);
+  }
+  
+  return {
+    start() {
+      currentStep = 0;
+      showStep(currentStep);
+    },
+    
+    next() {
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        showStep(currentStep);
+      }
+    },
+    
+    prev() {
+      if (currentStep > 0) {
+        currentStep--;
+        showStep(currentStep);
+      }
+    },
+    
+    close() {
+      const overlay = document.getElementById('onboardingOverlay');
+      overlay.style.display = 'none';
+      
+      // Remove resize listener
+      if (window._onboardingResizeHandler) {
+        window.removeEventListener('resize', window._onboardingResizeHandler);
+        window._onboardingResizeHandler = null;
+      }
+      
+      if (highlightedElement) {
+        highlightedElement.classList.remove('onboarding-highlight');
+        highlightedElement = null;
+      }
+    },
+    
+    skip() {
+      this.close();
+    },
+    
+    finish() {
+      this.close();
+      // Optionally save to localStorage that user has completed onboarding
+      localStorage.setItem('onboardingCompleted', 'true');
+    },
+    
+    // Helper to recalculate current step position
+    recalculatePosition() {
+      if (currentStep >= 0 && currentStep < steps.length) {
+        const step = steps[currentStep];
+        // Use the same element finding logic as highlightElement
+        let element = null;
+        const selectors = step.selector.split(', ');
+        for (const sel of selectors) {
+          const trimmedSel = sel.trim();
+          element = document.querySelector(trimmedSel);
+          if (!element && trimmedSel.includes('#')) {
+            const id = trimmedSel.replace('#', '');
+            element = document.getElementById(id);
+          }
+          if (element) break;
+        }
+        if (element) {
+          positionTooltip(element, step.position);
+        }
+      }
+    }
+  };
+})();
+
 window.addEventListener('load', () => {
   DraftManager.init();
   // Set current year if element exists

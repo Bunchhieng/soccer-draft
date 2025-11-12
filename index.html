@@ -97,6 +97,9 @@
 
 <div class="controls">
     <div class="app-header">
+        <a href="#" class="onboarding-trigger-link" onclick="OnboardingManager.start(); return false;" title="Start guided tour">
+            🎓 Tour
+        </a>
         <h2 class="app-title">
             <span class="icon" onclick="triggerGoalAnimation()">⚽</span>
             <span class="text">Soccer Pickup Draft</span>
@@ -291,6 +294,33 @@
     <div class="custom-alert-buttons">
         <button class="custom-alert-cancel" onclick="DraftManager.closeAlert()">❌ Cancel</button>
         <button class="custom-alert-confirm" onclick="DraftManager.confirmReset()">⚽ Start New Draft</button>
+    </div>
+</div>
+
+<!-- Onboarding Overlay -->
+<div id="onboardingOverlay" class="onboarding-overlay" style="display: none;">
+    <div class="onboarding-backdrop"></div>
+    <div class="onboarding-tooltip" id="onboardingTooltip">
+        <div class="onboarding-header">
+            <div class="onboarding-step-indicator">
+                <span class="step-number" id="onboardingStepNumber">1</span>
+                <span class="step-total">/ <span id="onboardingStepTotal">6</span></span>
+            </div>
+            <button class="onboarding-close" onclick="OnboardingManager.close()" title="Close tour">×</button>
+        </div>
+        <div class="onboarding-content">
+            <h3 class="onboarding-title" id="onboardingTitle">Welcome to Soccer Draft!</h3>
+            <p class="onboarding-description" id="onboardingDescription">Let's walk through how to use this tool.</p>
+        </div>
+        <div class="onboarding-arrow" id="onboardingArrow"></div>
+        <div class="onboarding-footer">
+            <button class="onboarding-skip" onclick="OnboardingManager.skip()">Skip Tour</button>
+            <div class="onboarding-nav">
+                <button class="onboarding-prev" id="onboardingPrev" onclick="OnboardingManager.prev()" style="display: none;">← Previous</button>
+                <button class="onboarding-next" id="onboardingNext" onclick="OnboardingManager.next()">Next →</button>
+                <button class="onboarding-finish" id="onboardingFinish" onclick="OnboardingManager.finish()" style="display: none;">Got it! 🎉</button>
+            </div>
+        </div>
     </div>
 </div>
 
