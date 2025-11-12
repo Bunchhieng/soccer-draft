@@ -81,6 +81,7 @@
     <title>Soccer Pickup Draft | Lowell Warriors FC</title>
     <!-- Add this in the head section -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -193,6 +194,12 @@
                             title="Load sample data to see how the draft works">
                         🎯 Load Test Data
                     </button>
+                    <button
+                            class="secondary-button"
+                            onclick="DraftManager.copyShareLink()"
+                            title="Copy shareable link to clipboard">
+                        🔗 Share Link
+                    </button>
                 </div>
             </div>
         </div>
@@ -214,6 +221,9 @@
             </button>
             <button onclick="DraftManager.exportCSV()" class="download-button">
                 📊 Export CSV
+            </button>
+            <button onclick="DraftManager.copyShareLink()" class="download-button">
+                🔗 Share Link
             </button>
         </div>
         <div class="teams-grid">
