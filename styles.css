@@ -3544,3 +3544,229 @@ input:checked + .slider:before {
         padding: 8px 12px;
     }
 }
+
+/* Options Menu Styles */
+.draft-options-container {
+    position: relative;
+    display: inline-block;
+}
+
+.options-menu-button {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 10;
+}
+
+.options-menu-button:hover {
+    background: #f8f9fa;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: scale(1.05);
+}
+
+.options-menu-button:active {
+    transform: scale(0.95);
+}
+
+.options-dots {
+    font-size: 1.4rem;
+    color: #666;
+    line-height: 1;
+    font-weight: bold;
+    transform: rotate(90deg);
+    display: inline-block;
+}
+
+.options-menu {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    min-width: 200px;
+    z-index: 1000;
+    overflow: hidden;
+    animation: menuSlideDown 0.2s ease-out;
+}
+
+@keyframes menuSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.options-menu-item {
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.95rem;
+    color: #333;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.options-menu-item:hover:not(.disabled) {
+    background: #f8f9fa;
+}
+
+.options-menu-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    color: #999;
+}
+
+.options-menu-item:active:not(.disabled) {
+    background: #e9ecef;
+}
+
+.options-icon {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.options-menu-item span:not(.options-icon):not(.options-shortcut) {
+    flex: 1;
+}
+
+.options-shortcut {
+    font-size: 0.75rem;
+    color: #999;
+    font-family: monospace;
+    margin-left: auto;
+}
+
+.options-menu-divider {
+    height: 1px;
+    background: #e9ecef;
+    margin: 4px 0;
+}
+
+/* History Modal Styles */
+.history-modal-content {
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.history-list {
+    overflow-y: auto;
+    max-height: calc(80vh - 120px);
+    padding: 8px 0;
+}
+
+.history-item {
+    padding: 12px 16px;
+    margin: 8px 0;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #4CAF50;
+    transition: all 0.2s ease;
+}
+
+.history-item:hover {
+    background: #e9ecef;
+    transform: translateX(4px);
+}
+
+.history-item.history-redo {
+    border-left-color: #ffc107;
+    opacity: 0.7;
+}
+
+.history-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.history-pick-number {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.history-badge {
+    background: #ffc107;
+    color: #333;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.history-item-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.history-stats {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.history-team {
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.history-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+    .draft-options-container {
+        padding: 0 5px;
+    }
+    
+    .options-menu {
+        right: 5px;
+        min-width: 180px;
+    }
+    
+    .options-menu-item {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+    }
+    
+    .options-shortcut {
+        display: none;
+    }
+    
+    .history-modal-content {
+        max-width: 90%;
+    }
+}

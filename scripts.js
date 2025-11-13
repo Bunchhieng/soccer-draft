@@ -36,6 +36,11 @@ const DraftManager = (() => {
     editingTeam: null,
     isSettingOrder: false
   };
+  
+  // History management for undo/redo
+  let historyStack = []; // Stack of state snapshots for undo
+  let redoStack = []; // Stack of state snapshots for redo
+  const MAX_HISTORY_SIZE = 50; // Limit history to prevent memory issues
 
   function handleDragStart(e) {
     draggedItem = e.target;
@@ -661,6 +666,28 @@ const DraftManager = (() => {
                 <div class="header-right">
                   <button class="share-button" onclick="DraftManager.copyShareLink()" title="Copy shareable link">🔗 Share</button>
                   <button class="danger-button" onclick="DraftManager.reset()">🔄 New Draft</button>
+                  <div class="draft-options-container">
+                    <button class="options-menu-button" onclick="DraftManager.toggleOptionsMenu()" title="More options">
+                      <span class="options-dots">⋯</span>
+                    </button>
+                    <div id="optionsMenu" class="options-menu" style="display: none;">
+                      <button id="undoButton" class="options-menu-item" onclick="DraftManager.undo(); DraftManager.toggleOptionsMenu();" title="Undo last pick (Ctrl+Z)">
+                        <span class="options-icon">↶</span>
+                        <span>Undo</span>
+                        <span class="options-shortcut">Ctrl+Z</span>
+                      </button>
+                      <button id="redoButton" class="options-menu-item" onclick="DraftManager.redo(); DraftManager.toggleOptionsMenu();" title="Redo (Ctrl+Y)">
+                        <span class="options-icon">↷</span>
+                        <span>Redo</span>
+                        <span class="options-shortcut">Ctrl+Y</span>
+                      </button>
+                      <div class="options-menu-divider"></div>
+                      <button class="options-menu-item" onclick="DraftManager.showHistory(); DraftManager.toggleOptionsMenu();" title="View draft history">
+                        <span class="options-icon">📜</span>
+                        <span>History</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="player-list">
@@ -691,6 +718,11 @@ const DraftManager = (() => {
       });
       if (draftInterface) draftInterface.style.display = 'none';
       if (teamsList) teamsList.style.display = 'none';
+    }
+    
+    // Update undo/redo button states when draft interface is visible
+    if (isDraftStarted && !isDraftComplete) {
+      updateUndoRedoButtons();
     }
   }
 
@@ -895,9 +927,146 @@ const DraftManager = (() => {
     setTimeout(triggerGoalAnimation, 500);
   }
 
+  // Deep clone state for history
+  function cloneState() {
+    return {
+      teams: state.teams.map(team => ({
+        ...team,
+        players: team.players.map(p => ({ ...p }))
+      })),
+      players: state.players.map(p => ({ ...p })),
+      snakeDraft: state.snakeDraft,
+      currentTurn: state.currentTurn,
+      draftOrder: state.draftOrder.map(team => ({
+        ...team,
+        players: team.players.map(p => ({ ...p }))
+      })),
+      editingTeam: state.editingTeam,
+      isSettingOrder: state.isSettingOrder
+    };
+  }
+
+  // Save current state to history before making changes
+  function saveToHistory() {
+    const snapshot = cloneState();
+    historyStack.push(snapshot);
+    
+    // Limit history size
+    if (historyStack.length > MAX_HISTORY_SIZE) {
+      historyStack.shift(); // Remove oldest entry
+    }
+    
+    // Clear redo stack when new action is performed
+    redoStack = [];
+    
+    updateUndoRedoButtons();
+  }
+
+  // Restore state from a snapshot
+  function restoreState(snapshot) {
+    state = {
+      teams: snapshot.teams.map(team => ({
+        ...team,
+        players: team.players.map(p => ({ ...p }))
+      })),
+      players: snapshot.players.map(p => ({ ...p })),
+      snakeDraft: snapshot.snakeDraft,
+      currentTurn: snapshot.currentTurn,
+      draftOrder: snapshot.draftOrder.map(team => {
+        // Find the corresponding team in state.teams to get the latest data
+        const stateTeam = snapshot.teams.find(t => t.id === team.id);
+        return stateTeam ? {
+          ...stateTeam,
+          players: stateTeam.players.map(p => ({ ...p }))
+        } : {
+          ...team,
+          players: team.players.map(p => ({ ...p }))
+        };
+      }),
+      editingTeam: snapshot.editingTeam,
+      isSettingOrder: snapshot.isSettingOrder
+    };
+    
+    // Sync draftOrder teams with state.teams
+    state.draftOrder = state.draftOrder.map(draftTeam => {
+      const stateTeam = state.teams.find(t => t.id === draftTeam.id);
+      return stateTeam || draftTeam;
+    });
+    
+    // Update player teamId references and ensure players are in correct teams
+    state.teams.forEach(team => {
+      team.players = [];
+    });
+    
+    state.players.forEach(player => {
+      if (player.teamId) {
+        const team = state.teams.find(t => t.id === player.teamId);
+        if (team) {
+          team.players.push(player);
+        }
+      }
+    });
+    
+    save();
+    render();
+    updateUndoRedoButtons();
+  }
+
+  // Update undo/redo button states
+  function updateUndoRedoButtons() {
+    const undoBtn = document.getElementById('undoButton');
+    const redoBtn = document.getElementById('redoButton');
+    
+    if (undoBtn) {
+      undoBtn.disabled = historyStack.length === 0;
+      undoBtn.classList.toggle('disabled', historyStack.length === 0);
+    }
+    
+    if (redoBtn) {
+      redoBtn.disabled = redoStack.length === 0;
+      redoBtn.classList.toggle('disabled', redoStack.length === 0);
+    }
+  }
+
+  // Undo last pick
+  function undo() {
+    if (historyStack.length === 0) return;
+    
+    // Save current state to redo stack
+    const currentState = cloneState();
+    redoStack.push(currentState);
+    
+    // Restore previous state
+    const previousState = historyStack.pop();
+    restoreState(previousState);
+  }
+
+  // Redo last undone pick
+  function redo() {
+    if (redoStack.length === 0) return;
+    
+    // Save current state to history stack
+    const currentState = cloneState();
+    historyStack.push(currentState);
+    
+    // Restore state from redo stack
+    const nextState = redoStack.pop();
+    restoreState(nextState);
+  }
+
+  // Clear history (when starting new draft)
+  function clearHistory() {
+    historyStack = [];
+    redoStack = [];
+    updateUndoRedoButtons();
+  }
+
   function pickPlayer(playerId) {
     const player = state.players.find(p => p.id === playerId);
     if (!player || player.teamId) return;
+
+    // Save state to history before making changes
+    saveToHistory();
 
     const maxPlayersPerTeam = calculateMaxPlayersPerTeam(state);
     let currentTeamIndex = state.currentTurn % state.draftOrder.length;
@@ -1642,6 +1811,31 @@ const DraftManager = (() => {
           initCaptainInputsDragDrop();
           initTeamsContainerDragDrop();
         }, 100);
+        
+        // Add keyboard shortcuts for undo/redo
+        document.addEventListener('keydown', function(e) {
+          // Only handle shortcuts when draft interface is visible
+          const draftInterface = document.getElementById('draftInterface');
+          if (!draftInterface || draftInterface.style.display === 'none') return;
+          
+          // Ctrl+Z or Cmd+Z for undo
+          if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+            e.preventDefault();
+            if (historyStack.length > 0) {
+              undo();
+            }
+          }
+          // Ctrl+Y or Ctrl+Shift+Z or Cmd+Shift+Z for redo
+          else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+            e.preventDefault();
+            if (redoStack.length > 0) {
+              redo();
+            }
+          }
+        });
+        
+        // Initialize undo/redo button states
+        updateUndoRedoButtons();
     },
 
     stopDraft() {
@@ -1740,6 +1934,9 @@ const DraftManager = (() => {
 
     startDraft(showWarning = false) {
       try {
+        // Clear history when starting a new draft
+        clearHistory();
+        
         if (state.teams.length < 2) {
           showAlert('Please add at least 2 teams!');
           return;
@@ -1903,6 +2100,9 @@ const DraftManager = (() => {
     confirmReset() {
         document.getElementById('alertOverlay').style.display = 'none';
         document.getElementById('customAlert').style.display = 'none';
+
+        // Clear history
+        clearHistory();
 
         // Clear localStorage
         localStorage.removeItem(KEY);
@@ -2447,7 +2647,82 @@ const DraftManager = (() => {
   addTeamInput,
   removeTeamInput,
   saveTeams,
-  copyShareLink
+  copyShareLink,
+  undo,
+  redo,
+  getHistory: () => ({ history: [...historyStack], redo: [...redoStack] }),
+  toggleOptionsMenu() {
+    const menu = document.getElementById('optionsMenu');
+    if (!menu) return;
+    
+    const isVisible = menu.style.display !== 'none';
+    menu.style.display = isVisible ? 'none' : 'block';
+    
+    // Close menu when clicking outside
+    if (!isVisible) {
+      setTimeout(() => {
+        document.addEventListener('click', function closeMenu(e) {
+          if (!menu.contains(e.target) && !e.target.closest('.options-menu-button')) {
+            menu.style.display = 'none';
+            document.removeEventListener('click', closeMenu);
+          }
+        }, { once: true });
+      }, 0);
+    }
+  },
+  showHistory() {
+    const modal = document.getElementById('historyModal');
+    if (!modal) return;
+    
+    // Build history list
+    const historyList = document.getElementById('historyList');
+    if (!historyList) return;
+    
+    // Combine history and redo stacks for display
+    const allHistory = [
+      ...historyStack.map((snapshot, index) => ({
+        type: 'pick',
+        snapshot,
+        index: historyStack.length - index,
+        isUndo: false
+      })),
+      ...redoStack.map((snapshot, index) => ({
+        type: 'redo',
+        snapshot,
+        index: index + 1,
+        isUndo: true
+      })).reverse()
+    ];
+    
+    if (allHistory.length === 0) {
+      historyList.innerHTML = '<div class="history-empty">No draft history yet. Start picking players to see history.</div>';
+    } else {
+      historyList.innerHTML = allHistory.map(item => {
+        const snapshot = item.snapshot;
+        const totalPicked = snapshot.players.filter(p => p.teamId).length;
+        const totalPlayers = snapshot.players.length;
+        const currentTeamIndex = snapshot.currentTurn % (snapshot.draftOrder.length || 1);
+        const currentTeam = snapshot.draftOrder[currentTeamIndex];
+        
+        return `
+          <div class="history-item ${item.isUndo ? 'history-redo' : ''}">
+            <div class="history-item-header">
+              <span class="history-pick-number">Pick #${item.index}</span>
+              ${item.isUndo ? '<span class="history-badge">Undone</span>' : ''}
+            </div>
+            <div class="history-item-content">
+              <div class="history-stats">
+                <span>${totalPicked}/${totalPlayers} players drafted</span>
+                ${currentTeam ? `<span class="history-team" style="color: ${currentTeam.color}">${currentTeam.name}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    modal.style.display = 'flex';
+  }
 };
 })();
 
@@ -2455,8 +2730,10 @@ const DraftManager = (() => {
 const OnboardingManager = (() => {
   let currentStep = 0;
   let highlightedElement = null;
+  let currentSteps = [];
   
-  const steps = [
+  // Setup mode steps (before draft starts)
+  const setupSteps = [
     {
       title: "Welcome! ⚽",
       description: "Quick guide to using the draft tool.",
@@ -2500,6 +2777,54 @@ const OnboardingManager = (() => {
       position: "top"
     }
   ];
+  
+  // Draft mode steps (during active draft)
+  const draftSteps = [
+    {
+      title: "Draft Mode! ⚽",
+      description: "Welcome to the draft interface. Let's learn how to pick players.",
+      selector: "#currentTurn, .current-pick-indicator",
+      position: "bottom"
+    },
+    {
+      title: "Current Turn",
+      description: "This shows which team's turn it is to pick. Watch it change after each pick!",
+      selector: "#currentTurn, .current-pick-indicator",
+      position: "bottom"
+    },
+    {
+      title: "Available Players",
+      description: "Click any player here to draft them to the current team. You can also drag and drop!",
+      selector: "#availablePlayers, .available-players-section",
+      position: "top"
+    },
+    {
+      title: "Teams Grid",
+      description: "Watch teams fill up as players are drafted. Each team shows its color and players.",
+      selector: ".teams-grid",
+      position: "top"
+    },
+    {
+      title: "More Options",
+      description: "Access Undo, Redo, and History. Use Ctrl+Z to undo mistakes!",
+      selector: ".options-menu-button, .draft-options-container",
+      position: "left"
+    },
+    {
+      title: "Share & Export",
+      description: "Share your draft progress or export results anytime.",
+      selector: ".share-button, button[onclick*='copyShareLink']",
+      position: "top"
+    }
+  ];
+  
+  // Helper function to detect if we're in draft mode
+  function isDraftMode() {
+    const draftInterface = document.getElementById('draftInterface');
+    const availablePlayers = document.getElementById('availablePlayers');
+    return draftInterface && draftInterface.style.display !== 'none' && 
+           availablePlayers && availablePlayers.children.length > 0;
+  }
   
   function getElementPosition(element) {
     // Use getBoundingClientRect for viewport-relative positioning
@@ -2884,9 +3209,13 @@ const OnboardingManager = (() => {
   }
   
   function showStep(stepIndex) {
-    if (stepIndex < 0 || stepIndex >= steps.length) return;
+    // Ensure we have the right steps loaded
+    if (currentSteps.length === 0) {
+      currentSteps = isDraftMode() ? draftSteps : setupSteps;
+    }
+    if (stepIndex < 0 || stepIndex >= currentSteps.length) return;
     
-    const step = steps[stepIndex];
+    const step = currentSteps[stepIndex];
     const overlay = document.getElementById('onboardingOverlay');
     const tooltip = document.getElementById('onboardingTooltip');
     
@@ -2895,7 +3224,7 @@ const OnboardingManager = (() => {
     
     // Update step info
     document.getElementById('onboardingStepNumber').textContent = stepIndex + 1;
-    document.getElementById('onboardingStepTotal').textContent = steps.length;
+    document.getElementById('onboardingStepTotal').textContent = currentSteps.length;
     document.getElementById('onboardingTitle').textContent = step.title;
     document.getElementById('onboardingDescription').textContent = step.description;
     
@@ -2905,8 +3234,8 @@ const OnboardingManager = (() => {
     const finishBtn = document.getElementById('onboardingFinish');
     
     prevBtn.style.display = stepIndex > 0 ? 'block' : 'none';
-    nextBtn.style.display = stepIndex < steps.length - 1 ? 'block' : 'none';
-    finishBtn.style.display = stepIndex === steps.length - 1 ? 'block' : 'none';
+    nextBtn.style.display = stepIndex < currentSteps.length - 1 ? 'block' : 'none';
+    finishBtn.style.display = stepIndex === currentSteps.length - 1 ? 'block' : 'none';
     
     // Make tooltip visible and get dimensions
     tooltip.style.display = 'block';
@@ -2953,12 +3282,14 @@ const OnboardingManager = (() => {
   
   return {
     start() {
+      // Determine which steps to use based on current mode
+      currentSteps = isDraftMode() ? draftSteps : setupSteps;
       currentStep = 0;
       showStep(currentStep);
     },
     
     next() {
-      if (currentStep < steps.length - 1) {
+      if (currentStep < currentSteps.length - 1) {
         currentStep++;
         showStep(currentStep);
       }
@@ -2999,8 +3330,8 @@ const OnboardingManager = (() => {
     
     // Helper to recalculate current step position
     recalculatePosition() {
-      if (currentStep >= 0 && currentStep < steps.length) {
-        const step = steps[currentStep];
+      if (currentStep >= 0 && currentStep < currentSteps.length) {
+        const step = currentSteps[currentStep];
         // Use the same element finding logic as highlightElement
         let element = null;
         const selectors = step.selector.split(', ');
