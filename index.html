@@ -153,7 +153,7 @@
                 <div class="teams-list"></div>
                 <button class="add-team-button" onclick="DraftManager.addTeamInput()">
                     <span class="plus-icon">+</span>
-                    Add Another Team or drag players to create teams
+                    Add or drag players to create team
                 </button>
             </div>
             
@@ -306,6 +306,37 @@
         </div>
         <div id="historyList" class="history-list">
             <!-- History items will be inserted here -->
+        </div>
+    </div>
+</div>
+
+<!-- Player Image Modal -->
+<div id="playerImageModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">📷 Add Player Photo</h3>
+            <button class="close-button" onclick="DraftManager.closePlayerImageModal()">&times;</button>
+        </div>
+        <div class="modal-form-group">
+            <label>Player: <span id="playerImageModalPlayerName"></span></label>
+            <div style="margin: 16px 0; text-align: center;">
+                <img id="playerImageModalCurrentImage" 
+                     src="" 
+                     alt="Current player image" 
+                     style="max-width: 150px; max-height: 150px; border-radius: 50%; border: 3px solid #ddd; display: none;">
+            </div>
+            <input type="file" 
+                   id="playerImageFileInput" 
+                   accept="image/*" 
+                   style="width: 100%; padding: 8px; margin-bottom: 12px;"
+                   onchange="DraftManager.handlePlayerImageUpload(event)">
+            <div style="display: flex; gap: 8px; justify-content: center;">
+                <button class="secondary-button" onclick="DraftManager.closePlayerImageModal()">Cancel</button>
+                <button class="danger-button" 
+                        id="removePlayerImageBtn" 
+                        onclick="DraftManager.removePlayerImage(document.getElementById('playerImageFileInput').dataset.playerId)"
+                        style="display: none;">Remove Photo</button>
+            </div>
         </div>
     </div>
 </div>

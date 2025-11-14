@@ -2151,7 +2151,8 @@ h2 {
 
 .pick-info {
     display: flex;
-    align-items: justify-content: center;
+    align-items: center;
+    justify-content: center;
     gap: 12px;
     padding: 4px 0;
     width: 100%;
@@ -3769,4 +3770,41 @@ input:checked + .slider:before {
     .history-modal-content {
         max-width: 90%;
     }
+}
+
+/* Avatar container hover effect for remove button */
+.avatar-container:hover .remove-image-btn {
+  display: flex !important;
+}
+
+/* Toast notification animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }

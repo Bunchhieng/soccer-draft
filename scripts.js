@@ -34,7 +34,8 @@ const DraftManager = (() => {
     currentTurn: 0,
     draftOrder: [],
     editingTeam: null,
-    isSettingOrder: false
+    isSettingOrder: false,
+    playerImages: {} // Store player images: { playerId: base64Image }
   };
   
   // History management for undo/redo
@@ -195,7 +196,8 @@ const DraftManager = (() => {
           currentTurn: decodedData.currentTurn || 0,
           draftOrder: draftOrder,
           editingTeam: null,
-          isSettingOrder: false
+          isSettingOrder: false,
+          playerImages: decodedData.playerImages || {}
         };
       }
       
@@ -512,6 +514,208 @@ const DraftManager = (() => {
     return '#ffffff';  // Otherwise return white
   }
 
+  // Compress image to reduce file size
+  function compressImage(file, maxWidth = 150, maxHeight = 150, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Calculate new dimensions
+          if (width > height) {
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height;
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convert to base64 with compression
+          const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+          resolve(compressedBase64);
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Open file picker directly for quick upload
+  function openPlayerImagePicker(playerId, playerName) {
+    // Create a hidden file input
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.style.display = 'none';
+    
+    fileInput.onchange = (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      if (!file.type.startsWith('image/')) {
+        showAlert('Please select an image file');
+        return;
+      }
+
+      // Check file size (max 5MB before compression)
+      if (file.size > 5 * 1024 * 1024) {
+        showAlert('Image is too large. Please select an image smaller than 5MB.');
+        return;
+      }
+
+      // Compress and store image
+      compressImage(file)
+        .then(compressedBase64 => {
+          state.playerImages[playerId] = compressedBase64;
+          save();
+          render();
+          showToast(`Photo updated!`, 'success');
+        })
+        .catch(error => {
+          console.error('Error compressing image:', error);
+          showToast('Error uploading image', 'error');
+        });
+      
+      // Clean up
+      document.body.removeChild(fileInput);
+    };
+    
+    // Trigger file picker
+    document.body.appendChild(fileInput);
+    fileInput.click();
+  }
+
+  // Open image upload modal for a player (for viewing/removing existing images)
+  function openPlayerImageModal(playerId, playerName) {
+    const modal = document.getElementById('playerImageModal');
+    const playerNameSpan = document.getElementById('playerImageModalPlayerName');
+    const currentImage = document.getElementById('playerImageModalCurrentImage');
+    const fileInput = document.getElementById('playerImageFileInput');
+    
+    if (!modal || !playerNameSpan || !currentImage || !fileInput) {
+      console.error('Player image modal elements not found');
+      return;
+    }
+
+    playerNameSpan.textContent = playerName;
+    
+    // Show current image if exists
+    const removeBtn = document.getElementById('removePlayerImageBtn');
+    if (state.playerImages[playerId]) {
+      currentImage.src = state.playerImages[playerId];
+      currentImage.style.display = 'block';
+      if (removeBtn) removeBtn.style.display = 'block';
+    } else {
+      currentImage.style.display = 'none';
+      if (removeBtn) removeBtn.style.display = 'none';
+    }
+
+    // Reset file input
+    fileInput.value = '';
+    
+    // Show modal
+    modal.style.display = 'flex';
+    
+    // Store current player ID for the upload handler
+    fileInput.dataset.playerId = playerId;
+    
+    // Close modal when clicking outside
+    modal.onclick = (e) => {
+      if (e.target === modal) {
+        closePlayerImageModal();
+      }
+    };
+  }
+
+  // Handle image upload
+  function handlePlayerImageUpload(event) {
+    const fileInput = event.target;
+    const playerId = fileInput.dataset.playerId;
+    const file = fileInput.files[0];
+
+    if (!file || !playerId) return;
+
+    if (!file.type.startsWith('image/')) {
+      showAlert('Please select an image file');
+      return;
+    }
+
+    // Check file size (max 5MB before compression)
+    if (file.size > 5 * 1024 * 1024) {
+      showAlert('Image is too large. Please select an image smaller than 5MB.');
+      return;
+    }
+
+    // Compress and store image
+    compressImage(file)
+      .then(compressedBase64 => {
+        state.playerImages[playerId] = compressedBase64;
+        save();
+        render();
+        
+        // Update preview
+        const currentImage = document.getElementById('playerImageModalCurrentImage');
+        const removeBtn = document.getElementById('removePlayerImageBtn');
+        if (currentImage) {
+          currentImage.src = compressedBase64;
+          currentImage.style.display = 'block';
+        }
+        if (removeBtn) removeBtn.style.display = 'block';
+        
+        showToast('Photo uploaded!', 'success');
+      })
+      .catch(error => {
+        console.error('Error compressing image:', error);
+        showToast('Error uploading image', 'error');
+      });
+  }
+
+  // Remove player image
+  function removePlayerImage(playerId) {
+    if (state.playerImages[playerId]) {
+      delete state.playerImages[playerId];
+      save();
+      render();
+      
+      // Update modal preview
+      const currentImage = document.getElementById('playerImageModalCurrentImage');
+      const removeBtn = document.getElementById('removePlayerImageBtn');
+      if (currentImage) {
+        currentImage.style.display = 'none';
+      }
+      if (removeBtn) {
+        removeBtn.style.display = 'none';
+      }
+      
+      showToast('Photo removed', 'success');
+    }
+  }
+
+  // Close player image modal
+  function closePlayerImageModal() {
+    const modal = document.getElementById('playerImageModal');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.onclick = null; // Remove click handler
+    }
+  }
+
   function render() {
     const draftInterface = document.getElementById('draftInterface');
     const teamSetup = document.querySelectorAll('.team-setup > div');
@@ -690,11 +894,20 @@ const DraftManager = (() => {
                   </div>
                 </div>
               </div>
-              <div class="player-list">
+              <div style="padding: 12px 20px; border-bottom: 1px solid #eee;">
+                <input type="text" 
+                       id="playerSearchInput" 
+                       placeholder="🔍 Search players..." 
+                       style="width: 100%; padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s;"
+                       oninput="DraftManager.filterAvailablePlayers(this.value)"
+                       onfocus="this.style.borderColor = '#4CAF50'"
+                       onblur="this.style.borderColor = '#e0e0e0'">
+              </div>
+              <div class="player-list" id="availablePlayersList">
                 ${available.map(p => `
                   <div class="available-player" 
                        draggable="true"
-                       data-player-name="${p.name}"
+                       data-player-name="${p.name.toLowerCase()}"
                        onclick="DraftManager.pickPlayer('${p.id}')"
                        ondragstart="event.dataTransfer.setData('text/plain', '${p.name}'); event.dataTransfer.effectAllowed = 'copy'; this.style.opacity = '0.5';"
                        ondragend="this.style.opacity = '1';">
@@ -756,14 +969,60 @@ const DraftManager = (() => {
                 ${team.players.length + 1} Player${team.players.length + 1 !== 1 ? 's' : ''}
             </div>
             <div class="team-players">
-                <div class="team-player">
-                    <div class="team-player-name captain">
-                        ${team.captain} (C)
+                ${(() => {
+                  const captainId = `captain_${team.id}`;
+                  const captainImage = state.playerImages[captainId];
+                  return `
+                    <div class="team-player" style="display: flex; align-items: center; gap: 8px; position: relative;">
+                        ${captainImage ? `
+                          <div class="avatar-container" style="position: relative; display: inline-block;">
+                            <img src="${captainImage}" 
+                                 alt="${team.captain}" 
+                                 class="player-avatar" 
+                                 onclick="DraftManager.openPlayerImagePicker('${captainId}', '${team.captain.replace(/'/g, "\\'")}')"
+                                 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid ${team.color}; cursor: pointer;">
+                            <button onclick="event.stopPropagation(); DraftManager.removePlayerImage('${captainId}')" 
+                                    class="remove-image-btn"
+                                    style="position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; border-radius: 50%; background: #dc2626; color: white; border: 2px solid white; cursor: pointer; font-size: 10px; display: none; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10;"
+                                    title="Remove photo">×</button>
+                          </div>
+                        ` : `
+                          <div class="player-avatar-placeholder" 
+                               onclick="DraftManager.openPlayerImagePicker('${captainId}', '${team.captain.replace(/'/g, "\\'")}')"
+                               style="width: 40px; height: 40px; border-radius: 50%; background: ${team.color}; display: flex; align-items: center; justify-content: center; color: ${contrastColor}; font-weight: bold; border: 2px solid ${team.color}; cursor: pointer;">
+                            ${team.captain.charAt(0).toUpperCase()}
+                          </div>
+                        `}
+                        <div class="team-player-name captain" style="flex: 1;">
+                            ${team.captain} (C)
+                        </div>
                     </div>
-                </div>
-                ${team.players.map(p => `
-                    <div class="team-player">
-                        <div class="team-player-name">
+                  `;
+                })()}
+                ${team.players.map(p => {
+                  const playerImage = state.playerImages[p.id];
+                  return `
+                    <div class="team-player" style="display: flex; align-items: center; gap: 8px; position: relative;">
+                        ${playerImage ? `
+                          <div class="avatar-container" style="position: relative; display: inline-block;">
+                            <img src="${playerImage}" 
+                                 alt="${p.name}" 
+                                 class="player-avatar" 
+                                 onclick="DraftManager.openPlayerImagePicker('${p.id}', '${p.name.replace(/'/g, "\\'")}')"
+                                 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid ${team.color}; cursor: pointer;">
+                            <button onclick="event.stopPropagation(); DraftManager.removePlayerImage('${p.id}')" 
+                                    class="remove-image-btn"
+                                    style="position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; border-radius: 50%; background: #dc2626; color: white; border: 2px solid white; cursor: pointer; font-size: 10px; display: none; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10;"
+                                    title="Remove photo">×</button>
+                          </div>
+                        ` : `
+                          <div class="player-avatar-placeholder" 
+                               onclick="DraftManager.openPlayerImagePicker('${p.id}', '${p.name.replace(/'/g, "\\'")}')"
+                               style="width: 40px; height: 40px; border-radius: 50%; background: ${team.color}; display: flex; align-items: center; justify-content: center; color: ${contrastColor}; font-weight: bold; border: 2px solid ${team.color}; cursor: pointer;">
+                            ${p.name.charAt(0).toUpperCase()}
+                          </div>
+                        `}
+                        <div class="team-player-name" style="flex: 1;">
                             ${p.name}
                         </div>
                         <button onclick="DraftManager.removePlayer('${p.id}', '${team.id}')" 
@@ -777,7 +1036,8 @@ const DraftManager = (() => {
                                        transition: all 0.2s ease;"
                                 title="Remove player">×</button>
                     </div>
-                `).join('')}
+                  `;
+                }).join('')}
             </div>
         `;
     return div.outerHTML;
@@ -942,7 +1202,8 @@ const DraftManager = (() => {
         players: team.players.map(p => ({ ...p }))
       })),
       editingTeam: state.editingTeam,
-      isSettingOrder: state.isSettingOrder
+      isSettingOrder: state.isSettingOrder,
+      playerImages: { ...state.playerImages }
     };
   }
 
@@ -1219,6 +1480,67 @@ const DraftManager = (() => {
     // Show alert
     overlay.style.display = 'block';
     customAlert.style.display = 'block';
+  }
+
+  // Show toast notification (non-blocking, auto-dismiss)
+  function showToast(message, type = 'success') {
+    // Create toast container if it doesn't exist
+    let toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toastContainer';
+      toastContainer.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        pointer-events: none;
+      `;
+      document.body.appendChild(toastContainer);
+    }
+
+    // Create toast element
+    const toast = document.createElement('div');
+    const bgColor = type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3';
+    toast.style.cssText = `
+      background: ${bgColor};
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      font-size: 14px;
+      font-weight: 500;
+      min-width: 200px;
+      max-width: 350px;
+      animation: slideInRight 0.3s ease-out, fadeOut 0.3s ease-in 2.7s forwards;
+      pointer-events: auto;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    `;
+    
+    const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+    toast.innerHTML = `<span style="font-size: 16px;">${icon}</span><span>${message}</span>`;
+    
+    // Add click to dismiss
+    toast.onclick = () => {
+      toast.style.animation = 'slideOutRight 0.3s ease-out forwards';
+      setTimeout(() => toast.remove(), 300);
+    };
+    
+    toastContainer.appendChild(toast);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.style.animation = 'slideOutRight 0.3s ease-out forwards';
+        setTimeout(() => toast.remove(), 300);
+      }
+    }, 3000);
   }
 
   // Add this helper function to calculate max players per team
@@ -1702,7 +2024,8 @@ const DraftManager = (() => {
             currentTurn: savedState.currentTurn || 0,
             draftOrder: savedState.draftOrder || [],
             editingTeam: null,
-            isSettingOrder: savedState.isSettingOrder || false
+            isSettingOrder: savedState.isSettingOrder || false,
+            playerImages: savedState.playerImages || {}
           };
 
           // No filtering - accept all players from localStorage
@@ -2121,7 +2444,8 @@ const DraftManager = (() => {
             currentTurn: 0,
             draftOrder: [],
             editingTeam: null,
-            isSettingOrder: false
+            isSettingOrder: false,
+            playerImages: {}
         };
 
         // Reset snake draft switch
@@ -2474,7 +2798,8 @@ const DraftManager = (() => {
         currentTurn: 0,
         draftOrder: [],
         editingTeam: null,
-        isSettingOrder: false
+        isSettingOrder: false,
+        playerImages: {}
       };
 
       const testPlayers = [
@@ -2655,6 +2980,39 @@ const DraftManager = (() => {
   undo,
   redo,
   getHistory: () => ({ history: [...historyStack], redo: [...redoStack] }),
+  openPlayerImagePicker,
+  openPlayerImageModal,
+  closePlayerImageModal,
+  removePlayerImage,
+  handlePlayerImageUpload,
+  filterAvailablePlayers(searchTerm) {
+    const searchLower = searchTerm.toLowerCase().trim();
+    const playerList = document.getElementById('availablePlayersList');
+    if (!playerList) return;
+    
+    const players = playerList.querySelectorAll('.available-player');
+    let visibleCount = 0;
+    
+    players.forEach(player => {
+      const playerName = player.dataset.playerName || '';
+      if (searchLower === '' || playerName.includes(searchLower)) {
+        player.style.display = 'flex';
+        visibleCount++;
+      } else {
+        player.style.display = 'none';
+      }
+    });
+    
+    // Update count in header if needed
+    const countElement = document.querySelector('.available-players-title');
+    if (countElement && searchTerm) {
+      const originalCount = state.players.filter(p => !p.teamId).length;
+      countElement.textContent = `Available Players (${visibleCount}${visibleCount !== originalCount ? ` of ${originalCount}` : ''})`;
+    } else if (countElement) {
+      const originalCount = state.players.filter(p => !p.teamId).length;
+      countElement.textContent = `Available Players (${originalCount})`;
+    }
+  },
   toggleOptionsMenu() {
     const menu = document.getElementById('optionsMenu');
     if (!menu) return;
