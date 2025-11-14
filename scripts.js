@@ -581,7 +581,7 @@ const DraftManager = (() => {
             const draftedPlayers = state.players.length;
             const captainsCount = state.draftOrder.filter(t => t.captain && t.captain.trim()).length;
             const totalPlayers = draftedPlayers + captainsCount;
-            const numTeams = state.draftOrder.length;
+            const numTeams = state.teams.length;
             const totalPerTeam = Math.floor(totalPlayers / numTeams);
             const remainder = totalPlayers % numTeams;
             const baseMaxDrafted = totalPerTeam - 1;
@@ -1077,7 +1077,7 @@ const DraftManager = (() => {
     const draftedPlayers = state.players.length;
     const captainsCount = state.draftOrder.filter(t => t.captain && t.captain.trim()).length;
     const totalPlayers = draftedPlayers + captainsCount;
-    const numTeams = state.draftOrder.length;
+    const numTeams = state.teams.length;
     const totalPerTeam = Math.floor(totalPlayers / numTeams);
     const remainder = totalPlayers % numTeams;
     
@@ -1768,6 +1768,7 @@ const DraftManager = (() => {
       }
 
       // Update the snake draft switch listener
+      const self = this; // Capture 'this' reference
       snakeDraftSwitch.addEventListener('change', function(e) {
         if (e.target.checked) {
           typeText.textContent = 'Snake Draft';
@@ -1782,7 +1783,7 @@ const DraftManager = (() => {
         
         // Update draft order if draft has started
         if (state.draftOrder.length > 0) {
-          state.draftOrder = this.generateDraftOrder();
+          state.draftOrder = self.generateDraftOrder();
         }
         
         save();
@@ -2027,7 +2028,10 @@ const DraftManager = (() => {
       }));
       
       // Make sure snake draft state is properly set
-      state.snakeDraft = document.getElementById('snakeDraft').checked;
+      const snakeDraftCheckbox = document.getElementById('snakeDraft');
+      if (snakeDraftCheckbox) {
+        state.snakeDraft = snakeDraftCheckbox.checked;
+      }
       state.currentTurn = 0;
       state.draftOrder = this.generateDraftOrder();
       
