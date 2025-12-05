@@ -30,7 +30,7 @@ const DraftManager = (() => {
   let state = {
     teams: [],
     players: [],
-    snakeDraft: false,
+    draftType: 'classic', // 'classic', 'snake', or 'roundRobin'
     currentTurn: 0,
     draftOrder: [],
     editingTeam: null,
@@ -114,7 +114,7 @@ const DraftManager = (() => {
         name: p.name,
         teamId: p.teamId
       })),
-      snakeDraft: state.snakeDraft,
+      draftType: state.draftType,
       currentTurn: state.currentTurn,
       draftOrder: draftOrder
     };
@@ -189,10 +189,17 @@ const DraftManager = (() => {
             .filter(Boolean);
         }
         
+        // Handle backward compatibility: convert old snakeDraft boolean to draftType
+        let draftType = decodedData.draftType || 'classic';
+        if (decodedData.snakeDraft !== undefined && decodedData.draftType === undefined) {
+          // Old format: convert boolean to string
+          draftType = decodedData.snakeDraft ? 'snake' : 'classic';
+        }
+        
         return {
           teams: decodedData.teams || [],
           players: decodedData.players || [],
-          snakeDraft: decodedData.snakeDraft || false,
+          draftType: draftType,
           currentTurn: decodedData.currentTurn || 0,
           draftOrder: draftOrder,
           editingTeam: null,
@@ -273,10 +280,7 @@ const DraftManager = (() => {
         isSettingOrder: false
       };
       
-      // Restore snake draft checkbox
-      if (document.getElementById('snakeDraft')) {
-        document.getElementById('snakeDraft').checked = state.snakeDraft || false;
-      }
+      // Restore draft type dropdown (will be handled by init function)
       
       // No filtering - accept all players from URL state
       
@@ -1195,7 +1199,7 @@ const DraftManager = (() => {
         players: team.players.map(p => ({ ...p }))
       })),
       players: state.players.map(p => ({ ...p })),
-      snakeDraft: state.snakeDraft,
+      draftType: state.draftType,
       currentTurn: state.currentTurn,
       draftOrder: state.draftOrder.map(team => ({
         ...team,
@@ -1231,7 +1235,7 @@ const DraftManager = (() => {
         players: team.players.map(p => ({ ...p }))
       })),
       players: snapshot.players.map(p => ({ ...p })),
-      snakeDraft: snapshot.snakeDraft,
+      draftType: snapshot.draftType || 'classic',
       currentTurn: snapshot.currentTurn,
       draftOrder: snapshot.draftOrder.map(team => {
         // Find the corresponding team in state.teams to get the latest data
@@ -2017,10 +2021,16 @@ const DraftManager = (() => {
         if (saved) {
           const savedState = JSON.parse(saved);
           // Ensure we restore all state properties
+          // Handle backward compatibility: convert old snakeDraft boolean to draftType
+          let draftType = savedState.draftType || 'classic';
+          if (savedState.snakeDraft !== undefined && savedState.draftType === undefined) {
+            draftType = savedState.snakeDraft ? 'snake' : 'classic';
+          }
+          
           state = {
             teams: savedState.teams || [],
             players: savedState.players || [],
-            snakeDraft: savedState.snakeDraft || false,
+            draftType: draftType,
             currentTurn: savedState.currentTurn || 0,
             draftOrder: savedState.draftOrder || [],
             editingTeam: null,
@@ -2038,8 +2048,7 @@ const DraftManager = (() => {
               .join(', ');
           }
 
-          // Restore snake draft checkbox
-          document.getElementById('snakeDraft').checked = state.snakeDraft;
+          // Restore draft type dropdown (will be handled by init function)
 
           // Update draft order list if draft has started
           if (state.draftOrder.length > 0) {
@@ -2074,44 +2083,53 @@ const DraftManager = (() => {
         }
       }
       
-      // Add snake draft switch listener
-      const snakeDraftSwitch = document.getElementById('snakeDraft');
+      // Add draft type dropdown listener
+      const draftTypeSelect = document.getElementById('draftTypeSelect');
       const typeText = document.getElementById('draftTypeText');
       const description = document.getElementById('draftDescription');
 
-      // Set initial text based on saved state
-      if (state.snakeDraft) {
-        typeText.textContent = 'Snake Draft';
-        description.textContent = 'A→B→C, C→B→A';
-        snakeDraftSwitch.checked = true;  // Ensure switch is ON for snake draft
-      } else {
-        typeText.textContent = 'Classic Draft';
-        description.textContent = 'A→B→C, A→B→C';
-        snakeDraftSwitch.checked = false;  // Ensure switch is OFF for classic draft
+      // Helper function to update UI based on draft type
+      function updateDraftTypeUI(draftType) {
+        switch(draftType) {
+          case 'snake':
+            typeText.textContent = 'Snake Draft';
+            description.textContent = 'A→B→C, C→B→A';
+            break;
+          case 'roundRobin':
+            typeText.textContent = 'Round Robin Draft';
+            description.textContent = 'A→B→C, B→C→D, C→D→A...';
+            break;
+          case 'classic':
+          default:
+            typeText.textContent = 'Classic Draft';
+            description.textContent = 'A→B→C, A→B→C';
+            break;
+        }
+        if (draftTypeSelect) {
+          draftTypeSelect.value = draftType;
+        }
       }
 
-      // Update the snake draft switch listener
+      // Set initial UI based on saved state
+      updateDraftTypeUI(state.draftType || 'classic');
+
+      // Update the draft type dropdown listener
       const self = this; // Capture 'this' reference
-      snakeDraftSwitch.addEventListener('change', function(e) {
-        if (e.target.checked) {
-          typeText.textContent = 'Snake Draft';
-          description.textContent = 'A→B→C, C→B→A';
-        } else {
-          typeText.textContent = 'Classic Draft';
-          description.textContent = 'A→B→C, A→B→C';
-        }
-        
-        // Update state and draft order
-        state.snakeDraft = e.target.checked;
-        
-        // Update draft order if draft has started
-        if (state.draftOrder.length > 0) {
-          state.draftOrder = self.generateDraftOrder();
-        }
-        
-        save();
-        render();
-      });
+      if (draftTypeSelect) {
+        draftTypeSelect.addEventListener('change', function(e) {
+          const newDraftType = e.target.value;
+          state.draftType = newDraftType;
+          updateDraftTypeUI(newDraftType);
+          
+          // Update draft order if draft has started
+          if (state.draftOrder.length > 0) {
+            state.draftOrder = self.generateDraftOrder();
+          }
+          
+          save();
+          render();
+        });
+      }
       
       // Call updateDraftOrderText after a short delay to ensure DOM is ready
       setTimeout(updateDraftOrderText, 100);
@@ -2167,7 +2185,7 @@ const DraftManager = (() => {
       state = {
         teams: [],
         players: [],
-        snakeDraft: false,
+        draftType: 'classic',
         currentTurn: 0,
         draftOrder: [],
         editingTeam: null,
@@ -2178,7 +2196,8 @@ const DraftManager = (() => {
       document.getElementById('players').value = '';
       document.getElementById('teamName').value = '';
       document.getElementById('captain').value = '';
-      document.getElementById('snakeDraft').checked = false;
+      const draftTypeSelect = document.getElementById('draftTypeSelect');
+      if (draftTypeSelect) draftTypeSelect.value = 'classic';
       document.getElementById('teamColor').value = '#ffffff';
 
       // Clear the players input container
@@ -2350,10 +2369,10 @@ const DraftManager = (() => {
         players: [] // Clear all team players when starting a new draft
       }));
       
-      // Make sure snake draft state is properly set
-      const snakeDraftCheckbox = document.getElementById('snakeDraft');
-      if (snakeDraftCheckbox) {
-        state.snakeDraft = snakeDraftCheckbox.checked;
+      // Make sure draft type state is properly set
+      const draftTypeSelect = document.getElementById('draftTypeSelect');
+      if (draftTypeSelect) {
+        state.draftType = draftTypeSelect.value || 'classic';
       }
       state.currentTurn = 0;
       state.draftOrder = this.generateDraftOrder();
@@ -2391,12 +2410,22 @@ const DraftManager = (() => {
       
       const rounds = Math.ceil(state.players.length / state.teams.length);
       let order = [];
+      const draftType = state.draftType || 'classic';
 
       for (let i = 0; i < rounds; i++) {
-        const round = [...state.teams];
-        if (state.snakeDraft && i % 2 === 1) {
+        let round = [...state.teams];
+        
+        if (draftType === 'snake' && i % 2 === 1) {
+          // Snake draft: reverse order on odd rounds
           round.reverse();
+        } else if (draftType === 'roundRobin') {
+          // Round robin: rotate teams by (i % teams.length) positions
+          // Round 0: [A,B,C,D], Round 1: [B,C,D,A], Round 2: [C,D,A,B], Round 3: [D,A,B,C]
+          const rotation = i % state.teams.length;
+          round = [...state.teams.slice(rotation), ...state.teams.slice(0, rotation)];
         }
+        // Classic draft: no modification needed, teams stay in original order
+        
         order = order.concat(round);
       }
       return order;
@@ -2440,7 +2469,7 @@ const DraftManager = (() => {
         state = {
             teams: [],
             players: [],
-            snakeDraft: false,
+            draftType: 'classic',
             currentTurn: 0,
             draftOrder: [],
             editingTeam: null,
@@ -2448,8 +2477,9 @@ const DraftManager = (() => {
             playerImages: {}
         };
 
-        // Reset snake draft switch
-        document.getElementById('snakeDraft').checked = false;
+        // Reset draft type dropdown
+        const draftTypeSelectReset = document.getElementById('draftTypeSelect');
+        if (draftTypeSelectReset) draftTypeSelectReset.value = 'classic';
         
         // Clear the teams list
         const teamsList = document.querySelector('.teams-list');
@@ -2499,9 +2529,11 @@ const DraftManager = (() => {
         document.querySelector('.draft-controls').style.display = 'block';
         document.getElementById('currentTurn').style.display = 'block';
 
-        // Reset draft type text
+        // Reset draft type dropdown and text
+        const draftTypeSelectReset2 = document.getElementById('draftTypeSelect');
         const typeText = document.getElementById('draftTypeText');
         const description = document.getElementById('draftDescription');
+        if (draftTypeSelectReset2) draftTypeSelectReset2.value = 'classic';
         if (typeText) typeText.textContent = 'Classic Draft';
         if (description) description.textContent = 'A→B→C, A→B→C';
 
@@ -2794,7 +2826,7 @@ const DraftManager = (() => {
       state = {
         teams: [],
         players: [],
-        snakeDraft: true,
+        draftType: 'snake',
         currentTurn: 0,
         draftOrder: [],
         editingTeam: null,
@@ -2885,12 +2917,12 @@ const DraftManager = (() => {
         });
       });
       
-      // Update snake draft switch and text
-      const snakeDraftSwitch = document.getElementById('snakeDraft');
+      // Update draft type dropdown and text
+      const draftTypeSelect = document.getElementById('draftTypeSelect');
       const typeText = document.getElementById('draftTypeText');
       const description = document.getElementById('draftDescription');
       
-      snakeDraftSwitch.checked = true;
+      if (draftTypeSelect) draftTypeSelect.value = 'snake';
       typeText.textContent = 'Snake Draft';
       description.textContent = 'A→B→C, C→B→A';
 
@@ -3482,11 +3514,11 @@ const OnboardingManager = (() => {
         }
       }
       
-      // Special handling for switch/draft type
-      if (!element && (trimmedSel.includes('switch') || trimmedSel.includes('snakeDraft'))) {
+      // Special handling for draft type selector
+      if (!element && (trimmedSel.includes('switch') || trimmedSel.includes('draftType') || trimmedSel.includes('snakeDraft'))) {
         element = document.querySelector('.switch-wrapper');
         if (!element) {
-          element = document.getElementById('snakeDraft');
+          element = document.getElementById('draftTypeSelect');
         }
         if (!element) {
           element = document.querySelector('.draft-controls');

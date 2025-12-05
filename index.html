@@ -130,6 +130,7 @@
                     <div class="draft-types">
                         <div class="draft-type">🔄 Classic: A→B→C, A→B→C</div>
                         <div class="draft-type">⚡ Snake: A→B→C, C→B→A</div>
+                        <div class="draft-type">🔄 Round Robin: A→B→C, B→C→D, C→D→A...</div>
                     </div>
                 </div>
             </div>
@@ -178,10 +179,11 @@
 
             <div class="draft-controls">
                 <div class="switch-wrapper">
-                    <label class="switch">
-                        <input type="checkbox" id="snakeDraft">
-                        <span class="slider"></span>
-                    </label>
+                    <select id="draftTypeSelect" style="padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; background: white; cursor: pointer; min-width: 200px;">
+                        <option value="classic">🔄 Classic Draft (A→B→C, A→B→C)</option>
+                        <option value="snake">⚡ Snake Draft (A→B→C, C→B→A)</option>
+                        <option value="roundRobin">🔄 Round Robin (A→B→C, B→C→D, C→D→A...)</option>
+                    </select>
                     <div class="draft-type-label">
                         <span class="current-type" id="draftTypeText">Classic Draft</span>
                         <span class="description" id="draftDescription">A→B→C, A→B→C</span>
